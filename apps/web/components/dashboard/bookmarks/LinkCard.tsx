@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useUserSettings } from "@/lib/userSettings";
+import { cn } from "@/lib/utils";
 
 import type { ZBookmarkTypeLink } from "@karakeep/shared/types/bookmarks";
 import {
@@ -49,15 +50,30 @@ function LinkImage({
   const { onClickUrl, urlTarget } = useOnClickUrl(bookmark);
   const link = bookmark.content;
 
-  const imgComponent = (url: string, unoptimized: boolean) => (
-    <Image
-      unoptimized={unoptimized}
-      className={className}
-      alt="card banner"
-      fill={true}
-      src={url}
-    />
-  );
+  const imgComponent = (url: string, unoptimized: boolean) => {
+    const hasExplicitHeight =
+      !!className && /(h-|min-h-|size-)/.test(className);
+    if (hasExplicitHeight) {
+      return (
+        <Image
+          unoptimized={unoptimized}
+          className={className}
+          alt="card banner"
+          fill={true}
+          src={url}
+        />
+      );
+    }
+    // For masonry layout we prefer a normal img so the element can determine its
+    // intrinsic height and the card can grow dynamically.
+    return (
+      <img
+        className={cn(className ?? "", "h-auto w-full object-cover")}
+        alt="card banner"
+        src={url}
+      />
+    );
+  };
 
   const imageDetails = getBookmarkLinkImageUrl(link);
 
