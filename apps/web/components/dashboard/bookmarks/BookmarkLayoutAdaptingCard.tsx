@@ -37,20 +37,28 @@ function BottomRow({
   footer?: React.ReactNode;
   bookmark: ZBookmark;
 }) {
-  return (
-    <div className="justify flex w-full shrink-0 justify-between text-gray-500">
-      <div className="flex items-center gap-2 overflow-hidden text-nowrap font-light">
-        {footer && <>{footer}•</>}
-        <Link
-          href={`/dashboard/preview/${bookmark.id}`}
-          suppressHydrationWarning
-        >
-          <BookmarkFormattedCreatedAt createdAt={bookmark.createdAt} />
-        </Link>
+  // Only render bottom action bar for text (notes) cards. For image cards
+  // (LINK / ASSET) the action buttons are shown over the image (top-right).
+  if (bookmark.content.type === BookmarkTypes.TEXT) {
+    return (
+      <div className="justify flex w-full shrink-0 justify-between text-gray-500">
+        <div className="flex items-center gap-2 overflow-hidden text-nowrap font-light">
+          {footer && <>{footer}•</>}
+          <Link
+            href={`/dashboard/preview/${bookmark.id}`}
+            suppressHydrationWarning
+          >
+            <BookmarkFormattedCreatedAt createdAt={bookmark.createdAt} />
+          </Link>
+        </div>
+        <BookmarkActionBar bookmark={bookmark} />
       </div>
-      <BookmarkActionBar bookmark={bookmark} />
-    </div>
-  );
+    );
+  }
+
+  // For other types (images/links) render an empty bottom row — actions live
+  // on top of the image instead.
+  return <div className="h-0 w-full shrink-0" />;
 }
 
 function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
@@ -120,13 +128,24 @@ function ListView({
       )}
     >
       <MultiBookmarkSelector bookmark={bookmark} />
-      <div className="flex size-32 items-center justify-center overflow-hidden">
+      {/* Image wrapper — make relative so we can position action buttons over the image
+          and show a border (via ring) around the image when the parent card is hovered.
+       */}
+      <div className="relative flex size-32 items-center justify-center overflow-hidden transition-all group-hover:ring-1 group-hover:ring-border">
         {image("list", "object-cover rounded-lg size-32")}
+        {/* Show action buttons over image for non-text bookmarks (top-right) */}
+        {bookmark.content.type !== BookmarkTypes.TEXT && (
+          <div className="absolute right-2 top-2 z-40">
+            <BookmarkActionBar bookmark={bookmark} />
+          </div>
+        )}
       </div>
-      <div className="flex h-full flex-1 flex-col justify-between gap-2 overflow-hidden">
+      {/* Reduce vertical gap between content and action buttons */}
+      <div className="flex h-full flex-1 flex-col justify-between gap-1 overflow-hidden">
         <div className="flex flex-col gap-2 overflow-hidden">
           {title && (
-            <div className="line-clamp-2 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-lg">
+            // Title: limit to a single line to avoid multi-row titles
+            <div className="line-clamp-1 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-center text-sm">
               {title}
             </div>
           )}
@@ -151,14 +170,14 @@ function GridView({
   content,
   footer,
   className,
-  wrapTags,
+  wrapTags: _wrapTags,
   layout,
   fitHeight = false,
 }: Props & { layout: BookmarksLayoutTypes }) {
   const imgClass =
     layout === "masonry"
-      ? "w-full object-cover rounded-t-lg"
-      : "h-56 min-h-56 w-full object-cover rounded-t-lg";
+      ? "w-full object-cover rounded-b-lg"
+      : "h-56 min-h-56 w-full object-cover rounded-b-lg";
 
   const img = image(layout, imgClass);
 
@@ -179,31 +198,37 @@ function GridView({
     >
       <MultiBookmarkSelector bookmark={bookmark} />
       {img && (
+        // Image container made relative so overlay (action buttons) can be
+        // positioned at the top-right of the image for non-text bookmarks.
+        // Also add `group-hover:ring` so hovering the parent card highlights
+        // only the image area (no card-level hover effects).
         <div
           className={cn(
             layout === "masonry"
-              ? "w-full shrink-0 overflow-hidden"
-              : "h-56 w-full shrink-0 overflow-hidden",
+              ? "relative w-full shrink-0 overflow-hidden rounded-b-lg transition-all group-hover:ring-1 group-hover:ring-border"
+              : "relative h-56 w-full shrink-0 overflow-hidden rounded-b-lg transition-all group-hover:ring-1 group-hover:ring-border",
           )}
         >
           {img}
+          {bookmark.content.type !== BookmarkTypes.TEXT && (
+            <div className="absolute right-2 top-2 z-40">
+              <BookmarkActionBar bookmark={bookmark} />
+            </div>
+          )}
         </div>
       )}
-      <div className="flex h-full flex-col justify-between gap-2 overflow-hidden p-2">
+      {/* Reduce vertical gap between content and action buttons */}
+      <div className="flex h-full flex-col justify-between gap-1 overflow-hidden p-2">
         <div className="grow-1 flex flex-col gap-2 overflow-hidden">
           {title && (
-            <div className="line-clamp-2 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-lg">
+            // Title: limit to a single line to avoid multi-row titles
+            <div className="line-clamp-1 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-center text-sm">
               {title}
             </div>
           )}
           {content && <div className="shrink-1 overflow-hidden">{content}</div>}
-          <div className="flex shrink-0 flex-wrap gap-1 overflow-hidden">
-            <TagList
-              className={wrapTags ? undefined : "h-full"}
-              bookmark={bookmark}
-              loading={isBookmarkStillTagging(bookmark)}
-            />
-          </div>
+          {/* Tags hidden for masonry/grid cards as requested */}
+          {/* TagList intentionally removed to keep card footer minimal */}
         </div>
         <BottomRow footer={footer} bookmark={bookmark} />
       </div>
@@ -241,7 +266,7 @@ function CompactView({ bookmark, title, footer, className }: Props) {
             <ImageIcon className="size-5" />
           )}
           {
-            <div className="shrink-1 text-md line-clamp-1 overflow-hidden text-ellipsis break-words">
+            <div className="shrink-1 text-md line-clamp-1 overflow-hidden text-ellipsis break-words text-center">
               {title ?? "Untitled"}
             </div>
           }

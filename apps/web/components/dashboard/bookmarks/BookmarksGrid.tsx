@@ -8,6 +8,7 @@ import {
   useBookmarkLayout,
   useGridColumns,
 } from "@/lib/userLocalSettings/bookmarksLayout";
+import { cn } from "@/lib/utils";
 import tailwindConfig from "@/tailwind.config";
 import { Slot } from "@radix-ui/react-slot";
 import { ErrorBoundary } from "react-error-boundary";
@@ -16,15 +17,36 @@ import Masonry from "react-masonry-css";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 import type { ZBookmark } from "@karakeep/shared/types/bookmarks";
-import { useBookmarkListContext } from "@karakeep/shared-react/hooks/bookmark-list-context";
+import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 
 import BookmarkCard from "./BookmarkCard";
 import EditorCard from "./EditorCard";
 import UnknownCard from "./UnknownCard";
 
-function StyledBookmarkCard({ children }: { children: React.ReactNode }) {
+// Wrapper for each bookmark tile. We allow passing a `className` so callers
+// can opt-in to a background (we keep the background only for text/note cards).
+function StyledBookmarkCard({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  // If the caller provided `bg-card` we keep the border, otherwise remove it
+  // so non-text cards render without border/background as requested.
+  const includeBorder = !!className && className.includes("bg-card");
+
+  // Use "group" so inner elements (image wrapper) can react to hover via
+  // `group-hover:*`. Remove card-level hover shadow – hover should only
+  // display a border around the image.
   return (
-    <Slot className="mb-4 border border-border bg-card duration-300 ease-in hover:shadow-lg hover:transition-all">
+    <Slot
+      className={cn(
+        "group mb-4 transition-all duration-300 ease-in",
+        includeBorder ? "border border-border" : undefined,
+        className,
+      )}
+    >
       {children}
     </Slot>
   );
@@ -65,7 +87,6 @@ export default function BookmarksGrid({
   const gridColumns = useGridColumns();
   const bulkActionsStore = useBulkActionsStore();
   const inBookmarkGrid = useInBookmarkGridStore();
-  const withinListContext = useBookmarkListContext();
   const breakpointConfig = useMemo(
     () => getBreakpointConfig(gridColumns),
     [gridColumns],
@@ -74,13 +95,10 @@ export default function BookmarksGrid({
 
   useEffect(() => {
     bulkActionsStore.setVisibleBookmarks(bookmarks);
-    bulkActionsStore.setListContext(withinListContext);
-
     return () => {
       bulkActionsStore.setVisibleBookmarks([]);
-      bulkActionsStore.setListContext(undefined);
     };
-  }, [bookmarks, withinListContext?.id]);
+  }, [bookmarks]);
 
   useEffect(() => {
     inBookmarkGrid.setInBookmarkGrid(true);
@@ -101,13 +119,22 @@ export default function BookmarksGrid({
 
   const children = [
     showEditorCard && (
+      // Editor card should not have the note background by default
       <StyledBookmarkCard key={"editor"}>
         <EditorCard />
       </StyledBookmarkCard>
     ),
     ...bookmarks.map((b) => (
       <ErrorBoundary key={b.id} fallback={<UnknownCard bookmark={b} />}>
-        <StyledBookmarkCard>
+        {/*
+          Keep background only for Text (notes) cards. Other card types render
+          without the `bg-card` background.
+        */}
+        <StyledBookmarkCard
+          className={
+            b.content.type === BookmarkTypes.TEXT ? "bg-card" : undefined
+          }
+        >
           <BookmarkCard bookmark={b} />
         </StyledBookmarkCard>
       </ErrorBoundary>
@@ -117,20 +144,12 @@ export default function BookmarksGrid({
     <>
       {bookmarkLayoutSwitch(layout, {
         masonry: (
-          <Masonry
-            className="-ml-4 flex w-auto"
-            columnClassName="pl-4"
-            breakpointCols={breakpointConfig}
-          >
+          <Masonry className="flex gap-4" breakpointCols={breakpointConfig}>
             {children}
           </Masonry>
         ),
         grid: (
-          <Masonry
-            className="-ml-4 flex w-auto"
-            columnClassName="pl-4"
-            breakpointCols={breakpointConfig}
-          >
+          <Masonry className="flex gap-4" breakpointCols={breakpointConfig}>
             {children}
           </Masonry>
         ),
