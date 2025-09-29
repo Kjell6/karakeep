@@ -80,6 +80,8 @@ function LinkImage({
   let img: React.ReactNode;
   if (isBookmarkStillCrawling(bookmark)) {
     img = imgComponent("/blur.avif", false);
+    // Use the GIF placed in public folder for crawling state
+    img = imgComponent("/blur.gif", false);
   } else if (imageDetails) {
     img = imgComponent(imageDetails.url, !imageDetails.localAsset);
   } else {
