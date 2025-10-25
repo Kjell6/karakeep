@@ -314,6 +314,33 @@
       "loading_usage": "Loading usage information...",
       "free": "Free",
       "paid": "Paid"
+    },
+    "import_sessions": {
+      "title": "Import Sessions",
+      "description": "View and manage your bulk import sessions. Sessions are automatically created when you import bookmarks.",
+      "load_error": "Failed to load import sessions",
+      "no_sessions": "No import sessions yet",
+      "no_sessions_detail": "Import sessions will appear here automatically when you import bookmarks",
+      "created_at": "Created {{time}}",
+      "progress": "Progress",
+      "status": {
+        "pending": "Pending",
+        "in_progress": "In progress",
+        "completed": "Completed",
+        "failed": "Failed",
+        "processing": "Processing"
+      },
+      "badges": {
+        "pending": "{{count}} pending",
+        "processing": "{{count}} processing",
+        "completed": "{{count}} completed",
+        "failed": "{{count}} failed"
+      },
+      "imported_to": "Imported to:",
+      "view_list": "View List",
+      "delete_dialog_title": "Delete Import Session",
+      "delete_dialog_description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone. The bookmarks themselves will not be deleted.",
+      "delete_session": "Delete Session"
     }
   },
   "admin": {
@@ -323,6 +350,18 @@
       "total_users": "Total Users",
       "total_bookmarks": "Total Bookmarks",
       "server_version": "Server Version"
+    },
+    "service_connections": {
+      "title": "Service Connections",
+      "description": "Monitor the health and connectivity of external system dependencies",
+      "search_engine": "Search Engine",
+      "browser": "Browser",
+      "queue_system": "Queue System",
+      "status": {
+        "not_configured": "Not Configured",
+        "connected": "Connected",
+        "disconnected": "Disconnected"
+      }
     },
     "background_jobs": {
       "jobs": {

@@ -65,6 +65,7 @@ const allEnv = z.object({
   EMBEDDING_TEXT_MODEL: z.string().default("text-embedding-3-small"),
   INFERENCE_CONTEXT_LENGTH: z.coerce.number().default(2048),
   INFERENCE_MAX_OUTPUT_TOKENS: z.coerce.number().default(2048),
+  INFERENCE_USE_MAX_COMPLETION_TOKENS: stringBool("false"),
   INFERENCE_SUPPORTS_STRUCTURED_OUTPUT: optionalStringBool(),
   INFERENCE_OUTPUT_SCHEMA: z
     .enum(["structured", "json", "plain"])
@@ -158,8 +159,24 @@ const allEnv = z.object({
   PAID_BROWSER_CRAWLING_ENABLED: optionalStringBool(),
 
   // Proxy configuration
-  CRAWLER_HTTP_PROXY: z.string().optional(),
-  CRAWLER_HTTPS_PROXY: z.string().optional(),
+  CRAWLER_HTTP_PROXY: z
+    .string()
+    .transform((val) =>
+      val
+        .split(",")
+        .map((p) => p.trim())
+        .filter((p) => p),
+    )
+    .optional(),
+  CRAWLER_HTTPS_PROXY: z
+    .string()
+    .transform((val) =>
+      val
+        .split(",")
+        .map((p) => p.trim())
+        .filter((p) => p),
+    )
+    .optional(),
   CRAWLER_NO_PROXY: z.string().optional(),
 
   // Database configuration
@@ -225,6 +242,7 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
       inferredTagLang: val.INFERENCE_LANG,
       contextLength: val.INFERENCE_CONTEXT_LENGTH,
       maxOutputTokens: val.INFERENCE_MAX_OUTPUT_TOKENS,
+      useMaxCompletionTokens: val.INFERENCE_USE_MAX_COMPLETION_TOKENS,
       outputSchema:
         val.INFERENCE_SUPPORTS_STRUCTURED_OUTPUT !== undefined
           ? val.INFERENCE_SUPPORTS_STRUCTURED_OUTPUT
