@@ -8,8 +8,12 @@ import { loadAllPlugins } from ".";
 await loadAllPlugins();
 const QUEUE_CLIENT = await getQueueClient();
 
-export function runQueueDBMigrations() {
-  QUEUE_CLIENT.init();
+export async function prepareQueue() {
+  await QUEUE_CLIENT.prepare();
+}
+
+export async function startQueue() {
+  await QUEUE_CLIENT.start();
 }
 
 // Link Crawler
@@ -81,14 +85,18 @@ export const TidyAssetsQueue = QUEUE_CLIENT.createQueue<ZTidyAssetsRequest>(
 
 export async function triggerSearchReindex(
   bookmarkId: string,
-  opts?: EnqueueOptions,
+  opts?: Omit<EnqueueOptions, "idempotencyKey">,
 ) {
   await SearchIndexingQueue.enqueue(
     {
       bookmarkId,
       type: "index",
     },
-    opts,
+    {
+      ...opts,
+      // BUG: restate idempotency is also against completed jobs. Disabling it for now
+      //idempotencyKey: `index:${bookmarkId}`,
+    },
   );
 }
 
