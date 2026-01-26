@@ -1,9 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
-import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 
-import { assets } from "@karakeep/db/schema";
+import { Asset } from "@karakeep/trpc/models/assets";
 
 import { authMiddleware } from "../middlewares/auth";
 import { serveAsset } from "../utils/assets";
@@ -35,14 +34,11 @@ const app = new Hono()
   )
   .get("/:assetId", async (c) => {
     const assetId = c.req.param("assetId");
-    const assetDb = await c.var.ctx.db.query.assets.findFirst({
-      where: and(eq(assets.id, assetId), eq(assets.userId, c.var.ctx.user.id)),
-    });
 
-    if (!assetDb) {
-      return c.json({ error: "Asset not found" }, { status: 404 });
-    }
-    return await serveAsset(c, assetId, c.var.ctx.user.id);
+    const asset = await Asset.fromId(c.var.ctx, assetId);
+    await asset.ensureCanView();
+
+    return await serveAsset(c, assetId, asset.asset.userId);
   });
 
 export default app;

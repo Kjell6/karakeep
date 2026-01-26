@@ -1,12 +1,11 @@
 import React from "react";
-import { Platform, View } from "react-native";
+import { Platform, ScrollView, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import { Button } from "@/components/ui/Button";
 import CustomSafeAreaView from "@/components/ui/CustomSafeAreaView";
-import { Input } from "@/components/ui/Input";
 import { Text } from "@/components/ui/Text";
 import useAppSettings from "@/lib/settings";
-import { cn } from "@/lib/utils";
+import { buildApiHeaders, cn } from "@/lib/utils";
 import { z } from "zod";
 
 export default function TestConnection() {
@@ -70,6 +69,10 @@ export default function TestConnection() {
 
       appendText("Using address: " + settings.address);
       request.open("GET", `${settings.address}/api/health`);
+      const headers = buildApiHeaders(settings.apiKey, settings.customHeaders);
+      Object.entries(headers).forEach(([key, value]) => {
+        request.setRequestHeader(key, value);
+      });
       request.send();
     }
     runTest();
@@ -77,7 +80,7 @@ export default function TestConnection() {
 
   return (
     <CustomSafeAreaView>
-      <View className="m-4 flex flex-col gap-2 p-2">
+      <View className="m-4 flex flex-1 flex-col gap-2 p-2">
         <Button
           className="w-full"
           onPress={async () => {
@@ -117,17 +120,15 @@ export default function TestConnection() {
             {status === "error" && "Connection test failed"}
           </Text>
         </View>
-        <Input
-          className="h-fit leading-6"
-          style={{
-            fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
-          }}
-          multiline={true}
-          scrollEnabled={true}
-          value={text}
-          onChangeText={setText}
-          editable={false}
-        />
+        <ScrollView className="border-1 border-md h-64 flex-1 border-border bg-input p-2 leading-6">
+          <Text
+            style={{
+              fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
+            }}
+          >
+            {text}
+          </Text>
+        </ScrollView>
       </View>
     </CustomSafeAreaView>
   );

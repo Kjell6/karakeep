@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { zCursorV2 } from "./pagination";
-import { zBookmarkTagSchema } from "./tags";
+import { zAttachedByEnumSchema, zBookmarkTagSchema } from "./tags";
 
 export const MAX_BOOKMARK_TITLE_LENGTH = 1000;
 
@@ -18,12 +18,15 @@ export type ZSortOrder = z.infer<typeof zSortOrder>;
 export const zAssetTypesSchema = z.enum([
   "linkHtmlContent",
   "screenshot",
+  "pdf",
   "assetScreenshot",
   "bannerImage",
   "fullPageArchive",
   "video",
   "bookmarkAsset",
   "precrawledArchive",
+  "userUploaded",
+  "avatar",
   "unknown",
 ]);
 export type ZAssetType = z.infer<typeof zAssetTypesSchema>;
@@ -31,6 +34,7 @@ export type ZAssetType = z.infer<typeof zAssetTypesSchema>;
 export const zAssetSchema = z.object({
   id: z.string(),
   assetType: zAssetTypesSchema,
+  fileName: z.string().nullish(),
 });
 
 export const zBookmarkedLinkSchema = z.object({
@@ -41,6 +45,7 @@ export const zBookmarkedLinkSchema = z.object({
   imageUrl: z.string().nullish(),
   imageAssetId: z.string().nullish(),
   screenshotAssetId: z.string().nullish(),
+  pdfAssetId: z.string().nullish(),
   fullPageArchiveAssetId: z.string().nullish(),
   precrawledArchiveAssetId: z.string().nullish(),
   videoAssetId: z.string().nullish(),
@@ -48,6 +53,7 @@ export const zBookmarkedLinkSchema = z.object({
   htmlContent: z.string().nullish(),
   contentAssetId: z.string().nullish(),
   crawledAt: z.date().nullish(),
+  crawlStatus: z.enum(["success", "failure", "pending"]).nullish(),
   author: z.string().nullish(),
   publisher: z.string().nullish(),
   datePublished: z.date().nullish(),
@@ -105,7 +111,10 @@ export const zBareBookmarkSchema = z.object({
   note: z.string().nullish(),
   summary: z.string().nullish(),
   source: zBookmarkSourceSchema.nullish(),
+  userId: z.string(),
 });
+
+export type ZBareBookmark = z.infer<typeof zBareBookmarkSchema>;
 
 export const zBookmarkSchema = zBareBookmarkSchema.merge(
   z.object({
@@ -243,6 +252,7 @@ export const zManipulatedTagSchema = z
     // At least one of the two must be set
     tagId: z.string().optional(), // If the tag already exists and we know its id we should pass it
     tagName: z.string().optional(),
+    attachedBy: zAttachedByEnumSchema.optional().default("human"),
   })
   .refine((val) => !!val.tagId || !!val.tagName, {
     message: "You must provide either a tagId or a tagName",

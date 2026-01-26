@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/Input";
 import { Text } from "@/components/ui/Text";
 import useAppSettings from "@/lib/settings";
 import { api } from "@/lib/trpc";
-import { Bug, Check, Edit3 } from "lucide-react-native";
+import { Bug, Edit3 } from "lucide-react-native";
 
 enum LoginType {
   Password,
@@ -27,10 +27,6 @@ export default function Signin() {
 
   const [error, setError] = useState<string | undefined>();
   const [loginType, setLoginType] = useState<LoginType>(LoginType.Password);
-  const [isEditingServerAddress, setIsEditingServerAddress] = useState(false);
-  const [tempServerAddress, setTempServerAddress] = useState(
-    "https://cloud.karakeep.app",
-  );
 
   const emailRef = useRef<string>("");
   const passwordRef = useRef<string>("");
@@ -80,14 +76,14 @@ export default function Signin() {
   }
 
   const onSignin = () => {
-    if (!tempServerAddress) {
+    if (!settings.address) {
       setError("Server address is required");
       return;
     }
 
     if (
-      !tempServerAddress.startsWith("http://") &&
-      !tempServerAddress.startsWith("https://")
+      !settings.address.startsWith("http://") &&
+      !settings.address.startsWith("https://")
     ) {
       setError("Server address must start with http:// or https://");
       return;
@@ -130,60 +126,23 @@ export default function Signin() {
           )}
           <View className="gap-2">
             <Text className="font-bold">Server Address</Text>
-            {!isEditingServerAddress ? (
-              <View className="flex-row items-center gap-2">
-                <View className="flex-1 rounded-md border border-border bg-card px-3 py-2">
-                  <Text>{tempServerAddress}</Text>
-                </View>
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  onPress={() => {
-                    setIsEditingServerAddress(true);
-                  }}
-                >
-                  <TailwindResolver
-                    comp={(styles) => (
-                      <Edit3 size={16} color={styles?.color?.toString()} />
-                    )}
-                    className="color-foreground"
-                  />
-                </Button>
+            <View className="flex-row items-center gap-2">
+              <View className="flex-1 rounded-md border border-border bg-card px-3 py-2">
+                <Text>{settings.address ?? "https://cloud.karakeep.app"}</Text>
               </View>
-            ) : (
-              <View className="flex-row items-center gap-2">
-                <Input
-                  className="flex-1"
-                  inputClasses="bg-card"
-                  placeholder="Server Address"
-                  value={tempServerAddress}
-                  autoCapitalize="none"
-                  keyboardType="url"
-                  onChangeText={setTempServerAddress}
-                  autoFocus
+              <Button
+                size="icon"
+                variant="secondary"
+                onPress={() => router.push("/server-address")}
+              >
+                <TailwindResolver
+                  comp={(styles) => (
+                    <Edit3 size={16} color={styles?.color?.toString()} />
+                  )}
+                  className="color-foreground"
                 />
-                <Button
-                  size="icon"
-                  variant="primary"
-                  onPress={() => {
-                    if (tempServerAddress.trim()) {
-                      setSettings({
-                        ...settings,
-                        address: tempServerAddress.trim().replace(/\/$/, ""),
-                      });
-                    }
-                    setIsEditingServerAddress(false);
-                  }}
-                >
-                  <TailwindResolver
-                    comp={(styles) => (
-                      <Check size={16} color={styles?.color?.toString()} />
-                    )}
-                    className="text-white"
-                  />
-                </Button>
-              </View>
-            )}
+              </Button>
+            </View>
           </View>
           {loginType === LoginType.Password && (
             <>

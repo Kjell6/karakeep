@@ -1,6 +1,6 @@
 import MarkdownEditor from "@/components/ui/markdown/markdown-editor";
 import { MarkdownReadonly } from "@/components/ui/markdown/markdown-readonly";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/sonner";
 
 import { useUpdateBookmark } from "@karakeep/shared-react/hooks/bookmarks";
 
@@ -33,10 +33,13 @@ export function BookmarkMarkdownComponent({
       text,
     });
   };
+
   return (
     <div className="h-full">
       {readOnly ? (
-        <MarkdownReadonly>{bookmark.content.text}</MarkdownReadonly>
+        <MarkdownReadonly onSave={onSave}>
+          {bookmark.content.text}
+        </MarkdownReadonly>
       ) : (
         <MarkdownEditor onSave={onSave} isSaving={isPending}>
           {bookmark.content.text}

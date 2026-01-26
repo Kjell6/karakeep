@@ -9,6 +9,7 @@ import {
 export function mapDBAssetTypeToUserType(assetType: AssetTypes): ZAssetType {
   const map: Record<AssetTypes, z.infer<typeof zAssetTypesSchema>> = {
     [AssetTypes.LINK_SCREENSHOT]: "screenshot",
+    [AssetTypes.LINK_PDF]: "pdf",
     [AssetTypes.ASSET_SCREENSHOT]: "assetScreenshot",
     [AssetTypes.LINK_FULL_PAGE_ARCHIVE]: "fullPageArchive",
     [AssetTypes.LINK_PRECRAWLED_ARCHIVE]: "precrawledArchive",
@@ -16,6 +17,9 @@ export function mapDBAssetTypeToUserType(assetType: AssetTypes): ZAssetType {
     [AssetTypes.LINK_VIDEO]: "video",
     [AssetTypes.LINK_HTML_CONTENT]: "linkHtmlContent",
     [AssetTypes.BOOKMARK_ASSET]: "bookmarkAsset",
+    [AssetTypes.USER_UPLOADED]: "userUploaded",
+    [AssetTypes.AVATAR]: "avatar",
+    [AssetTypes.BACKUP]: "unknown", // Backups are not displayed as regular assets
     [AssetTypes.UNKNOWN]: "bannerImage",
   };
   return map[assetType];
@@ -26,6 +30,7 @@ export function mapSchemaAssetTypeToDB(
 ): AssetTypes {
   const map: Record<ZAssetType, AssetTypes> = {
     screenshot: AssetTypes.LINK_SCREENSHOT,
+    pdf: AssetTypes.LINK_PDF,
     assetScreenshot: AssetTypes.ASSET_SCREENSHOT,
     fullPageArchive: AssetTypes.LINK_FULL_PAGE_ARCHIVE,
     precrawledArchive: AssetTypes.LINK_PRECRAWLED_ARCHIVE,
@@ -33,6 +38,8 @@ export function mapSchemaAssetTypeToDB(
     video: AssetTypes.LINK_VIDEO,
     bookmarkAsset: AssetTypes.BOOKMARK_ASSET,
     linkHtmlContent: AssetTypes.LINK_HTML_CONTENT,
+    userUploaded: AssetTypes.USER_UPLOADED,
+    avatar: AssetTypes.AVATAR,
     unknown: AssetTypes.UNKNOWN,
   };
   return map[assetType];
@@ -41,6 +48,7 @@ export function mapSchemaAssetTypeToDB(
 export function humanFriendlyNameForAssertType(type: ZAssetType) {
   const map: Record<ZAssetType, string> = {
     screenshot: "Screenshot",
+    pdf: "PDF",
     assetScreenshot: "Asset Screenshot",
     fullPageArchive: "Full Page Archive",
     precrawledArchive: "Precrawled Archive",
@@ -48,6 +56,8 @@ export function humanFriendlyNameForAssertType(type: ZAssetType) {
     video: "Video",
     bookmarkAsset: "Bookmark Asset",
     linkHtmlContent: "HTML Content",
+    userUploaded: "User Uploaded File",
+    avatar: "Avatar",
     unknown: "Unknown",
   };
   return map[type];
@@ -56,6 +66,7 @@ export function humanFriendlyNameForAssertType(type: ZAssetType) {
 export function isAllowedToAttachAsset(type: ZAssetType) {
   const map: Record<ZAssetType, boolean> = {
     screenshot: true,
+    pdf: true,
     assetScreenshot: true,
     fullPageArchive: false,
     precrawledArchive: true,
@@ -63,6 +74,8 @@ export function isAllowedToAttachAsset(type: ZAssetType) {
     video: true,
     bookmarkAsset: false,
     linkHtmlContent: false,
+    userUploaded: true,
+    avatar: false,
     unknown: false,
   };
   return map[type];
@@ -71,6 +84,7 @@ export function isAllowedToAttachAsset(type: ZAssetType) {
 export function isAllowedToDetachAsset(type: ZAssetType) {
   const map: Record<ZAssetType, boolean> = {
     screenshot: true,
+    pdf: true,
     assetScreenshot: true,
     fullPageArchive: true,
     precrawledArchive: true,
@@ -78,6 +92,8 @@ export function isAllowedToDetachAsset(type: ZAssetType) {
     video: true,
     bookmarkAsset: false,
     linkHtmlContent: false,
+    userUploaded: true,
+    avatar: false,
     unknown: false,
   };
   return map[type];

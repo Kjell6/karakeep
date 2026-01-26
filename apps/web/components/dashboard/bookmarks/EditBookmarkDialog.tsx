@@ -25,10 +25,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { toast } from "@/components/ui/sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/components/ui/use-toast";
 import { useDialogFormReset } from "@/lib/hooks/useDialogFormReset";
 import { useTranslation } from "@/lib/i18n/client";
+import { api } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -60,9 +61,24 @@ export function EditBookmarkDialog({
   setOpen: (v: boolean) => void;
 }) {
   const { t } = useTranslation();
+
+  const { data: assetContent, isLoading: isAssetContentLoading } =
+    api.bookmarks.getBookmark.useQuery(
+      {
+        bookmarkId: bookmark.id,
+        includeContent: true,
+      },
+      {
+        enabled: open && bookmark.content.type == BookmarkTypes.ASSET,
+        select: (b) =>
+          b.content.type == BookmarkTypes.ASSET ? b.content.content : null,
+      },
+    );
+
   const bookmarkToDefault = (bookmark: ZBookmark) => ({
     bookmarkId: bookmark.id,
     summary: bookmark.summary,
+    note: bookmark.note === null ? undefined : bookmark.note,
     title: getBookmarkTitle(bookmark),
     createdAt: bookmark.createdAt ?? new Date(),
     // Link specific defaults (only if bookmark is a link)
@@ -87,10 +103,7 @@ export function EditBookmarkDialog({
         ? bookmark.content.datePublished
         : undefined,
     // Asset specific fields
-    assetContent:
-      bookmark.content.type === BookmarkTypes.ASSET
-        ? bookmark.content.content
-        : undefined,
+    assetContent: assetContent ?? undefined,
   });
 
   const form = useForm<ZUpdateBookmarksRequest>({
@@ -129,6 +142,13 @@ export function EditBookmarkDialog({
   // This prevents losing unsaved title edits when tags are updated, which would
   // cause the bookmark prop to change and trigger a form reset
   useDialogFormReset(open, form, bookmarkToDefault(bookmark));
+
+  // Update assetContent field when it's loaded
+  React.useEffect(() => {
+    if (assetContent && bookmark.content.type === BookmarkTypes.ASSET) {
+      form.setValue("assetContent", assetContent);
+    }
+  }, [assetContent, bookmark.content.type, form]);
 
   const isLink = bookmark.content.type === BookmarkTypes.LINK;
   const isAsset = bookmark.content.type === BookmarkTypes.ASSET;
@@ -176,6 +196,26 @@ export function EditBookmarkDialog({
                 )}
               />
             )}
+
+            {
+              <FormField
+                control={form.control}
+                name="note"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("common.note")}</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Bookmark notes"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            }
 
             {isLink && (
               <FormField
@@ -228,6 +268,7 @@ export function EditBookmarkDialog({
                     </FormLabel>
                     <FormControl>
                       <Textarea
+                        disabled={isAssetContentLoading}
                         placeholder="Extracted Content"
                         {...field}
                         value={field.value ?? ""}

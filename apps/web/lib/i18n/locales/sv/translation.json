@@ -39,7 +39,9 @@
     "summary": "Sammanfattning",
     "quota": "Kvot",
     "bookmarks": "Bokmärken",
-    "storage": "Lagring"
+    "storage": "Lagring",
+    "pdf": "Arkiverad PDF",
+    "default": "Standard"
   },
   "layouts": {
     "grid": "Rutnät",
@@ -87,7 +89,12 @@
     "apply_all": "Använd alla",
     "open_editor": "Öppna redigeraren",
     "toggle_show_archived": "Visa arkiverade",
-    "confirm": "Bekräfta"
+    "confirm": "Bekräfta",
+    "regenerate": "Återskapa",
+    "load_more": "Ladda mer",
+    "edit_notes": "Redigera anteckningar",
+    "preserve_as_pdf": "Spara som PDF",
+    "offline_copies": "Offlinelagrade kopior"
   },
   "settings": {
     "back_to_app": "Tillbaka till app",
@@ -112,6 +119,49 @@
           "show": "Visa arkiverade bokmärken i taggar och listor",
           "hide": "Dölj arkiverade bokmärken i taggar och listor"
         }
+      },
+      "reader_settings": {
+        "local_overrides_title": "Enhetsspecifika inställningar aktiva",
+        "using_default": "Använder klientstandard",
+        "clear_override_hint": "Rensa enhetsåsidosättning för att använda global inställning ({{value}})",
+        "font_size": "Teckenstorlek",
+        "font_family": "Typsnittsfamilj",
+        "preview_inline": "(förhandsvisning)",
+        "tooltip_preview": "Osparade förhandsvisningsändringar",
+        "save_to_all_devices": "Alla enheter",
+        "tooltip_local": "Enhetsinställningar skiljer sig från globala",
+        "reset_preview": "Återställ förhandsvisning",
+        "mono": "Monospace",
+        "line_height": "Radhöjd",
+        "tooltip_default": "Läsningsinställningar",
+        "title": "Läsarinställningar",
+        "serif": "Serif",
+        "preview": "Förhandsgranskning",
+        "not_set": "Ej inställt",
+        "clear_local_overrides": "Rensa enhetsinställningar",
+        "preview_text": "The quick brown fox jumps over the lazy dog. Så här kommer din läsarvytext att se ut.",
+        "local_overrides_cleared": "Enhetsspecifika inställningar har rensats",
+        "local_overrides_description": "Den här enheten har läsarinställningar som skiljer sig från dina globala standardinställningar:",
+        "clear_defaults": "Rensa alla standardvärden",
+        "description": "Konfigurera standardtextinställningar för läsarvyn. Dessa inställningar synkroniseras mellan alla dina enheter.",
+        "defaults_cleared": "Läsarstandardvärden har rensats",
+        "save_hint": "Spara inställningar endast för den här enheten eller synkronisera över alla enheter",
+        "save_as_default": "Spara som standard",
+        "save_to_device": "Den här enheten",
+        "sans": "Sans Serif",
+        "tooltip_preview_and_local": "Osparade ändringar i förhandsvisningen; enhetsinställningarna skiljer sig från de globala",
+        "adjust_hint": "Justera inställningarna ovan för att förhandsvisa ändringarna"
+      },
+      "avatar": {
+        "upload": "Ladda upp avatar",
+        "change": "Ändra avatar",
+        "remove_confirm_title": "Ta bort avatar?",
+        "updated": "Avatar uppdaterad",
+        "removed": "Avatar borttagen",
+        "description": "Ladda upp en kvadratisk bild för att använda som din avatar.",
+        "remove_confirm_description": "Detta kommer att ta bort ditt nuvarande profilfoto.",
+        "title": "Profilbild",
+        "remove": "Ta bort avatar"
       }
     },
     "feeds": {
@@ -131,7 +181,21 @@
       "image_tagging": "Bildtaggning",
       "summarization": "Sammanfattning",
       "summarization_prompt": "Sammanfattningsprompt",
-      "all_tagging": "All taggning"
+      "all_tagging": "All taggning",
+      "tag_style": "Taggstil",
+      "auto_summarization_description": "Generera automatisk sammanfattning för dina bokmärken genom att använda AI.",
+      "auto_tagging": "Automatisk taggning",
+      "titlecase_spaces": "Versala inledande bokstäver med mellanslag",
+      "lowercase_underscores": "Små bokstäver med understreck",
+      "inference_language": "Språk för inferens",
+      "titlecase_hyphens": "Versala inledande bokstäver med bindestreck",
+      "lowercase_hyphens": "Små bokstäver med bindestreck",
+      "lowercase_spaces": "Små bokstäver med mellanslag",
+      "inference_language_description": "Välj språk för AI-genererade taggar och sammanfattningar.",
+      "tag_style_description": "Välj hur dina automatiskt genererade taggar ska formateras.",
+      "auto_tagging_description": "Generera automatiskt taggar för dina bokmärken genom att använda AI.",
+      "camelCase": "camelCase",
+      "auto_summarization": "Automatisk sammanfattning"
     },
     "import": {
       "import_export": "Importera / exportera",
@@ -141,16 +205,23 @@
       "import_bookmarks_from_karakeep_export": "Importera bokmärken från Karakeep-export",
       "import_bookmarks_from_html_file": "Importera bokmärken från HTML-fil",
       "import_bookmarks_from_pocket_export": "Importera bokmärken från Pocket-export",
+      "import_bookmarks_from_matter_export": "Importera bokmärken från Matter-export",
       "export_links_and_notes": "Exportera länkar och anteckningar",
       "import_bookmarks_from_linkwarden_export": "Importera bokmärken från Linkwarden-export",
-      "import_bookmarks_from_tab_session_manager_export": "Importera bokmärken från Tab Session Manager"
+      "import_bookmarks_from_tab_session_manager_export": "Importera bokmärken från Tab Session Manager",
+      "import_bookmarks_from_mymind_export": "Importera bokmärken från min mymind-export"
     },
     "api_keys": {
       "api_keys": "API-nycklar",
       "new_api_key": "Ny API-nyckel",
       "new_api_key_desc": "Ge din API-nyckel ett unikt namn",
       "key_success_please_copy": "Kopiera nyckeln och lagra den på en saker plats. Efter att du stängt denna dialogruta kommer su inte att kunna nå den igen.",
-      "key_success": "Nyckeln skapades utan problem"
+      "key_success": "Nyckeln skapades utan problem",
+      "regenerate_api_key": "Återskapa API-nyckel",
+      "key_regenerated": "Nyckeln har återskapats",
+      "key_regenerated_please_copy": "Kopiera den nya nyckeln och spara den på ett säkert ställe. Den gamla nyckeln har återkallats och kommer inte längre att funka.",
+      "regenerate_warning": "Är du säker på att du vill återskapa API-nyckeln \"{{name}}\"?",
+      "regenerate_confirmation": "Detta kommer att återkalla den nuvarande nyckeln och skapa en ny. Alla applikationer som använder den nuvarande nyckeln kommer sluta funka."
     },
     "user_settings": "Användarinställningar",
     "webhooks": {
@@ -282,6 +353,10 @@
       },
       "storage_breakdown": {
         "title": "Fördelning av lagring"
+      },
+      "bookmark_sources": {
+        "title": "Bokmärk källor",
+        "empty": "Ingen källdata tillgänglig"
       }
     },
     "subscription": {
@@ -304,6 +379,82 @@
       "loading_usage": "Läser in användningsinformation...",
       "free": "Gratis",
       "paid": "Betald"
+    },
+    "import_sessions": {
+      "title": "Importera sessioner",
+      "description": "Visa och hantera dina massimportsessioner. Sessioner skapas automatiskt när du importerar bokmärken.",
+      "load_error": "Det gick inte att läsa in importsessioner",
+      "no_sessions": "Inga importsessioner ännu",
+      "no_sessions_detail": "Importsessioner kommer att visas här automatiskt när du importerar bokmärken.",
+      "created_at": "Skapad {{time}}",
+      "progress": "Förlopp",
+      "status": {
+        "pending": "Väntar",
+        "in_progress": "Pågår",
+        "completed": "Slutförd",
+        "failed": "Misslyckades",
+        "processing": "Bearbetar"
+      },
+      "badges": {
+        "pending": "{{count}} väntar",
+        "processing": "{{count}} bearbetar",
+        "completed": "{{count}} slutförda",
+        "failed": "{{count}} misslyckades"
+      },
+      "imported_to": "Importerat till:",
+      "view_list": "Visa lista",
+      "delete_dialog_title": "Ta bort importsession",
+      "delete_dialog_description": "Är du säker på att du vill ta bort \"{{name}}\"? Åtgärden kan inte ångras. Själva bokmärkena kommer inte att tas bort.",
+      "delete_session": "Ta bort session"
+    },
+    "backups": {
+      "backups": "Säkerhetskopior",
+      "page_title": "Säkerhetskopior",
+      "page_description": "Skapa och hantera säkerhetskopior av dina bokmärken automatiskt. Säkerhetskopiorna komprimeras och lagras säkert.",
+      "configuration": {
+        "title": "Konfigurera säkerhetskopiering",
+        "enable_automatic_backups": "Aktivera automatiska säkerhetskopieringar",
+        "enable_automatic_backups_description": "Skapa säkerhetskopior av dina bokmärken automatiskt",
+        "backup_frequency": "Frekvens för säkerhetskopiering",
+        "backup_frequency_description": "Hur ofta säkerhetskopieringar ska skapas",
+        "retention_period": "Kvarhållningsperiod (dagar)",
+        "retention_period_description": "Hur många dagar säkerhetskopior ska sparas innan de raderas",
+        "frequency": {
+          "daily": "Dagligen",
+          "weekly": "Varje vecka"
+        },
+        "select_frequency": "Välj frekvens",
+        "save_settings": "Spara inställningar"
+      },
+      "list": {
+        "title": "Dina säkerhetskopior",
+        "create_backup_now": "Skapa säkerhetskopia nu",
+        "no_backups": "Du har inga säkerhetskopior än. Aktivera automatiska säkerhetskopieringar eller skapa en manuellt.",
+        "table": {
+          "created_at": "Skapad den",
+          "bookmarks": "Bokmärken",
+          "size": "Storlek",
+          "status": "Status",
+          "actions": "Åtgärder"
+        },
+        "status": {
+          "success": "Lyckades",
+          "failed": "Misslyckades",
+          "pending": "Väntar"
+        },
+        "actions": {
+          "download_backup": "Ladda ner säkerhetskopiering",
+          "delete_backup": "Ta bort säkerhetskopiering"
+        }
+      },
+      "dialogs": {
+        "delete_backup_title": "Ta bort säkerhetskopiering?",
+        "delete_backup_description": "Är du säker på att du vill ta bort den här säkerhetskopieringen? Den här åtgärden kan inte ångras."
+      },
+      "toasts": {
+        "backup_queued": "Säkerhetskopieringen har köats! Den kommer att behandlas inom kort.",
+        "backup_deleted": "Säkerhetskopieringen har tagits bort!"
+      }
     }
   },
   "admin": {
@@ -360,6 +511,10 @@
         "feed": {
           "title": "RSS-flödesjobb",
           "description": "RSS-flödesbearbetning och innehållsuppdateringar"
+        },
+        "admin_maintenance": {
+          "title": "Admin Underhållsjobb",
+          "description": "Administrativ rensning och underhåll av tillgångar"
         }
       },
       "monitor_and_manage": "Övervaka och hantera bakgrundsjobbköer och systembearbetningsuppgifter",
@@ -390,7 +545,8 @@
         "regenerate_ai_summaries_for_all_bookmarks": "Generera om AI-sammanfattningar för alla bokmärken",
         "reindex_all_bookmarks": "Indexera om alla bokmärken",
         "clean_assets": "Rensa hängande tillgångar och synkronisera om metadata",
-        "reprocess_assets_fix_mode": "Behandla om obehandlade tillgångar"
+        "reprocess_assets_fix_mode": "Behandla om obehandlade tillgångar",
+        "migrate_large_link_html_content": "Flytta stort HTML-innehåll i text till resurser"
       }
     },
     "actions": {
@@ -417,6 +573,18 @@
       "asset_sizes": "Tillgångsstorlekar",
       "delete_user_confirm_description": "Är du säker på att du vill ta bort användaren \"{{name}}\"?",
       "unlimited": "Obegränsat"
+    },
+    "service_connections": {
+      "title": "Serviceanslutningar",
+      "description": "Övervaka hälsan och anslutningen för externa systemberoenden",
+      "search_engine": "Sökmotor",
+      "browser": "Webbläsare",
+      "queue_system": "Kösystem",
+      "status": {
+        "not_configured": "Inte konfigurerad",
+        "connected": "Ansluten",
+        "disconnected": "Frånkopplad"
+      }
     }
   },
   "options": {
@@ -451,7 +619,63 @@
       "title": "Offentlig lista",
       "description": "Tillåt andra att visa den här listan",
       "share_link": "Dela länk"
-    }
+    },
+    "delete_list": {
+      "title": "Ta bort lista",
+      "description": "Om du tar bort en lista tas inga bokmärken i den listan bort.",
+      "delete_children": "Ta bort underordnade listor (rekursivt)",
+      "delete_children_description": "Om den inte är markerad kommer alla direkt underordnade listor att bli rotlistor"
+    },
+    "shared": "Delad",
+    "collaborators": {
+      "manage": "Hantera medarbetare",
+      "view": "Visa medarbetare",
+      "collaborators": "Medarbetare",
+      "add": "Lägg till medarbetare",
+      "current": "Nuvarande medarbetare",
+      "enter_email": "Ange e-postadress",
+      "please_enter_email": "Vänligen ange en e-postadress",
+      "added_successfully": "Medarbetare tillagd",
+      "failed_to_add": "Det gick inte att lägga till medarbetare",
+      "removed": "Medarbetare borttagen",
+      "failed_to_remove": "Det gick inte att ta bort medarbetare",
+      "role_updated": "Roll uppdaterad",
+      "failed_to_update_role": "Det gick inte att uppdatera rollen",
+      "viewer": "Visare",
+      "editor": "Redigerare",
+      "owner": "Ägare",
+      "viewer_description": "Kan visa bokmärken i listan",
+      "editor_description": "Kan lägga till och ta bort bokmärken",
+      "no_collaborators": "Inga medarbetare ännu. Lägg till någon för att börja samarbeta!",
+      "no_collaborators_readonly": "Inga samarbetspartners för den här listan.",
+      "people_with_access": "Personer som har tillgång till den här listan",
+      "add_or_remove": "Lägg till eller ta bort personer som kan komma åt den här listan",
+      "invitation_sent": "Inbjudan skickad!",
+      "invitation_revoked": "Inbjudan återkallad",
+      "failed_to_revoke": "Kunde inte återkalla inbjudan",
+      "pending": "Väntar",
+      "revoke": "Återkalla",
+      "declined": "Nekad"
+    },
+    "leave_list": {
+      "title": "Lämna lista",
+      "confirm_message": "Är du säker på att du vill lämna {{icon}} {{name}}?",
+      "warning": "Du kommer inte längre att kunna visa eller komma åt bokmärken i den här listan. Listans ägare kan lägga till dig igen om det behövs.",
+      "action": "Lämna lista",
+      "success": "Du har lämnat \"{{icon}} {{name}}\""
+    },
+    "invitations": {
+      "pending": "Väntande inbjudningar",
+      "description": "Granska och svara på inbjudningar för listsamarbete",
+      "invited_by": "Inbjuden av",
+      "accept": "Acceptera",
+      "decline": "Neka",
+      "accepted": "Inbjudan är accepterad",
+      "declined": "Inbjudan är nekad",
+      "failed_to_accept": "Kunde inte acceptera inbjudan",
+      "failed_to_decline": "Kunde inte neka inbjudan"
+    },
+    "shared_lists": "Delade listor"
   },
   "tags": {
     "drag_and_drop_merging_info": "Dra och släpp taggar på varandra för att sammanfoga dem",
@@ -464,7 +688,18 @@
     "drag_and_drop_merging": "Dra och släpp-sammanslagning",
     "your_tags_info": "Taggar som du har bifogat minst en gång",
     "ai_tags_info": "Taggar som bara lades till automatiskt (av AI)",
-    "unused_tags_info": "Taggar som inte är kopplade till några bokmärken"
+    "unused_tags_info": "Taggar som inte är kopplade till några bokmärken",
+    "create_tag": "Skapa tagg",
+    "create_tag_description": "Skapa en ny tagg utan att koppla den till ett bokmärke",
+    "tag_name": "Taggnamn",
+    "enter_tag_name": "Ange taggnamn",
+    "sort_by_usage": "Sortera efter användning",
+    "sort_by_relevance": "Sortera efter relevans",
+    "no_custom_tags": "Inga anpassade taggar ännu",
+    "no_ai_tags": "Inga AI-taggar ännu",
+    "no_unused_tags": "Du har inga oanvända taggar",
+    "no_unused_tags_match_your_search": "Inga oanvända taggar matchar din sökning",
+    "no_tags_match_your_search": "Inga taggar matchar din sökning"
   },
   "editor": {
     "import_as_separate_bookmarks": "Importera som separata bokmärken",
@@ -532,13 +767,18 @@
       "deleted": "Bokmärket har raderats!",
       "delete_from_list": "Bokmärket har raderats från listan",
       "clipboard_copied": "Länken har lags till i ditt urklipp!",
-      "refetch": "Hämtning har köats!"
+      "refetch": "Hämtning har köats!",
+      "preserve_pdf": "PDF-sparande har triggats"
     },
     "lists": {
       "created": "Listan har skapats!",
       "updated": "Listan har uppdaterats!",
       "merged": "Listan har slagits samman!",
       "deleted": "Listan har tagits bort!"
+    },
+    "tags": {
+      "created": "Taggen har skapats!",
+      "failed_to_create": "Kunde inte skapa tagg"
     }
   },
   "cleanups": {
@@ -555,7 +795,8 @@
     "tabs": {
       "content": "Innehåll",
       "details": "Detaljer"
-    }
+    },
+    "archive_info": "Arkiv kanske inte återges korrekt inbäddade om de kräver Javascript. För bästa resultat, <1>ladda ner den och öppna den i din webbläsare</1>."
   },
   "dialogs": {
     "bookmarks": {
@@ -599,7 +840,16 @@
     "week_s_ago": " Veckor sedan",
     "month_s_ago": " Månader sedan",
     "year_s_ago": " År sedan",
-    "history": "Senaste sökningar"
+    "history": "Senaste sökningar",
+    "title_contains": "Titeln innehåller",
+    "title_does_not_contain": "Titeln innehåller inte",
+    "is_broken_link": "Har trasig länk",
+    "tags": "Taggar",
+    "no_suggestions": "Inga förslag",
+    "filters": "Filter",
+    "is_not_broken_link": "Har fungerande länk",
+    "lists": "Listor",
+    "feeds": "Feeds"
   },
   "highlights": {
     "no_highlights": "Du har inga markeringar ännu."
@@ -619,5 +869,27 @@
     "pick_a_date": "Välj ett datum",
     "save_changes": "Spara ändringar",
     "extracted_content": "Extraherat innehåll"
+  },
+  "view_options": {
+    "title": "Visa alternativ",
+    "layout": "Layout",
+    "columns": "Kolumner",
+    "display_options": "Visningsalternativ",
+    "show_note_previews": "Visa anteckningar",
+    "show_tags": "Visa taggar",
+    "show_title": "Visa titel",
+    "image_options": "Bildalternativ",
+    "image_fit_cover": "Täck (Fyll)",
+    "image_fit_contain": "Innehåll (Passa)"
+  },
+  "version": {
+    "new_release_available": "Nya versionsanmärkningar tillgängliga",
+    "whats_new_title": "Vad är nytt i v{{version}}",
+    "release_notes_description": "Här är de senaste uppdateringarna hämtade från GitHub versionsanmärkningar.",
+    "loading_release_notes": "Läser in versionsanmärkningar…",
+    "unable_to_load_release_notes": "Det gick inte att läsa in versionsanmärkningar just nu. Försök igen senare.",
+    "no_release_notes": "Inga versionsanmärkningar publicerades för den här versionen.",
+    "release_notes_synced": "Versionsanmärkningar synkroniseras från GitHub.",
+    "view_on_github": "Visa på GitHub"
   }
 }

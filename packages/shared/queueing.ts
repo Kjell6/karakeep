@@ -2,10 +2,26 @@ import { ZodType } from "zod";
 
 import { PluginManager, PluginType } from "./plugins";
 
+/**
+ * Special error that indicates a job should be retried after a delay
+ * without counting against the retry attempts limit.
+ * Useful for handling rate limiting scenarios.
+ */
+export class QueueRetryAfterError extends Error {
+  constructor(
+    message: string,
+    public readonly delayMs: number,
+  ) {
+    super(message);
+    this.name = "QueueRetryAfterError";
+  }
+}
+
 export interface EnqueueOptions {
   idempotencyKey?: string;
   priority?: number;
   delayMs?: number;
+  groupId?: string;
 }
 
 export interface QueueOptions {
@@ -32,9 +48,9 @@ export interface DequeuedJobError<T> {
   numRetriesLeft: number;
 }
 
-export interface RunnerFuncs<T> {
-  run: (job: DequeuedJob<T>) => Promise<void>;
-  onComplete?: (job: DequeuedJob<T>) => Promise<void>;
+export interface RunnerFuncs<T, R = void> {
+  run: (job: DequeuedJob<T>) => Promise<R>;
+  onComplete?: (job: DequeuedJob<T>, result: R) => Promise<void>;
   onError?: (job: DequeuedJobError<T>) => Promise<void>;
 }
 
@@ -68,9 +84,9 @@ export interface QueueClient {
   prepare(): Promise<void>;
   start(): Promise<void>;
   createQueue<T>(name: string, options: QueueOptions): Queue<T>;
-  createRunner<T>(
+  createRunner<T, R = void>(
     queue: Queue<T>,
-    funcs: RunnerFuncs<T>,
+    funcs: RunnerFuncs<T, R>,
     opts: RunnerOptions<T>,
   ): Runner<T>;
   shutdown?(): Promise<void>;

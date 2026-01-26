@@ -5,19 +5,26 @@
       "new_api_key": "Nov API ključ",
       "new_api_key_desc": "Izberite edinstveno ime za svoj API ključ",
       "api_keys": "API Ključi",
-      "key_success": "Ključ je bil uspešno ustvarjen"
+      "key_success": "Ključ je bil uspešno ustvarjen",
+      "regenerate_api_key": "Osveži API ključ",
+      "key_regenerated": "Ključ je bil uspešno osvežen",
+      "key_regenerated_please_copy": "Prosimo, da kopirate nov ključ in ga shranite na varnem mestu. Stari ključ je bil preklican in ne bo več deloval.",
+      "regenerate_warning": "Ali ste prepričani, da želite ponovno ustvariti API ključ \"{{name}}\"?",
+      "regenerate_confirmation": "S tem boste preklicali trenutni ključ in ustvarili novega. Vse aplikacije, ki uporabljajo trenutni ključ, bodo prenehale delovati."
     },
     "import": {
       "import_bookmarks_from_karakeep_export": "Uvozi zaznamke iz Karakeep izvoza",
       "import_bookmarks_from_linkwarden_export": "Uvozi zaznamke iz Linkwarden izvoza",
       "imported_bookmarks": "Uvoženi zaznamki",
       "import_bookmarks_from_pocket_export": "Uvozi zaznamke iz Pocket izvoza",
+      "import_bookmarks_from_matter_export": "Uvozi zaznamke iz Matter izvoza",
       "import_export_bookmarks": "Uvoz / Izvoz zaznamkov",
       "import_bookmarks_from_omnivore_export": "Uvozi zaznamke iz Omnivore izvoza",
       "export_links_and_notes": "Izvozi povezave in zapiske",
       "import_export": "Uvoz / Izvoz",
       "import_bookmarks_from_html_file": "Uvozi zaznamke iz datoteke HTML",
-      "import_bookmarks_from_tab_session_manager_export": "Uvozi zaznamke iz upravitelja zavihkov"
+      "import_bookmarks_from_tab_session_manager_export": "Uvozi zaznamke iz upravitelja zavihkov",
+      "import_bookmarks_from_mymind_export": "Uvozi zaznamke iz izvoza mymind"
     },
     "info": {
       "options": "Možnosti",
@@ -40,6 +47,49 @@
           "show": "Prikaži arhivirane zaznamke v oznakah in seznamih",
           "hide": "Skrij arhivirane zaznamke v oznakah in seznamih"
         }
+      },
+      "reader_settings": {
+        "local_overrides_title": "Aktivne nastavitve, specifične za napravo",
+        "using_default": "Uporaba privzete vrednosti odjemalca",
+        "clear_override_hint": "Počisti preglasitev naprave, da uporabiš globalno nastavitev ({{value}})",
+        "font_size": "Velikost pisave",
+        "font_family": "Družina pisav",
+        "preview_inline": "(predogled)",
+        "tooltip_preview": "Neshranjene spremembe predogleda",
+        "save_to_all_devices": "Vse naprave",
+        "tooltip_local": "Nastavitve naprave se razlikujejo od globalnih",
+        "reset_preview": "Ponastavi predogled",
+        "mono": "Enoprostorska",
+        "line_height": "Višina vrstice",
+        "tooltip_default": "Nastavitve branja",
+        "title": "Nastavitve bralnika",
+        "serif": "Serif",
+        "preview": "Predogled",
+        "not_set": "Ni nastavljeno",
+        "clear_local_overrides": "Počisti nastavitve naprave",
+        "preview_text": "Rjava lisica skoči čez lenega psa. Tako bo videti vaše besedilo v pogledu bralnika.",
+        "local_overrides_cleared": "Nastavitve, specifične za napravo, so bile počiscene",
+        "local_overrides_description": "Ta naprava ima nastavitve bralnika, ki se razlikujejo od vaših splošnih privzetih nastavitev:",
+        "clear_defaults": "Počisti vse privzete nastavitve",
+        "description": "Nastavite privzete nastavitve besedila za pogled bralnika. Te nastavitve se sinhronizirajo v vseh vaših napravah.",
+        "defaults_cleared": "Privzeti bralnik je bil počiščen",
+        "save_hint": "Shrani nastavitve samo za to napravo ali sinhroniziraj med vsemi napravami",
+        "save_as_default": "Shrani kot privzeto",
+        "save_to_device": "Ta naprava",
+        "sans": "Sans Serif",
+        "tooltip_preview_and_local": "Neshranjene spremembe predogleda; nastavitve naprave se razlikujejo od globalnih",
+        "adjust_hint": "Prilagodite nastavitve zgoraj za predogled sprememb"
+      },
+      "avatar": {
+        "upload": "Naloži avatar",
+        "change": "Spremeni avatar",
+        "remove_confirm_title": "Odstranim avatar?",
+        "updated": "Avatar posodobljen",
+        "removed": "Avatar odstranjen",
+        "description": "Naloži kvadratno sliko, ki jo boš uporabil kot svoj avatar.",
+        "remove_confirm_description": "S tem boš odstranil svojo trenutno sliko profila.",
+        "title": "Fotka profila",
+        "remove": "Odstrani avatar"
       }
     },
     "ai": {
@@ -53,7 +103,21 @@
       "summarization_prompt": "Povzemni ukaz",
       "all_tagging": "Vse oznake",
       "tagging_rules": "Pravila za označevanje",
-      "tagging_rule_description": "Pozivi, ki jih dodaš tukaj, bodo vključeni kot pravila za model med ustvarjanjem oznak. Končne pozive si lahko ogledaš v razdelku za predogled pozivov."
+      "tagging_rule_description": "Pozivi, ki jih dodaš tukaj, bodo vključeni kot pravila za model med ustvarjanjem oznak. Končne pozive si lahko ogledaš v razdelku za predogled pozivov.",
+      "tag_style": "Slog oznake",
+      "auto_summarization_description": "Samodejno ustvari povzetke za tvoje zaznamke z uporabo UI.",
+      "auto_tagging": "Samodejno označevanje",
+      "titlecase_spaces": "Velike začetnice s presledki",
+      "lowercase_underscores": "Male črke s podčrtaji",
+      "inference_language": "Jezik sklepanja",
+      "titlecase_hyphens": "Velike začetnice s povezaji",
+      "lowercase_hyphens": "Male črke s povezaji",
+      "lowercase_spaces": "Male črke s presledki",
+      "inference_language_description": "Izberi jezik za oznake in povzetke, ustvarjene z umetno inteligenco.",
+      "tag_style_description": "Izberi obliko samodejno ustvarjenih oznak.",
+      "auto_tagging_description": "Samodejno ustvari oznake za tvoje zaznamke z uporabo UI.",
+      "camelCase": "camelCase",
+      "auto_summarization": "Samodejno povzemanje"
     },
     "back_to_app": "Nazaj v aplikacijo",
     "webhooks": {
@@ -192,6 +256,10 @@
       },
       "storage_breakdown": {
         "title": "Razčlenitev shrambe"
+      },
+      "bookmark_sources": {
+        "title": "Viri zaznamkov",
+        "empty": "Ni razpoložljivih izvornih podatkov"
       }
     },
     "subscription": {
@@ -214,6 +282,82 @@
       "loading_usage": "Nalaganje informacij o uporabi ...",
       "free": "Brezplačno",
       "paid": "Plačano"
+    },
+    "import_sessions": {
+      "title": "Uvozi seje",
+      "description": "Ogled in upravljanje vaših sej za množični uvoz. Seje se samodejno ustvarijo, ko uvozite zaznamke.",
+      "load_error": "Uvoz sej se ni naložil",
+      "no_sessions": "Še ni uvoznih sej",
+      "no_sessions_detail": "Uvozne seje bodo tukaj samodejno prikazane, ko uvozite zaznamke",
+      "created_at": "Ustvarjeno {{time}}",
+      "progress": "Napredek",
+      "status": {
+        "pending": "Čakam",
+        "in_progress": "V teku",
+        "completed": "Končano",
+        "failed": "Neuspešno",
+        "processing": "Obdelava"
+      },
+      "badges": {
+        "pending": "{{count}} čaka",
+        "processing": "{{count}} se obdeluje",
+        "completed": "{{count}} končanih",
+        "failed": "{{count}} neuspelih"
+      },
+      "imported_to": "Uvoženo v:",
+      "view_list": "Pokaži seznam",
+      "delete_dialog_title": "Izbriši sejo uvoza",
+      "delete_dialog_description": "Ste prepričani, da želite izbrisati »{{name}}«? Tega dejanja ni mogoče razveljaviti. Zaznamki sami ne bodo izbrisani.",
+      "delete_session": "Izbriši sejo"
+    },
+    "backups": {
+      "backups": "Varnostne kopije",
+      "page_title": "Varnostne kopije",
+      "page_description": "Samodejno ustvarjaj in upravljaj varnostne kopije zaznamkov. Varnostne kopije so stisnjene in varno shranjene.",
+      "configuration": {
+        "title": "Nastavitve varnostnega kopiranja",
+        "enable_automatic_backups": "Omogoči samodejno varnostno kopiranje",
+        "enable_automatic_backups_description": "Samodejno ustvari varnostne kopije zaznamkov",
+        "backup_frequency": "Pogostost varnostnega kopiranja",
+        "backup_frequency_description": "Kako pogosto naj se ustvarjajo varnostne kopije",
+        "retention_period": "Obdobje ohranjanja (dni)",
+        "retention_period_description": "Koliko dni hraniti varnostne kopije, preden se izbrišejo",
+        "frequency": {
+          "daily": "Dnevno",
+          "weekly": "Tedensko"
+        },
+        "select_frequency": "Izberi pogostost",
+        "save_settings": "Shrani nastavitve"
+      },
+      "list": {
+        "title": "Tvoje varnostne kopije",
+        "create_backup_now": "Ustvari varnostno kopijo zdaj",
+        "no_backups": "Še nimaš varnostnih kopij. Omogoči samodejno varnostno kopiranje ali ustvari ročno.",
+        "table": {
+          "created_at": "Ustvarjeno ob",
+          "bookmarks": "Zaznamki",
+          "size": "Velikost",
+          "status": "Stanje",
+          "actions": "Dejanja"
+        },
+        "status": {
+          "success": "Uspešno",
+          "failed": "Neuspešno",
+          "pending": "Na čakanju"
+        },
+        "actions": {
+          "download_backup": "Prenesi varnostno kopijo",
+          "delete_backup": "Izbriši varnostno kopijo"
+        }
+      },
+      "dialogs": {
+        "delete_backup_title": "Izbrišem varnostno kopijo?",
+        "delete_backup_description": "Ali ste prepričani, da želite izbrisati to varnostno kopijo? Tega dejanja ni mogoče razveljaviti."
+      },
+      "toasts": {
+        "backup_queued": "Opravilo varnostne kopije je bilo dodano v čakalno vrsto! Kmalu bo obdelano.",
+        "backup_deleted": "Varnostna kopija je bila izbrisana!"
+      }
     }
   },
   "admin": {
@@ -282,6 +426,10 @@
         "feed": {
           "title": "Posli RSS-vira",
           "description": "Obdelava RSS-vira in posodobitve vsebine"
+        },
+        "admin_maintenance": {
+          "title": "Administrativna vzdrževalna dela",
+          "description": "Administrativno čiščenje in vzdrževanje sredstev"
         }
       },
       "monitor_and_manage": "Spremljajte in upravljajte čakalne vrste opravil v ozadju ter sistemske naloge obdelave",
@@ -312,7 +460,8 @@
         "regenerate_ai_summaries_for_all_bookmarks": "Ustvari znova izvlečke AI za vse zaznamke",
         "reindex_all_bookmarks": "Ponovno indeksiraj vse zaznamke",
         "clean_assets": "Očisti viseča sredstva in ponovno sinhroniziraj metapodatke",
-        "reprocess_assets_fix_mode": "Ponovno obdelaj nepredelana sredstva"
+        "reprocess_assets_fix_mode": "Ponovno obdelaj nepredelana sredstva",
+        "migrate_large_link_html_content": "Premakni veliko vdelano HTML-ovo kodo v sredstva."
       }
     },
     "admin_settings": "Administratorske nastavitve",
@@ -327,6 +476,18 @@
       "reprocess_assets_fix_mode": "Ponovno obdelaj sredstva (način popravljanja)",
       "regenerate_ai_summaries_for_failed_bookmarks_only": "Ponovno ustvari povzetke umetne inteligence samo za neuspele zaznamke",
       "regenerate_ai_summaries_for_all_bookmarks": "Ponovno ustvari povzetke umetne inteligence za vse zaznamke"
+    },
+    "service_connections": {
+      "title": "Povezave storitev",
+      "description": "Spremljaj stanje in povezljivost zunanjih sistemskih odvisnosti",
+      "search_engine": "Iskalnik",
+      "browser": "Brskalnik",
+      "queue_system": "Sistem čakalnih vrst",
+      "status": {
+        "not_configured": "Ni konfigurirano",
+        "connected": "Povezano",
+        "disconnected": "Odklopljeno"
+      }
     }
   },
   "search": {
@@ -365,7 +526,16 @@
     "week_s_ago": " Tedni nazaj",
     "month_s_ago": " Meseci nazaj",
     "year_s_ago": " Let(a) nazaj",
-    "history": "Nedavna iskanja"
+    "history": "Nedavna iskanja",
+    "title_contains": "Naslov vsebuje",
+    "title_does_not_contain": "Naslov ne vsebuje",
+    "is_broken_link": "Ima polomljeno povezavo",
+    "tags": "Oznake",
+    "no_suggestions": "Ni predlogov",
+    "filters": "Filtri",
+    "is_not_broken_link": "Ima delujočo povezavo",
+    "lists": "Seznami",
+    "feeds": "Viri"
   },
   "tags": {
     "your_tags_info": "Oznake, ki si jih dodelil/a vsaj enkrat",
@@ -378,7 +548,18 @@
     "your_tags": "Tvoje oznake",
     "unused_tags": "Nsuporabljene oznake",
     "delete_all_unused_tags": "Izbriši vse neuporabljene oznake",
-    "drag_and_drop_merging_info": "Povlecite in spustite oznake drug na drugo, da jih združite"
+    "drag_and_drop_merging_info": "Povlecite in spustite oznake drug na drugo, da jih združite",
+    "create_tag": "Ustvari oznako",
+    "create_tag_description": "Ustvari novo oznako brez pripenjanja na zaznamek",
+    "tag_name": "Ime oznake",
+    "enter_tag_name": "Vnesi ime oznake",
+    "sort_by_usage": "Razvrsti po uporabi",
+    "sort_by_relevance": "Razvrsti po ustreznosti",
+    "no_custom_tags": "Še ni oznak po meri",
+    "no_ai_tags": "Še ni oznak AI",
+    "no_unused_tags": "Nimaš neuporabljenih oznak",
+    "no_unused_tags_match_your_search": "Nobena neuporabljena oznaka ne ustreza tvojemu iskanju",
+    "no_tags_match_your_search": "Nobena oznaka ne ustreza tvojemu iskanju"
   },
   "common": {
     "archive": "Arhiv",
@@ -420,7 +601,9 @@
     "summary": "Povzetek",
     "quota": "Količina",
     "bookmarks": "Zaznamki",
-    "storage": "Shranjevanje"
+    "storage": "Shranjevanje",
+    "pdf": "Arhiviran PDF",
+    "default": "Privzeto"
   },
   "actions": {
     "close_bulk_edit": "Zapri množično urejanje",
@@ -462,7 +645,12 @@
     "apply_all": "Uporabi vse",
     "open_editor": "Odpri urejevalnik",
     "toggle_show_archived": "Prikaži arhivirano",
-    "confirm": "Potrdi"
+    "confirm": "Potrdi",
+    "regenerate": "Osveži",
+    "load_more": "Naloži več",
+    "edit_notes": "Uredi opombe",
+    "preserve_as_pdf": "Shrani kot PDF",
+    "offline_copies": "Kopije brez povezave"
   },
   "layouts": {
     "compact": "Kompaktno",
@@ -498,7 +686,63 @@
       "title": "Javni seznam",
       "description": "Dovoli drugim ogled tega seznama",
       "share_link": "Povezava za deljenje"
-    }
+    },
+    "delete_list": {
+      "title": "Izbriši seznam",
+      "description": "Če izbrišeš seznam, ne izbrišeš zaznamkov na tem seznamu.",
+      "delete_children": "Izbriši podrejene sezname (rekurzivno)",
+      "delete_children_description": "Če ni označeno, bodo vsi neposredni podrejeni seznami postali glavni seznami"
+    },
+    "shared": "Deljeno",
+    "collaborators": {
+      "manage": "Upravljaj s sodelavci",
+      "view": "Poglej si sodelavce",
+      "collaborators": "Sodelavci",
+      "add": "Dodaj sodelavca",
+      "current": "Trenutni sodelavci",
+      "enter_email": "Vnesi e-poštni naslov",
+      "please_enter_email": "Prosim, vnesi e-poštni naslov",
+      "added_successfully": "Sodelavec uspešno dodan",
+      "failed_to_add": "Dodajanje sodelavca ni uspelo",
+      "removed": "Sodelavec odstranjen",
+      "failed_to_remove": "Odstranjevanje sodelavca ni uspelo",
+      "role_updated": "Vloga posodobljena",
+      "failed_to_update_role": "Posodabljanje vloge ni uspelo",
+      "viewer": "Pregledovalnik",
+      "editor": "Urednik",
+      "owner": "Lastnik",
+      "viewer_description": "Lahko si ogleda zaznamke na seznamu",
+      "editor_description": "Lahko dodaja in odstranjuje zaznamke",
+      "no_collaborators": "Še ni sodelavcev. Dodaj nekoga, da začneš sodelovati!",
+      "no_collaborators_readonly": "Ni sodelavcev za ta seznam.",
+      "people_with_access": "Osebe, ki imajo dostop do tega seznama",
+      "add_or_remove": "Dodaj ali odstrani osebe, ki imajo dostop do tega seznama",
+      "invitation_sent": "Uspešno poslano povabilo",
+      "invitation_revoked": "Povabilo preklicano",
+      "failed_to_revoke": "Preklic povabila ni uspel",
+      "pending": "Na čakanju",
+      "revoke": "Prekliči",
+      "declined": "Zavrnjeno"
+    },
+    "leave_list": {
+      "title": "Zapusti seznam",
+      "confirm_message": "Ali si prepričan/-a, da želiš zapustiti {{icon}} {{name}}?",
+      "warning": "Ne boš si več mogel/-a ogledati ali dostopati do zaznamkov na tem seznamu. Lastnik seznama te lahko po potrebi doda nazaj.",
+      "action": "Zapusti seznam",
+      "success": "Zapustil/-a si »{{icon}} {{name}}«"
+    },
+    "invitations": {
+      "pending": "Povabila na čakanju",
+      "description": "Preglejte in se odzovite na povabila za sodelovanje na seznamu",
+      "invited_by": "Povabil:",
+      "accept": "Sprejmi",
+      "decline": "Zavrni",
+      "accepted": "Povabilo sprejeto",
+      "declined": "Povabilo zavrnjeno",
+      "failed_to_accept": "Sprejem povabila ni uspel",
+      "failed_to_decline": "Zavrnitev povabila ni uspela"
+    },
+    "shared_lists": "Deljeni seznami"
   },
   "options": {
     "dark_mode": "Temni način",
@@ -570,13 +814,18 @@
       "clipboard_copied": "Povezava je bila kopirana v odložišče!",
       "updated": "Zaznamek je bil posodobljen!",
       "refetch": "Ponovno pridobivanje je bilo dodano v čakalno vrsto!",
-      "full_page_archive": "Ustvarjanje arhiva celotne strani je bilo sproženo"
+      "full_page_archive": "Ustvarjanje arhiva celotne strani je bilo sproženo",
+      "preserve_pdf": "Ohranjanje PDF je bilo sproženo"
     },
     "lists": {
       "created": "Seznam je bil ustvarjen!",
       "updated": "Seznam je bil posodobljen!",
       "merged": "Seznam je bil združen!",
       "deleted": "Seznam je bil izbrisan!"
+    },
+    "tags": {
+      "created": "Oznaka je bila ustvarjena!",
+      "failed_to_create": "Oznake ni bilo mogoče ustvariti"
     }
   },
   "dialogs": {
@@ -599,7 +848,8 @@
     "tabs": {
       "content": "Vsebina",
       "details": "Podrobnosti"
-    }
+    },
+    "archive_info": "Arhivi se morda ne bodo pravilno izrisali v vrstici, če zahtevajo Javascript. Za najboljše rezultate <1>jih prenesi in odpri v brskalniku</1>."
   },
   "highlights": {
     "no_highlights": "Še nimaš nobenih poudarkov."
@@ -619,5 +869,27 @@
     "date_published": "Datum objave",
     "pick_a_date": "Izberi datum",
     "extracted_content": "Izluščena vsebina"
+  },
+  "view_options": {
+    "title": "Možnosti prikaza",
+    "layout": "Postavitev",
+    "columns": "Stolpci",
+    "display_options": "Možnosti prikaza",
+    "show_note_previews": "Pokaži opombe",
+    "show_tags": "Pokaži oznake",
+    "show_title": "Pokaži naslov",
+    "image_options": "Možnosti slike",
+    "image_fit_cover": "Pokrov (Izpolni)",
+    "image_fit_contain": "Vsebuje (Prilagodi)"
+  },
+  "version": {
+    "new_release_available": "Na voljo so nove opombe ob izidu",
+    "whats_new_title": "Kaj je novega v različici v{{version}}",
+    "release_notes_description": "Tukaj so najnovejše posodobitve, pridobljene iz opomb ob izdaji GitHub.",
+    "loading_release_notes": "Nalaganje opomb ob izdaji …",
+    "unable_to_load_release_notes": "Opomb ob izdaji trenutno ni mogoče naložiti. Poskusite znova pozneje.",
+    "no_release_notes": "Za to različico niso bile objavljene nobene opombe ob izdaji.",
+    "release_notes_synced": "Opombe ob izdaji so sinhronizirane iz GitHub.",
+    "view_on_github": "Poglej si na GitHubu"
   }
 }

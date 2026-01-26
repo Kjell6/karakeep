@@ -1,9 +1,10 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { workerStatsCounter } from "metrics";
+import { fetchWithProxy } from "network";
 import cron from "node-cron";
 import Parser from "rss-parser";
 import { buildImpersonatingTRPCClient } from "trpc";
-import { fetchWithProxy } from "utils";
+import { withWorkerTracing } from "workerTracing";
 import { z } from "zod";
 
 import type { ZFeedRequestSchema } from "@karakeep/shared-server";
@@ -14,6 +15,21 @@ import logger from "@karakeep/shared/logger";
 import { DequeuedJob, getQueueClient } from "@karakeep/shared/queueing";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 
+/**
+ * Deterministically maps a feed ID to a minute offset within the hour (0-59).
+ * This ensures feeds are spread evenly across the hour based on their ID.
+ */
+function getFeedMinuteOffset(feedId: string): number {
+  // Simple hash function: sum character codes
+  let hash = 0;
+  for (let i = 0; i < feedId.length; i++) {
+    hash = (hash << 5) - hash + feedId.charCodeAt(i);
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  // Return a minute offset between 0 and 59
+  return Math.abs(hash) % 60;
+}
+
 export const FeedRefreshingWorker = cron.schedule(
   "0 * * * *",
   () => {
@@ -22,6 +38,7 @@ export const FeedRefreshingWorker = cron.schedule(
       .findMany({
         columns: {
           id: true,
+          userId: true,
         },
         where: eq(rssFeedsTable.enabled, true),
       })
@@ -29,15 +46,32 @@ export const FeedRefreshingWorker = cron.schedule(
         const currentHour = new Date();
         currentHour.setMinutes(0, 0, 0);
         const hourlyWindow = currentHour.toISOString();
+        const now = new Date();
+        const currentMinute = now.getMinutes();
 
         for (const feed of feeds) {
           const idempotencyKey = `${feed.id}-${hourlyWindow}`;
+          const targetMinute = getFeedMinuteOffset(feed.id);
+
+          // Calculate delay: if target minute has passed, schedule for next hour
+          let delayMinutes = targetMinute - currentMinute;
+          if (delayMinutes < 0) {
+            delayMinutes += 60;
+          }
+          const delayMs = delayMinutes * 60 * 1000;
+
+          logger.debug(
+            `[feed] Scheduling feed ${feed.id} at minute ${targetMinute} (delay: ${delayMinutes} minutes)`,
+          );
+
           FeedQueue.enqueue(
             {
               feedId: feed.id,
             },
             {
               idempotencyKey,
+              groupId: feed.userId,
+              delayMs,
             },
           );
         }
@@ -55,7 +89,7 @@ export class FeedWorker {
     const worker = (await getQueueClient())!.createRunner<ZFeedRequestSchema>(
       FeedQueue,
       {
-        run: run,
+        run: withWorkerTracing("feedWorker.run", run),
         onComplete: async (job) => {
           workerStatsCounter.labels("feed", "completed").inc();
           const jobId = job.id;
@@ -67,6 +101,9 @@ export class FeedWorker {
         },
         onError: async (job) => {
           workerStatsCounter.labels("feed", "failed").inc();
+          if (job.numRetriesLeft == 0) {
+            workerStatsCounter.labels("feed", "failed_permanent").inc();
+          }
           const jobId = job.id;
           logger.error(
             `[feed][${jobId}] Feed fetch job failed: ${job.error}\n${job.error.stack}`,
@@ -119,9 +156,9 @@ async function run(req: DequeuedJob<ZFeedRequestSchema>) {
   const response = await fetchWithProxy(feed.url, {
     signal: AbortSignal.timeout(5000),
     headers: {
-      UserAgent:
+      "User-Agent":
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      Accept: "application/rss+xml",
+      Accept: "application/rss+xml, application/xml;q=0.9, text/xml;q=0.8",
     },
   });
   if (response.status !== 200) {
@@ -154,6 +191,8 @@ async function run(req: DequeuedJob<ZFeedRequestSchema>) {
     id: z.coerce.string(),
     link: z.string().optional(),
     guid: z.string().optional(),
+    title: z.string().optional(),
+    categories: z.array(z.string()).optional(),
   });
 
   const feedItems = unparseFeedData.items
@@ -209,10 +248,37 @@ async function run(req: DequeuedJob<ZFeedRequestSchema>) {
       trpcClient.bookmarks.createBookmark({
         type: BookmarkTypes.LINK,
         url: item.link!,
+        title: item.title,
         source: "rss",
       }),
     ),
   );
+
+  // If importTags is enabled, attach categories as tags to the created bookmarks
+  if (feed.importTags) {
+    await Promise.allSettled(
+      newEntries.map(async (item, idx) => {
+        const bookmark = createdBookmarks[idx];
+        if (
+          bookmark.status === "fulfilled" &&
+          item.categories &&
+          item.categories.length > 0
+        ) {
+          try {
+            await trpcClient.bookmarks.updateTags({
+              bookmarkId: bookmark.value.id,
+              attach: item.categories.map((tagName) => ({ tagName })),
+              detach: [],
+            });
+          } catch (error) {
+            logger.warn(
+              `[feed][${jobId}] Failed to attach tags to bookmark ${bookmark.value.id}: ${error}`,
+            );
+          }
+        }
+      }),
+    );
+  }
 
   // It's ok if this is not transactional as the bookmarks will get linked in the next iteration.
   await db

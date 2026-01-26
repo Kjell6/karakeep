@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/sonner";
 import { useTranslation } from "@/lib/i18n/client";
 import { api } from "@/lib/trpc";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -320,23 +320,32 @@ function useJobActions() {
     },
   });
 
-  const { mutateAsync: tidyAssets, isPending: isTidyAssetsPending } =
-    api.admin.tidyAssets.useMutation({
-      onSuccess: () => {
-        toast({
-          description: "Tidy assets request has been enqueued!",
-        });
-      },
-      onError: (e) => {
-        toast({
-          variant: "destructive",
-          description: e.message,
-        });
-      },
-    });
+  const {
+    mutateAsync: runAdminMaintenanceTask,
+    isPending: isAdminMaintenancePending,
+  } = api.admin.runAdminMaintenanceTask.useMutation({
+    onSuccess: () => {
+      toast({
+        description: "Admin maintenance request has been enqueued!",
+      });
+    },
+    onError: (e) => {
+      toast({
+        variant: "destructive",
+        description: e.message,
+      });
+    },
+  });
 
   return {
     crawlActions: [
+      {
+        label: t("admin.background_jobs.actions.recrawl_pending_links_only"),
+        onClick: () =>
+          recrawlLinks({ crawlStatus: "pending", runInference: true }),
+        variant: "secondary" as const,
+        loading: isRecrawlPending,
+      },
       {
         label: t("admin.background_jobs.actions.recrawl_failed_links_only"),
         onClick: () =>
@@ -359,6 +368,15 @@ function useJobActions() {
     inferenceActions: [
       {
         label: t(
+          "admin.background_jobs.actions.regenerate_ai_tags_for_pending_bookmarks_only",
+        ),
+        onClick: () =>
+          reRunInferenceOnAllBookmarks({ type: "tag", status: "pending" }),
+        variant: "secondary" as const,
+        loading: isInferencePending,
+      },
+      {
+        label: t(
           "admin.background_jobs.actions.regenerate_ai_tags_for_failed_bookmarks_only",
         ),
         onClick: () =>
@@ -372,6 +390,18 @@ function useJobActions() {
         ),
         onClick: () =>
           reRunInferenceOnAllBookmarks({ type: "tag", status: "all" }),
+        loading: isInferencePending,
+      },
+      {
+        label: t(
+          "admin.background_jobs.actions.regenerate_ai_summaries_for_pending_bookmarks_only",
+        ),
+        onClick: () =>
+          reRunInferenceOnAllBookmarks({
+            type: "summarize",
+            status: "pending",
+          }),
+        variant: "secondary" as const,
         loading: isInferencePending,
       },
       {
@@ -409,11 +439,27 @@ function useJobActions() {
         loading: isReprocessingPending,
       },
     ],
-    tidyAssetsActions: [
+    adminMaintenanceActions: [
       {
         label: t("admin.background_jobs.actions.clean_assets"),
-        onClick: () => tidyAssets(),
-        loading: isTidyAssetsPending,
+        onClick: () =>
+          runAdminMaintenanceTask({
+            type: "tidy_assets",
+            args: {
+              cleanDanglingAssets: true,
+              syncAssetMetadata: true,
+            },
+          }),
+        loading: isAdminMaintenancePending,
+      },
+      {
+        label: t(
+          "admin.background_jobs.actions.migrate_large_link_html_content",
+        ),
+        onClick: () =>
+          runAdminMaintenanceTask({ type: "migrate_large_link_html" }),
+        loading: isAdminMaintenancePending,
+        variant: "secondary" as const,
       },
     ],
   };
@@ -480,11 +526,13 @@ export default function BackgroundJobs() {
       actions: actions.assetPreprocessingActions,
     },
     {
-      title: t("admin.background_jobs.jobs.tidy_assets.title"),
+      title: t("admin.background_jobs.jobs.admin_maintenance.title"),
       icon: Database,
-      stats: { queued: serverStats.tidyAssetsStats.queued },
-      description: t("admin.background_jobs.jobs.tidy_assets.description"),
-      actions: actions.tidyAssetsActions,
+      stats: { queued: serverStats.adminMaintenanceStats.queued },
+      description: t(
+        "admin.background_jobs.jobs.admin_maintenance.description",
+      ),
+      actions: actions.adminMaintenanceActions,
     },
     {
       title: t("admin.background_jobs.jobs.video.title"),

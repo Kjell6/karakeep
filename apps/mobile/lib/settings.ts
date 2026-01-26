@@ -2,18 +2,26 @@ import * as SecureStore from "expo-secure-store";
 import { z } from "zod";
 import { create } from "zustand";
 
+import { zReaderFontFamilySchema } from "@karakeep/shared/types/users";
+
 const SETTING_NAME = "settings";
 
 const zSettingsSchema = z.object({
   apiKey: z.string().optional(),
   apiKeyId: z.string().optional(),
-  address: z.string(),
+  address: z.string().optional().default("https://cloud.karakeep.app"),
   imageQuality: z.number().optional().default(0.2),
   theme: z.enum(["light", "dark", "system"]).optional().default("system"),
   defaultBookmarkView: z
     .enum(["reader", "browser"])
     .optional()
     .default("reader"),
+  showNotes: z.boolean().optional().default(false),
+  customHeaders: z.record(z.string(), z.string()).optional().default({}),
+  // Reader settings (local device overrides)
+  readerFontSize: z.number().int().min(12).max(24).optional(),
+  readerLineHeight: z.number().min(1.2).max(2.5).optional(),
+  readerFontFamily: zReaderFontFamilySchema.optional(),
 });
 
 export type Settings = z.infer<typeof zSettingsSchema>;
@@ -28,10 +36,12 @@ const useSettings = create<AppSettingsState>((set, get) => ({
   settings: {
     isLoading: true,
     settings: {
-      address: "",
+      address: "https://cloud.karakeep.app",
       imageQuality: 0.2,
       theme: "system",
       defaultBookmarkView: "reader",
+      showNotes: false,
+      customHeaders: {},
     },
   },
   setSettings: async (settings) => {
@@ -69,3 +79,5 @@ export default function useAppSettings() {
 
   return { ...settings, setSettings, load };
 }
+
+export { useSettings };

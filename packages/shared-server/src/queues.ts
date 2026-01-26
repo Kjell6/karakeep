@@ -21,6 +21,7 @@ export const zCrawlLinkRequestSchema = z.object({
   bookmarkId: z.string(),
   runInference: z.boolean().optional(),
   archiveFullPage: z.boolean().optional().default(false),
+  storePdf: z.boolean().optional().default(false),
 });
 export type ZCrawlLinkRequest = z.input<typeof zCrawlLinkRequestSchema>;
 
@@ -67,21 +68,41 @@ export const SearchIndexingQueue =
     keepFailedJobs: false,
   });
 
-// Tidy Assets Worker
+// Admin maintenance worker
 export const zTidyAssetsRequestSchema = z.object({
   cleanDanglingAssets: z.boolean().optional().default(false),
   syncAssetMetadata: z.boolean().optional().default(false),
 });
 export type ZTidyAssetsRequest = z.infer<typeof zTidyAssetsRequestSchema>;
-export const TidyAssetsQueue = QUEUE_CLIENT.createQueue<ZTidyAssetsRequest>(
-  "tidy_assets_queue",
-  {
+
+export const zAdminMaintenanceTaskSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("tidy_assets"),
+    args: zTidyAssetsRequestSchema,
+  }),
+  z.object({
+    type: z.literal("migrate_large_link_html"),
+  }),
+]);
+
+export type ZAdminMaintenanceTask = z.infer<typeof zAdminMaintenanceTaskSchema>;
+export type ZAdminMaintenanceTaskType = ZAdminMaintenanceTask["type"];
+export type ZAdminMaintenanceTidyAssetsTask = Extract<
+  ZAdminMaintenanceTask,
+  { type: "tidy_assets" }
+>;
+export type ZAdminMaintenanceMigrateLargeLinkHtmlTask = Extract<
+  ZAdminMaintenanceTask,
+  { type: "migrate_large_link_html" }
+>;
+
+export const AdminMaintenanceQueue =
+  QUEUE_CLIENT.createQueue<ZAdminMaintenanceTask>("admin_maintenance_queue", {
     defaultJobArgs: {
       numRetries: 1,
     },
     keepFailedJobs: false,
-  },
-);
+  });
 
 export async function triggerSearchReindex(
   bookmarkId: string,
@@ -94,8 +115,7 @@ export async function triggerSearchReindex(
     },
     {
       ...opts,
-      // BUG: restate idempotency is also against completed jobs. Disabling it for now
-      //idempotencyKey: `index:${bookmarkId}`,
+      idempotencyKey: `index:${bookmarkId}`,
     },
   );
 }
@@ -214,3 +234,19 @@ export async function triggerRuleEngineOnEvent(
     opts,
   );
 }
+
+// Backup worker
+export const zBackupRequestSchema = z.object({
+  userId: z.string(),
+  backupId: z.string().optional(),
+});
+export type ZBackupRequest = z.infer<typeof zBackupRequestSchema>;
+export const BackupQueue = QUEUE_CLIENT.createQueue<ZBackupRequest>(
+  "backup_queue",
+  {
+    defaultJobArgs: {
+      numRetries: 2,
+    },
+    keepFailedJobs: false,
+  },
+);

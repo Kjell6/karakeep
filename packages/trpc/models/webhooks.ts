@@ -1,8 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { webhooksTable } from "@karakeep/db/schema";
+import serverConfig from "@karakeep/shared/config";
 import {
   zNewWebhookSchema,
   zUpdateWebhookSchema,
@@ -10,9 +11,8 @@ import {
 } from "@karakeep/shared/types/webhooks";
 
 import { AuthedContext } from "..";
-import { PrivacyAware } from "./privacy";
 
-export class Webhook implements PrivacyAware {
+export class Webhook {
   constructor(
     protected ctx: AuthedContext,
     public webhook: typeof webhooksTable.$inferSelect,
@@ -45,6 +45,20 @@ export class Webhook implements PrivacyAware {
     ctx: AuthedContext,
     input: z.infer<typeof zNewWebhookSchema>,
   ): Promise<Webhook> {
+    // Check if user has reached the maximum number of webhooks
+    const [webhookCount] = await ctx.db
+      .select({ count: count() })
+      .from(webhooksTable)
+      .where(eq(webhooksTable.userId, ctx.user.id));
+
+    const maxWebhooks = serverConfig.webhook.maxWebhooksPerUser;
+    if (webhookCount.count >= maxWebhooks) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Maximum number of webhooks (${maxWebhooks}) reached`,
+      });
+    }
+
     const [result] = await ctx.db
       .insert(webhooksTable)
       .values({
@@ -64,15 +78,6 @@ export class Webhook implements PrivacyAware {
     });
 
     return webhooks.map((w) => new Webhook(ctx, w));
-  }
-
-  ensureCanAccess(ctx: AuthedContext): void {
-    if (this.webhook.userId !== ctx.user.id) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "User is not allowed to access resource",
-      });
-    }
   }
 
   async delete(): Promise<void> {

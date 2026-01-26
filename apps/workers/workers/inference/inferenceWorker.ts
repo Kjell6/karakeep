@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { workerStatsCounter } from "metrics";
+import { withWorkerTracing } from "workerTracing";
 
 import type { ZOpenAIRequest } from "@karakeep/shared-server";
 import { db } from "@karakeep/db";
@@ -42,7 +43,7 @@ export class OpenAiWorker {
     const worker = (await getQueueClient())!.createRunner<ZOpenAIRequest>(
       OpenAIQueue,
       {
-        run: runOpenAI,
+        run: withWorkerTracing("inferenceWorker.run", runOpenAI),
         onComplete: async (job) => {
           workerStatsCounter.labels("inference", "completed").inc();
           const jobId = job.id;
@@ -56,6 +57,7 @@ export class OpenAiWorker {
             `[inference][${jobId}] inference job failed: ${job.error}\n${job.error.stack}`,
           );
           if (job.numRetriesLeft == 0) {
+            workerStatsCounter.labels("inference", "failed_permanent").inc();
             await attemptMarkStatus(job?.data, "failure");
           }
         },

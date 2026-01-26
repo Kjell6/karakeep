@@ -39,7 +39,12 @@
     },
     "open_editor": "エディタを開く",
     "toggle_show_archived": "アーカイブを表示",
-    "confirm": "確認"
+    "confirm": "確認",
+    "regenerate": "再生成",
+    "load_more": "もっと読み込む",
+    "edit_notes": "注釈を編集",
+    "preserve_as_pdf": "PDFとして保存する",
+    "offline_copies": "オフラインコピー"
   },
   "admin": {
     "actions": {
@@ -106,6 +111,10 @@
         "feed": {
           "title": "RSSフィードジョブ",
           "description": "RSSフィードの処理とコンテンツの更新"
+        },
+        "admin_maintenance": {
+          "title": "管理メンテナンスジョブ",
+          "description": "管理クリーンアップとアセットメンテナンス"
         }
       },
       "monitor_and_manage": "バックグラウンドジョブキューとシステム処理タスクの監視および管理",
@@ -136,7 +145,8 @@
         "regenerate_ai_summaries_for_all_bookmarks": "すべてのブックマークのAI要約を再生成",
         "reindex_all_bookmarks": "すべてのブックマークを再インデックス",
         "clean_assets": "宙ぶらりんのアセットをクリーンアップしてメタデータを再同期",
-        "reprocess_assets_fix_mode": "未処理のアセットを再処理"
+        "reprocess_assets_fix_mode": "未処理のアセットを再処理",
+        "migrate_large_link_html_content": "大規模なインラインHTMLコンテンツをアセットに移動"
       }
     },
     "admin_settings": "管理者設定",
@@ -152,6 +162,18 @@
       "delete_user": "ユーザーを削除",
       "delete_user_confirm_description": "ほんまにユーザー「{{name}}」を削除してええん？",
       "unlimited": "無制限"
+    },
+    "service_connections": {
+      "title": "サービス接続",
+      "description": "外部システム依存関係のヘルスと接続性を監視する",
+      "search_engine": "検索エンジン",
+      "browser": "ブラウザ",
+      "queue_system": "キューシステム",
+      "status": {
+        "not_configured": "未構成",
+        "connected": "接続済み",
+        "disconnected": "切断されました"
+      }
     }
   },
   "settings": {
@@ -176,6 +198,49 @@
           "title": "アーカイブされたブックマーク",
           "hide": "タグとリストにアーカイブされたブックマークを非表示にする"
         }
+      },
+      "reader_settings": {
+        "local_overrides_title": "デバイス固有の設定が有効",
+        "using_default": "クライアントの既定を使用中",
+        "clear_override_hint": "デバイスのオーバーライドをクリアして、全体設定 ({{value}}) を使用します",
+        "font_size": "フォントサイズ",
+        "font_family": "フォントファミリー",
+        "preview_inline": "(プレビュー)",
+        "tooltip_preview": "未保存のプレビュー変更",
+        "save_to_all_devices": "すべてのデバイス",
+        "tooltip_local": "デバイス設定が全体設定と異なります",
+        "reset_preview": "プレビューをリセット",
+        "mono": "等幅",
+        "line_height": "行の高さ",
+        "tooltip_default": "リーディング設定",
+        "title": "リーダー設定",
+        "serif": "セリフ",
+        "preview": "プレビュー",
+        "not_set": "未設定",
+        "clear_local_overrides": "デバイス設定をクリア",
+        "preview_text": "すばやい茶色のキツネがのろまな犬を飛び越えます。リーダー表示のテキストはこんな感じになります。",
+        "local_overrides_cleared": "デバイス固有の設定がクリアされました",
+        "local_overrides_description": "このデバイスには、グローバル既定と異なるリーダー設定があります。",
+        "clear_defaults": "すべての既定をクリア",
+        "description": "リーダー表示の既定のテキスト設定を構成します。これらの設定は、すべてのデバイス間で同期されます。",
+        "defaults_cleared": "リーダーの既定がクリアされました",
+        "save_hint": "このデバイスのみの設定を保存するか、すべてのデバイス間で同期します",
+        "save_as_default": "既定として保存",
+        "save_to_device": "このデバイス",
+        "sans": "サンセリフ",
+        "tooltip_preview_and_local": "未保存のプレビュー変更; デバイス設定が全体設定と異なります",
+        "adjust_hint": "変更をプレビューするには、上記の設定を調整してください"
+      },
+      "avatar": {
+        "upload": "アバターをアップロードする",
+        "change": "アバターを変更する",
+        "remove_confirm_title": "アバターを削除する？",
+        "updated": "アバターを更新したで",
+        "removed": "アバターを削除したで",
+        "description": "アバターとして使う正方形の画像をアップロードしてちょ。",
+        "remove_confirm_description": "現在のプロフィール写真が消去されるけど、ええんか？",
+        "title": "プロフィール画像",
+        "remove": "アバターを削除する"
       }
     },
     "ai": {
@@ -189,7 +254,21 @@
       "all_tagging": "すべてのタグ付け",
       "text_tagging": "テキストタグ付け",
       "image_tagging": "画像タグ付け",
-      "summarization": "要約"
+      "summarization": "要約",
+      "tag_style": "タグのスタイル",
+      "auto_summarization_description": "AIを使ってブックマークの要約を自動生成する。",
+      "auto_tagging": "自動タグ付け",
+      "titlecase_spaces": "タイトルケース、スペース区切り",
+      "lowercase_underscores": "小文字、アンダースコア区切り",
+      "inference_language": "推論言語",
+      "titlecase_hyphens": "タイトルケース、ハイフン区切り",
+      "lowercase_hyphens": "小文字、ハイフン区切り",
+      "lowercase_spaces": "小文字、スペース区切り",
+      "inference_language_description": "AIが生成するタグや概要の言語を選んでくれ。",
+      "tag_style_description": "自動生成されるタグの書式を選んでくれ。",
+      "auto_tagging_description": "AIを使ってブックマークのタグを自動生成する。",
+      "camelCase": "camelCase",
+      "auto_summarization": "自動要約"
     },
     "import": {
       "import_export_bookmarks": "ブックマークのインポート/エクスポート",
@@ -197,18 +276,25 @@
       "import_bookmarks_from_karakeep_export": "Karakeep エクスポートからブックマークをインポート",
       "imported_bookmarks": "インポートされたブックマーク",
       "import_bookmarks_from_pocket_export": "Pocketのエクスポートからブックマークをインポート",
+      "import_bookmarks_from_matter_export": "Matterのエクスポートからブックマークをインポート",
       "import_bookmarks_from_omnivore_export": "Omnivoreエクスポートからブックマークをインポート",
       "export_links_and_notes": "リンクとメモをエクスポートする",
       "import_export": "インポート/エクスポート",
       "import_bookmarks_from_linkwarden_export": "Linkwardenのエクスポートからブックマークをインポート",
-      "import_bookmarks_from_tab_session_manager_export": "Tab Session Managerからブックマークをインポート"
+      "import_bookmarks_from_tab_session_manager_export": "Tab Session Managerからブックマークをインポート",
+      "import_bookmarks_from_mymind_export": "mymind エクスポートからブックマークをインポート"
     },
     "api_keys": {
       "key_success_please_copy": "キーをコピーして安全な場所に保管してください。ダイアログを閉じると、再度アクセスできなくなります。",
       "new_api_key_desc": "APIキーに一意の名前を付ける",
       "key_success": "キーが正常に作成されました",
       "api_keys": "APIキー",
-      "new_api_key": "新しいAPIキー"
+      "new_api_key": "新しいAPIキー",
+      "regenerate_api_key": "APIキーを再生成する",
+      "key_regenerated": "キーの再生成に成功しました",
+      "key_regenerated_please_copy": "新しいキーをコピーして安全な場所に保管してください。古いキーは無効になり、機能しなくなります。",
+      "regenerate_warning": "APIキー \"{{name}}\" を再生成してもよろしいですか？",
+      "regenerate_confirmation": "実行すると、現在のキーが無効になり、新しいキーが生成されます。現在のキーを使用しているアプリケーションは動作を停止します。"
     },
     "broken_links": {
       "broken_links": "リンク切れ",
@@ -347,6 +433,10 @@
       },
       "storage_breakdown": {
         "title": "ストレージの内訳"
+      },
+      "bookmark_sources": {
+        "title": "ソースをお気に入りに追加する",
+        "empty": "ソースデータがありません"
       }
     },
     "subscription": {
@@ -369,6 +459,82 @@
       "loading_usage": "使用状況情報を読み込み中...",
       "free": "無料",
       "paid": "有料"
+    },
+    "import_sessions": {
+      "title": "インポートセッション",
+      "description": "ブックマークの一括インポートセッションを表示・管理しましょっ。セッションはブックマークをインポートするときに自動的に作られるよ。",
+      "load_error": "インポートセッションのロードに失敗しちゃった",
+      "no_sessions": "インポートセッションはまだないみたい",
+      "no_sessions_detail": "ブックマークをインポートすると、ここに自動的にインポートセッションが表示されるよ",
+      "created_at": "作成日時: {{time}}",
+      "progress": "進捗状況",
+      "status": {
+        "pending": "保留中",
+        "in_progress": "進行中",
+        "completed": "完了",
+        "failed": "失敗",
+        "processing": "処理中"
+      },
+      "badges": {
+        "pending": "{{count}} 件が保留中です",
+        "processing": "{{count}} 件が処理中です",
+        "completed": "{{count}} 件が完了しました",
+        "failed": "{{count}} 件が失敗しました"
+      },
+      "imported_to": "インポート先:",
+      "view_list": "リスト表示",
+      "delete_dialog_title": "インポートセッションを削除する",
+      "delete_dialog_description": "「{{name}}」を削除してもいい？　これは取り消せない操作だよ。ブックマーク自体は削除されないから安心して。",
+      "delete_session": "セッションを削除"
+    },
+    "backups": {
+      "backups": "バックアップ",
+      "page_title": "バックアップ",
+      "page_description": "あんたのブックマークのバックアップを自動で作成・管理するよ。バックアップは圧縮されて安全に保管されるから安心。",
+      "configuration": {
+        "title": "バックアップの設定",
+        "enable_automatic_backups": "自動バックアップを有効にする",
+        "enable_automatic_backups_description": "ブックマークのバックアップを自動で作成するよ",
+        "backup_frequency": "バックアップの頻度",
+        "backup_frequency_description": "バックアップをどのくらいの頻度で作成するか",
+        "retention_period": "保存期間（日数）",
+        "retention_period_description": "バックアップを削除するまで何日間保持するか",
+        "frequency": {
+          "daily": "毎日",
+          "weekly": "毎週"
+        },
+        "select_frequency": "頻度を選択",
+        "save_settings": "設定を保存"
+      },
+      "list": {
+        "title": "あんたのバックアップ",
+        "create_backup_now": "今すぐバックアップを作成",
+        "no_backups": "まだバックアップがないね。自動バックアップを有効にするか、手動で作成してくれ。",
+        "table": {
+          "created_at": "作成日時",
+          "bookmarks": "ブックマーク",
+          "size": "サイズ",
+          "status": "ステータス",
+          "actions": "アクション"
+        },
+        "status": {
+          "success": "成功",
+          "failed": "失敗",
+          "pending": "保留中"
+        },
+        "actions": {
+          "download_backup": "バックアップをダウンロード",
+          "delete_backup": "バックアップを削除"
+        }
+      },
+      "dialogs": {
+        "delete_backup_title": "バックアップを削除してもよろしいですか？",
+        "delete_backup_description": "このバックアップを削除してもよろしいですか？　この操作は取り消せません。"
+      },
+      "toasts": {
+        "backup_queued": "バックアップジョブがキューに追加されました。まもなく処理されます。",
+        "backup_deleted": "バックアップは削除されました！"
+      }
     }
   },
   "common": {
@@ -411,7 +577,9 @@
     "summary": "概要",
     "quota": "割り当て",
     "bookmarks": "ブックマーク",
-    "storage": "ストレージ"
+    "storage": "ストレージ",
+    "pdf": "PDFをアーカイブしたよ",
+    "default": "既定"
   },
   "layouts": {
     "grid": "グリッド",
@@ -447,7 +615,63 @@
       "title": "公開リスト",
       "description": "他のユーザーにこのリストの表示を許可する",
       "share_link": "リンクを共有"
-    }
+    },
+    "delete_list": {
+      "title": "リストを削除",
+      "description": "リストを削除しても、そのリスト内のブックマークは削除されません。",
+      "delete_children": "子リストを（再帰的に）削除",
+      "delete_children_description": "チェックしない場合、すべての子リストがルートリストになります"
+    },
+    "shared": "共有",
+    "collaborators": {
+      "manage": "コラボレーターの管理",
+      "view": "コラボレーターの表示",
+      "collaborators": "コラボレーター",
+      "add": "コラボレーターの追加",
+      "current": "現在のコラボレーター",
+      "enter_email": "メールアドレスを入力",
+      "please_enter_email": "メールアドレスを入力してください",
+      "added_successfully": "コラボレーターが追加されました",
+      "failed_to_add": "コラボレーターの追加に失敗しました",
+      "removed": "コラボレーターが削除されました",
+      "failed_to_remove": "コラボレーターの削除に失敗しました",
+      "role_updated": "ロールが更新されました",
+      "failed_to_update_role": "ロールの更新に失敗しました",
+      "viewer": "閲覧者",
+      "editor": "編集者",
+      "owner": "オーナー",
+      "viewer_description": "リスト内のブックマークを表示できます",
+      "editor_description": "ブックマークを追加および削除できます",
+      "no_collaborators": "コラボレーターはまだいません。誰かを追加してコラボレーションを始めましょう！",
+      "no_collaborators_readonly": "このリストにはコラボレーターはいません。",
+      "people_with_access": "このリストにアクセスできる人",
+      "add_or_remove": "このリストにアクセスできる人を追加または削除する",
+      "invitation_sent": "招待状、送信完了！",
+      "invitation_revoked": "招待取り消し",
+      "failed_to_revoke": "招待の取り消しに失敗しました",
+      "pending": "保留中",
+      "revoke": "取り消し",
+      "declined": "拒否"
+    },
+    "leave_list": {
+      "title": "リストから退会する",
+      "confirm_message": "{{icon}} {{name}} から退会してもよろしいですか？",
+      "warning": "このリストのブックマークを表示またはアクセスできなくなります。必要に応じて、リストのオーナーがあなたを追加し直すことができます。",
+      "action": "リストから退会する",
+      "success": "「{{icon}} {{name}}」から退会しました。"
+    },
+    "invitations": {
+      "pending": "招待待ち",
+      "description": "リストのコラボレーション招待の確認と対応",
+      "invited_by": "招待元",
+      "accept": "承諾",
+      "decline": "拒否",
+      "accepted": "招待を承諾しました",
+      "declined": "招待を辞退しました",
+      "failed_to_accept": "招待の承諾に失敗しました",
+      "failed_to_decline": "招待の辞退に失敗しました"
+    },
+    "shared_lists": "共有リスト"
   },
   "options": {
     "dark_mode": "ダークモード",
@@ -464,7 +688,18 @@
     "ai_tags": "AIタグ",
     "ai_tags_info": "自動的に（AIによって）付与されただけのタグ",
     "unused_tags": "未使用のタグ",
-    "sort_by_name": "名前でソート"
+    "sort_by_name": "名前でソート",
+    "create_tag": "タグを作成",
+    "create_tag_description": "どのブックマークにも関連付けずに、新しいタグを作成する",
+    "tag_name": "タグ名",
+    "enter_tag_name": "タグ名を入力",
+    "sort_by_usage": "使用頻度順で並び替え",
+    "sort_by_relevance": "関連度順で並び替え",
+    "no_custom_tags": "カスタムタグはまだありません",
+    "no_ai_tags": "AIタグはまだありません",
+    "no_unused_tags": "未使用のタグはありません",
+    "no_unused_tags_match_your_search": "検索に一致する未使用のタグはありません",
+    "no_tags_match_your_search": "検索に一致するタグはありません"
   },
   "search": {
     "created_on_or_after": "作成日以降",
@@ -502,7 +737,16 @@
     "week_s_ago": " ～週間前",
     "month_s_ago": " ～か月前",
     "year_s_ago": " ～年前",
-    "history": "最近の検索"
+    "history": "最近の検索",
+    "title_contains": "タイトルに含む",
+    "title_does_not_contain": "タイトルに含まない",
+    "is_broken_link": "リンク切れ",
+    "tags": "タグ",
+    "no_suggestions": "サジェストはありません",
+    "filters": "フィルター",
+    "is_not_broken_link": "リンクは有効です",
+    "lists": "リスト",
+    "feeds": "フィード"
   },
   "preview": {
     "cached_content": "キャッシュされたコンテンツ",
@@ -511,7 +755,8 @@
     "tabs": {
       "content": "コンテンツ",
       "details": "詳細"
-    }
+    },
+    "archive_info": "アーカイブは Javascript を必要とする場合、インラインで正しく表示されないことがあります。最良の結果を得るには、<1>ダウンロードしてブラウザで開いてください</1>。"
   },
   "editor": {
     "quickly_focus": "⌘ + E を押すと、このフィールドにすばやくフォーカスできます",
@@ -585,13 +830,18 @@
       "full_page_archive": "フルページアーカイブの作成が開始されました",
       "delete_from_list": "ブックマークがリストから削除されました",
       "deleted": "ブックマークが削除されたよ！",
-      "refetch": "再取得をエンキューしたぞ！"
+      "refetch": "再取得をエンキューしたぞ！",
+      "preserve_pdf": "PDF保存が開始されたよ"
     },
     "lists": {
       "created": "リストが作成されました！",
       "updated": "リストが更新されました！",
       "merged": "リストがマージされたぞ！",
       "deleted": "リストが削除されたぞ！"
+    },
+    "tags": {
+      "created": "タグが作成されました！",
+      "failed_to_create": "タグの作成に失敗しました"
     }
   },
   "cleanups": {
@@ -619,5 +869,27 @@
     "pick_a_date": "日付を選択",
     "save_changes": "変更を保存",
     "extracted_content": "抽出されたコンテンツ"
+  },
+  "view_options": {
+    "title": "表示オプション",
+    "layout": "レイアウト",
+    "columns": "列",
+    "display_options": "表示オプション",
+    "show_note_previews": "注釈を表示",
+    "show_tags": "タグを表示",
+    "show_title": "タイトルを表示",
+    "image_options": "画像オプション",
+    "image_fit_cover": "カバー（塗りつぶし）",
+    "image_fit_contain": "コンテイン（フィット）"
+  },
+  "version": {
+    "new_release_available": "新しいリリースノートが利用可能です",
+    "whats_new_title": "v{{version}} の新機能",
+    "release_notes_description": "GitHub のリリースノートから取得した最新のアップデートです。",
+    "loading_release_notes": "リリースノートを読み込み中…",
+    "unable_to_load_release_notes": "ただ今、リリースノートを読み込めません。後でもう一度お試しください。",
+    "no_release_notes": "このバージョンに関するリリースノートは公開されていません。",
+    "release_notes_synced": "リリースノートは GitHub から同期されています。",
+    "view_on_github": "GitHub で表示"
   }
 }

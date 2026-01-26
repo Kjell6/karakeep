@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { workerStatsCounter } from "metrics";
+import { withWorkerTracing } from "workerTracing";
 
 import type { ZSearchIndexingRequest } from "@karakeep/shared-server";
 import { db } from "@karakeep/db";
@@ -25,7 +26,7 @@ export class SearchIndexingWorker {
       (await getQueueClient())!.createRunner<ZSearchIndexingRequest>(
         SearchIndexingQueue,
         {
-          run: runSearchIndexing,
+          run: withWorkerTracing("searchWorker.run", runSearchIndexing),
           onComplete: (job) => {
             workerStatsCounter.labels("search", "completed").inc();
             const jobId = job.id;
@@ -34,6 +35,9 @@ export class SearchIndexingWorker {
           },
           onError: (job) => {
             workerStatsCounter.labels("search", "failed").inc();
+            if (job.numRetriesLeft == 0) {
+              workerStatsCounter.labels("search", "failed_permanent").inc();
+            }
             const jobId = job.id;
             logger.error(
               `[search][${jobId}] search job failed: ${job.error}\n${job.error.stack}`,
@@ -44,7 +48,7 @@ export class SearchIndexingWorker {
         {
           concurrency: serverConfig.search.numWorkers,
           pollIntervalMs: 1000,
-          timeoutSecs: 30,
+          timeoutSecs: serverConfig.search.jobTimeoutSec,
         },
       );
 

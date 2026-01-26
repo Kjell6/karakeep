@@ -39,7 +39,9 @@
     "updated_at": "تم التحديث في",
     "quota": "حصة",
     "bookmarks": "الإشارات المرجعية",
-    "storage": "تخزين"
+    "storage": "تخزين",
+    "pdf": "نسخة PDF مؤرشفة",
+    "default": "افتراضي"
   },
   "layouts": {
     "masonry": "متعدد الأعمدة",
@@ -87,7 +89,12 @@
     },
     "open_editor": "فتح المحرر",
     "toggle_show_archived": "اعرض المؤرشفة",
-    "confirm": "تأكيد"
+    "confirm": "تأكيد",
+    "regenerate": "تجديد",
+    "load_more": "المزيد",
+    "edit_notes": "تحرير الملاحظات",
+    "preserve_as_pdf": "حفظ كملف PDF",
+    "offline_copies": "نسخ غير متصلة بالإنترنت"
   },
   "highlights": {
     "no_highlights": "ليس لديك أي تمييزات بعد."
@@ -116,6 +123,49 @@
           "show": "اعرض الإشارات المرجعية المؤرشفة في العلامات والقوائم",
           "hide": "إخفاء الإشارات المرجعية المؤرشفة في العلامات والقوائم"
         }
+      },
+      "reader_settings": {
+        "local_overrides_title": "إعدادات خاصة بالجهاز مُفعلة",
+        "using_default": "استخدام الإعدادات الافتراضية للعميل",
+        "clear_override_hint": "امسح تجاوز الجهاز لاستخدام الإعداد العام ({{value}})",
+        "font_size": "حجم الخط",
+        "font_family": "نوع الخط",
+        "preview_inline": "(معاينة)",
+        "tooltip_preview": "تغييرات المعاينة غير المحفوظة",
+        "save_to_all_devices": "كل الأجهزة",
+        "tooltip_local": "إعدادات الجهاز تختلف عن الإعدادات العامة",
+        "reset_preview": "إعادة ضبط المعاينة",
+        "mono": "Monospace",
+        "line_height": "ارتفاع السطر",
+        "tooltip_default": "إعدادات القراءة",
+        "title": "إعدادات القارئ",
+        "serif": "Serif",
+        "preview": "معاينة",
+        "not_set": "غير مضبوط",
+        "clear_local_overrides": "مسح إعدادات الجهاز",
+        "preview_text": "الـ quick brown fox jumps over the lazy dog. ستظهر نصوص عرض القارئ بهذه الطريقة.",
+        "local_overrides_cleared": "تم مسح إعدادات الجهاز المخصصة",
+        "local_overrides_description": "يحتوي هذا الجهاز على إعدادات قارئ مختلفة عن الإعدادات الافتراضية العامة:",
+        "clear_defaults": "مسح كل الإعدادات الافتراضية",
+        "description": "اضبط إعدادات النص الافتراضية لعرض القارئ. تتم مزامنة هذه الإعدادات عبر جميع أجهزتك.",
+        "defaults_cleared": "تم مسح الإعدادات الافتراضية للقارئ",
+        "save_hint": "احفظ الإعدادات لهذا الجهاز فقط أو قم بمزامنتها عبر جميع الأجهزة",
+        "save_as_default": "حفظ كافتراضي",
+        "save_to_device": "هذا الجهاز",
+        "sans": "Sans Serif",
+        "tooltip_preview_and_local": "تغييرات المعاينة غير المحفوظة؛ إعدادات الجهاز تختلف عن الإعدادات العامة",
+        "adjust_hint": "اضبط الإعدادات أعلاه لمعاينة التغييرات"
+      },
+      "avatar": {
+        "upload": "ارفع الصورة الرمزية",
+        "change": "غير الصورة الرمزية",
+        "remove_confirm_title": "تشيل الصورة الرمزية؟",
+        "updated": "تم تحديث الصورة الرمزية",
+        "removed": "تمت إزالة الصورة الرمزية",
+        "description": "ارفع صورة مربعة عشان تستخدمها كصورة رمزية.",
+        "remove_confirm_description": "ده هيمسح صورة ملفك الشخصي الحالية.",
+        "title": "صورة الملف الشخصي",
+        "remove": "شيل الصورة الرمزية"
       }
     },
     "ai": {
@@ -129,7 +179,21 @@
       "all_tagging": "التوسيم الشامل",
       "text_tagging": "توسيم النصوص",
       "image_tagging": "توسيم الصور",
-      "summarization": "التلخيص"
+      "summarization": "التلخيص",
+      "tag_style": "نمط العلامة",
+      "auto_summarization_description": "إنشاء ملخصات تلقائيًا لعلاماتك المرجعية باستخدام الذكاء الاصطناعي.",
+      "auto_tagging": "وضع العلامات التلقائي",
+      "titlecase_spaces": "أحرف استهلالية مع مسافات",
+      "lowercase_underscores": "أحرف صغيرة مع شرطات سفلية",
+      "inference_language": "لُغة الاستنتاج",
+      "titlecase_hyphens": "أحرف استهلالية مع واصلات",
+      "lowercase_hyphens": "أحرف صغيرة مع واصلات",
+      "lowercase_spaces": "أحرف صغيرة مع مسافات",
+      "inference_language_description": "اختر اللغة الخاصة بالعلامات والملخصات التي تم إنشاؤها بواسطة الذكاء الاصطناعي.",
+      "tag_style_description": "اختر كيف ينبغي تنسيق علاماتك التي تم إنشاؤها تلقائيًا.",
+      "auto_tagging_description": "إنشاء علامات تلقائيًا لعلاماتك المرجعية باستخدام الذكاء الاصطناعي.",
+      "camelCase": "camelCase",
+      "auto_summarization": "التلخيص التلقائي"
     },
     "feeds": {
       "rss_subscriptions": "اشتراكات RSS",
@@ -160,19 +224,26 @@
       "import_export_bookmarks": "استيراد / تصدير الإشارات المرجعية",
       "import_bookmarks_from_html_file": "استيراد إشارات مرجعية من ملف HTML",
       "import_bookmarks_from_pocket_export": "استيراد إشارات مرجعية من تصدير Pocket",
+      "import_bookmarks_from_matter_export": "استيراد إشارات مرجعية من تصدير Matter",
       "import_bookmarks_from_omnivore_export": "استيراد إشارات مرجعية من تصدير Omnivore",
       "import_bookmarks_from_linkwarden_export": "استيراد إشارات مرجعية من تصدير Linkwarden",
       "import_bookmarks_from_karakeep_export": "استيراد إشارات مرجعية من تصدير Karakeep",
       "export_links_and_notes": "تصدير الروابط والملاحظات",
       "imported_bookmarks": "الإشارات المرجعية المستوردة",
-      "import_bookmarks_from_tab_session_manager_export": "استيراد الإشارات المرجعية من مدير جلسة علامات التبويب"
+      "import_bookmarks_from_tab_session_manager_export": "استيراد الإشارات المرجعية من مدير جلسة علامات التبويب",
+      "import_bookmarks_from_mymind_export": "استيراد الإشارات المرجعية من تصدير mymind"
     },
     "api_keys": {
       "api_keys": "مفاتيح API",
       "new_api_key": "مفتاح API جديد",
       "new_api_key_desc": "أعط مفتاح API اسماً فريداً",
       "key_success": "تم إنشاء المفتاح بنجاح",
-      "key_success_please_copy": "يرجى نسخ المفتاح وتخزينه في مكان آمن. لن تتمكن من الوصول إليه مرة أخرى بعد إغلاق هذا الحوار."
+      "key_success_please_copy": "يرجى نسخ المفتاح وتخزينه في مكان آمن. لن تتمكن من الوصول إليه مرة أخرى بعد إغلاق هذا الحوار.",
+      "regenerate_api_key": "تجديد مفتاح API",
+      "key_regenerated": "تم تجديد المفتاح بنجاح",
+      "key_regenerated_please_copy": "يرجى نسخ المفتاح الجديد وتخزينه في مكان آمن. تم إلغاء المفتاح القديم ولن يعمل بعد الآن.",
+      "regenerate_warning": "هل أنت متأكد أنك تريد تجديد مفتاح API لـ \"{{name}}\"?",
+      "regenerate_confirmation": "سيؤدي ذلك إلى إلغاء المفتاح الحالي وإنشاء مفتاح جديد. ستتوقف أي تطبيقات تستخدم المفتاح الحالي عن العمل."
     },
     "broken_links": {
       "broken_links": "روابط معطلة",
@@ -285,6 +356,10 @@
       },
       "storage_breakdown": {
         "title": "تفصيل التخزين"
+      },
+      "bookmark_sources": {
+        "title": "مصادر الإشارات المرجعية",
+        "empty": "لا توجد بيانات مصدر متاحة"
       }
     },
     "subscription": {
@@ -307,6 +382,82 @@
       "loading_usage": "جارٍ تحميل معلومات الاستخدام...",
       "free": "مجاني",
       "paid": "مدفوعة"
+    },
+    "import_sessions": {
+      "title": "استيراد الجلسات",
+      "description": "اعرض وجّه جلسات الاستيراد المجمّع الخاصة بك وإدارتها. يتم إنشاء الجلسات تلقائيًا عند استيراد الإشارات المرجعية.",
+      "load_error": "فشل تحميل جلسات الاستيراد",
+      "no_sessions": "لا توجد جلسات استيراد حتى الآن",
+      "no_sessions_detail": "ستظهر جلسات الاستيراد هنا تلقائيًا عند استيراد الإشارات المرجعية",
+      "created_at": "أنشئ {{time}}",
+      "progress": "التقدّم",
+      "status": {
+        "pending": "معلّق",
+        "in_progress": "قيد التقدّم",
+        "completed": "اكتمل",
+        "failed": "فشل",
+        "processing": "جارٍ المعالجة"
+      },
+      "badges": {
+        "pending": "{{count}} معلّق",
+        "processing": "{{count}} قيد المعالجة",
+        "completed": "{{count}} اكتمل",
+        "failed": "{{count}} فشل"
+      },
+      "imported_to": "تم الاستيراد إلى:",
+      "view_list": "عرض اللائحة",
+      "delete_dialog_title": "حذف جلسة الاستيراد",
+      "delete_dialog_description": "هل أنت متأكد أنك تريد حذف \" {{name}} \"؟ لا يمكن التراجع عن هذا الإجراء. لن يتم حذف الإشارات المرجعية نفسها.",
+      "delete_session": "حذف الجلسة"
+    },
+    "backups": {
+      "backups": "النُسخ الاحتياطية",
+      "page_title": "النُسخ الاحتياطية",
+      "page_description": "أنشئ وأدر نُسخًا احتياطية لعلاماتك المرجعية تلقائيًا. النُسخ الاحتياطية مُضغوطة ومخزنة بشكل آمن.",
+      "configuration": {
+        "title": "إعدادات النسخ الاحتياطي",
+        "enable_automatic_backups": "تمكين النسخ الاحتياطي التلقائي",
+        "enable_automatic_backups_description": "أنشئ نُسخًا احتياطية لعلاماتك المرجعية تلقائيًا",
+        "backup_frequency": "تكرار النسخ الاحتياطي",
+        "backup_frequency_description": "كم مرة يتم فيها إنشاء نسخ احتياطية",
+        "retention_period": "فترة الاستبقاء (بالأيام)",
+        "retention_period_description": "عدد الأيام التي يجب الاحتفاظ فيها بالنُسخ الاحتياطية قبل حذفها",
+        "frequency": {
+          "daily": "يوميًا",
+          "weekly": "أسبوعيًا"
+        },
+        "select_frequency": "اختر التكرار",
+        "save_settings": "حفظ الإعدادات"
+      },
+      "list": {
+        "title": "نُسخك الاحتياطية",
+        "create_backup_now": "إنشاء نسخة احتياطية الآن",
+        "no_backups": "ليس لديك أي نُسخ احتياطية حتى الآن. قم بتمكين النُسخ الاحتياطية التلقائية أو أنشئ واحدة يدويًا.",
+        "table": {
+          "created_at": "تاريخ الإنشاء",
+          "bookmarks": "العلامات المرجعية",
+          "size": "الحجم",
+          "status": "الحالة",
+          "actions": "الإجراءات"
+        },
+        "status": {
+          "success": "نجاح",
+          "failed": "فشل",
+          "pending": "معلقة"
+        },
+        "actions": {
+          "download_backup": "تنزيل نسخة احتياطية",
+          "delete_backup": "حذف النسخة الاحتياطية"
+        }
+      },
+      "dialogs": {
+        "delete_backup_title": "حذف النسخة الاحتياطية؟",
+        "delete_backup_description": "هل أنت متأكد أنك تريد حذف هذه النسخة الاحتياطية؟ لا يمكن التراجع عن هذا الإجراء."
+      },
+      "toasts": {
+        "backup_queued": "تمت إضافة مهمة النسخ الاحتياطي إلى قائمة الانتظار! ستتم معالجتها قريبًا.",
+        "backup_deleted": "تم حذف النسخة الاحتياطية!"
+      }
     }
   },
   "admin": {
@@ -363,6 +514,10 @@
         "feed": {
           "title": "وظائف تغذية RSS",
           "description": "معالجة موجز RSS وتحديثات المحتوى"
+        },
+        "admin_maintenance": {
+          "title": "مهام صيانة المسؤول",
+          "description": "تنظيف إداري وصيانة للأصول"
         }
       },
       "monitor_and_manage": "مراقبة وإدارة قوائم انتظار الوظائف الخلفية ومهام معالجة النظام",
@@ -393,7 +548,8 @@
         "regenerate_ai_summaries_for_all_bookmarks": "إعادة إنشاء ملخصات الذكاء الاصطناعي لجميع الإشارات المرجعية",
         "reindex_all_bookmarks": "إعادة فهرسة جميع الإشارات المرجعية",
         "clean_assets": "تنظيف الأصول المتدلية وإعادة مزامنة البيانات الوصفية",
-        "reprocess_assets_fix_mode": "إعادة معالجة الأصول غير المعالجة"
+        "reprocess_assets_fix_mode": "إعادة معالجة الأصول غير المعالجة",
+        "migrate_large_link_html_content": "نقل محتوى HTML كبير مضمّن إلى الأصول"
       }
     },
     "actions": {
@@ -420,6 +576,18 @@
       "confirm_password": "تأكيد كلمة المرور",
       "delete_user_confirm_description": "هل أنت متأكد أنك تريد حذف المستخدم \"{{name}}؟\"",
       "unlimited": "غير محدود"
+    },
+    "service_connections": {
+      "title": "اتصالات الخدمة",
+      "description": "راقب حالة التبعيات الخاصة بالنظام الخارجي واتصاله",
+      "search_engine": "محرك البحث",
+      "browser": "المتصفح",
+      "queue_system": "نظام الانتظار",
+      "status": {
+        "not_configured": "غير مهيأ",
+        "connected": "متصل",
+        "disconnected": "قطع الاتصال"
+      }
     }
   },
   "options": {
@@ -454,7 +622,63 @@
       "title": "قائمة عامة",
       "description": "السماح للآخرين بعرض هذه القائمة",
       "share_link": "شارك الرابط"
-    }
+    },
+    "delete_list": {
+      "title": "حذف القائمة",
+      "description": "لا يؤدي حذف قائمة ما إلى حذف أي إشارات مرجعية في هذه القائمة.",
+      "delete_children": "حذف القوائم الفرعية (بشكل متكرر)",
+      "delete_children_description": "إذا لم يتم تحديده، فستصبح جميع القوائم الفرعية المباشرة قوائم جذر"
+    },
+    "shared": "مشترك",
+    "collaborators": {
+      "manage": "إدارة المتعاونين",
+      "view": "عرض المتعاونين",
+      "collaborators": "المتعاونين",
+      "add": "إضافة متعاون",
+      "current": "المتعاونون الحاليون",
+      "enter_email": "أدخل عنوان البريد الإلكتروني",
+      "please_enter_email": "يرجى إدخال عنوان بريد إلكتروني",
+      "added_successfully": "تمت إضافة المتعاون بنجاح",
+      "failed_to_add": "فشل في إضافة متعاون",
+      "removed": "تمت إزالة المتعاون",
+      "failed_to_remove": "فشل في إزالة المتعاون",
+      "role_updated": "تم تحديث الدور",
+      "failed_to_update_role": "فشل في تحديث الدور",
+      "viewer": "عارض",
+      "editor": "محرر",
+      "owner": "مالك",
+      "viewer_description": "يمكنه عرض الإشارات المرجعية في القائمة",
+      "editor_description": "يمكنه إضافة وإزالة الإشارات المرجعية",
+      "no_collaborators": "لا يوجد متعاونون حتى الآن. أضف شخصًا لبدء التعاون!",
+      "no_collaborators_readonly": "لا يوجد متعاونين لهذه القائمة.",
+      "people_with_access": "الأشخاص الذين لديهم صلاحية الوصول إلى هذه القائمة",
+      "add_or_remove": "إضافة أو إزالة الأشخاص الذين يمكنهم الوصول إلى هذه القائمة",
+      "invitation_sent": "تم إرسال الدعوة بنجاح",
+      "invitation_revoked": "تم إلغاء الدعوة",
+      "failed_to_revoke": "فشل إلغاء الدعوة",
+      "pending": "معلقة",
+      "revoke": "إلغاء",
+      "declined": "مرفوضة"
+    },
+    "leave_list": {
+      "title": "مغادرة القائمة",
+      "confirm_message": "هل أنت متأكد أنك تريد مغادرة {{icon}} {{name}}؟",
+      "warning": "لن تتمكن بعد ذلك من عرض أو الوصول إلى الإشارات المرجعية في هذه القائمة. يمكن لمالك القائمة إضافتك مرة أخرى إذا لزم الأمر.",
+      "action": "مغادرة القائمة",
+      "success": "لقد غادرت \"{{icon}} {{name}}\""
+    },
+    "invitations": {
+      "pending": "الدعوات المعلَّقة",
+      "description": "راجِع دعوات المشاركة في القائمة واستجب لها",
+      "invited_by": "بدعوة من",
+      "accept": "قبول",
+      "decline": "رفض",
+      "accepted": "تم قبول الدعوة",
+      "declined": "تم رفض الدعوة",
+      "failed_to_accept": "فشل قبول الدعوة",
+      "failed_to_decline": "فشل رفض الدعوة"
+    },
+    "shared_lists": "قوائم مشتركة"
   },
   "tags": {
     "all_tags": "جميع الوسوم",
@@ -467,7 +691,18 @@
     "delete_all_unused_tags": "حذف جميع الوسوم غير المستخدمة",
     "drag_and_drop_merging": "دمج بالسحب والإفلات",
     "drag_and_drop_merging_info": "اسحب وأفلت الوسوم على بعضها البعض لدمجها",
-    "sort_by_name": "ترتيب حسب الاسم"
+    "sort_by_name": "ترتيب حسب الاسم",
+    "create_tag": "إنشاء علامة",
+    "create_tag_description": "إنشاء علامة جديدة بدون إرفاقها بأي إشارة مرجعية",
+    "tag_name": "اسم العلامة",
+    "enter_tag_name": "أدخل اسم العلامة",
+    "sort_by_usage": "الترتيب حسب الاستخدام",
+    "sort_by_relevance": "الترتيب حسب الصلة",
+    "no_custom_tags": "لا توجد علامات مخصصة حتى الآن",
+    "no_ai_tags": "لا توجد علامات ذكاء اصطناعي حتى الآن",
+    "no_unused_tags": "ليس لديك أية علامات غير مستخدمة",
+    "no_unused_tags_match_your_search": "لا توجد علامات غير مستخدمة تطابق بحثك",
+    "no_tags_match_your_search": "لا توجد علامات تطابق بحثك"
   },
   "search": {
     "is_favorited": "في المفضلة",
@@ -505,7 +740,16 @@
     "year_s": " سنة (سنوات)",
     "day_s_ago": " منذ يوم (أيام)",
     "week_s_ago": " منذ أسبوع (أسابيع)",
-    "history": "عمليات البحث الأخيرة"
+    "history": "عمليات البحث الأخيرة",
+    "title_contains": "العنوان يحتوي على",
+    "title_does_not_contain": "العنوان لا يحتوي على",
+    "is_broken_link": "لديه رابط معطّل",
+    "tags": "العلامات",
+    "no_suggestions": "لا توجد اقتراحات",
+    "filters": "الفلاتر",
+    "is_not_broken_link": "لديه رابط صالح",
+    "lists": "القوائم",
+    "feeds": "خلاصات الأخبار"
   },
   "preview": {
     "view_original": "عرض النسخة الأصلية",
@@ -514,7 +758,8 @@
     "tabs": {
       "content": "المحتوى",
       "details": "التفاصيل"
-    }
+    },
+    "archive_info": "قد لا يتم عرض الأرشيفات بشكل صحيح في السطر إذا كانت تتطلب Javascript. للحصول على أفضل النتائج، <1>قم بتنزيلها وافتحها في متصفحك</1>."
   },
   "editor": {
     "quickly_focus": "يمكنك التركيز سريعاً على هذا الحقل بالضغط على ⌘ + E",
@@ -588,13 +833,18 @@
       "refetch": "تم إضافة إعادة الجلب إلى قائمة الانتظار!",
       "full_page_archive": "تم بدء إنشاء أرشيف الصفحة الكامل",
       "delete_from_list": "تم حذف الإشارة المرجعية من القائمة",
-      "clipboard_copied": "تم نسخ الرابط إلى الحافظة!"
+      "clipboard_copied": "تم نسخ الرابط إلى الحافظة!",
+      "preserve_pdf": "تم تشغيل حفظ PDF"
     },
     "lists": {
       "created": "تم إنشاء القائمة!",
       "updated": "تم تحديث القائمة!",
       "merged": "تم دمج القائمة!",
       "deleted": "تم حذف القائمة!"
+    },
+    "tags": {
+      "created": "تم إنشاء العلامة!",
+      "failed_to_create": "فشل إنشاء العلامة"
     }
   },
   "cleanups": {
@@ -619,5 +869,27 @@
     "pick_a_date": "اختر تاريخًا",
     "save_changes": "حفظ التغييرات",
     "extracted_content": "المحتوى المستخرج"
+  },
+  "view_options": {
+    "title": "عرض الخيارات",
+    "layout": "تخطيط",
+    "columns": "أعمدة",
+    "display_options": "خيارات العرض",
+    "show_note_previews": "إظهار الملاحظات",
+    "show_tags": "عرض العلامات",
+    "show_title": "عرض العنوان",
+    "image_options": "خيارات الصورة",
+    "image_fit_cover": "غطاء (تعبئة)",
+    "image_fit_contain": "احتواء (ملاءمة)"
+  },
+  "version": {
+    "new_release_available": "ملاحظات الإصدار الجديدة متوفرة",
+    "whats_new_title": "ما الجديد في v{{version}}",
+    "release_notes_description": "إليك آخر التحديثات التي تم جلبها من ملاحظات إصدار GitHub.",
+    "loading_release_notes": "جارٍ تحميل ملاحظات الإصدار…",
+    "unable_to_load_release_notes": "تعذر تحميل ملاحظات الإصدار الآن. يرجى المحاولة مرة أخرى لاحقًا.",
+    "no_release_notes": "لم يتم نشر ملاحظات إصدار لهذا الإصدار.",
+    "release_notes_synced": "تتم مزامنة ملاحظات الإصدار من GitHub.",
+    "view_on_github": "عرض على GitHub"
   }
 }

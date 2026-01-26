@@ -1,8 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { rssFeedsTable } from "@karakeep/db/schema";
+import serverConfig from "@karakeep/shared/config";
 import {
   zFeedSchema,
   zNewFeedSchema,
@@ -10,9 +11,8 @@ import {
 } from "@karakeep/shared/types/feeds";
 
 import { AuthedContext } from "..";
-import { PrivacyAware } from "./privacy";
 
-export class Feed implements PrivacyAware {
+export class Feed {
   constructor(
     protected ctx: AuthedContext,
     private feed: typeof rssFeedsTable.$inferSelect,
@@ -45,6 +45,20 @@ export class Feed implements PrivacyAware {
     ctx: AuthedContext,
     input: z.infer<typeof zNewFeedSchema>,
   ): Promise<Feed> {
+    // Check if user has reached the maximum number of feeds
+    const [feedCount] = await ctx.db
+      .select({ count: count() })
+      .from(rssFeedsTable)
+      .where(eq(rssFeedsTable.userId, ctx.user.id));
+
+    const maxFeeds = serverConfig.feeds.maxRssFeedsPerUser;
+    if (feedCount.count >= maxFeeds) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: `Maximum number of RSS feeds (${maxFeeds}) reached`,
+      });
+    }
+
     const [result] = await ctx.db
       .insert(rssFeedsTable)
       .values({
@@ -52,6 +66,7 @@ export class Feed implements PrivacyAware {
         url: input.url,
         userId: ctx.user.id,
         enabled: input.enabled,
+        importTags: input.importTags ?? false,
       })
       .returning();
 
@@ -64,15 +79,6 @@ export class Feed implements PrivacyAware {
     });
 
     return feeds.map((f) => new Feed(ctx, f));
-  }
-
-  ensureCanAccess(ctx: AuthedContext): void {
-    if (this.feed.userId !== ctx.user.id) {
-      throw new TRPCError({
-        code: "FORBIDDEN",
-        message: "User is not allowed to access resource",
-      });
-    }
   }
 
   async delete(): Promise<void> {
@@ -97,6 +103,7 @@ export class Feed implements PrivacyAware {
         name: input.name,
         url: input.url,
         enabled: input.enabled,
+        importTags: input.importTags,
       })
       .where(
         and(

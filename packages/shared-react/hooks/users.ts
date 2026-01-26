@@ -6,9 +6,22 @@ export function useUpdateUserSettings(
   const apiUtils = api.useUtils();
   return api.users.updateSettings.useMutation({
     ...opts[0],
-    onSuccess: (res, req, meta) => {
+    onSuccess: (res, req, meta, context) => {
       apiUtils.users.settings.invalidate();
-      return opts[0]?.onSuccess?.(res, req, meta);
+      return opts[0]?.onSuccess?.(res, req, meta, context);
+    },
+  });
+}
+
+export function useUpdateUserAvatar(
+  ...opts: Parameters<typeof api.users.updateAvatar.useMutation>
+) {
+  const apiUtils = api.useUtils();
+  return api.users.updateAvatar.useMutation({
+    ...opts[0],
+    onSuccess: (res, req, meta, context) => {
+      apiUtils.users.whoami.invalidate();
+      return opts[0]?.onSuccess?.(res, req, meta, context);
     },
   });
 }

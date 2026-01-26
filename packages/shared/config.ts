@@ -54,8 +54,12 @@ const allEnv = z.object({
   OAUTH_TIMEOUT: z.coerce.number().optional().default(3500),
   OAUTH_SCOPE: z.string().default("openid email profile"),
   OAUTH_PROVIDER_NAME: z.string().default("Custom Provider"),
+  TURNSTILE_SITE_KEY: z.string().optional(),
+  TURNSTILE_SECRET_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_BASE_URL: z.string().url().optional(),
+  OPENAI_PROXY_URL: z.string().url().optional(),
+  OPENAI_SERVICE_TIER: z.enum(["auto", "default", "flex"]).optional(),
   OLLAMA_BASE_URL: z.string().url().optional(),
   OLLAMA_KEEP_ALIVE: z.string().optional(),
   INFERENCE_JOB_TIMEOUT_SEC: z.coerce.number().default(30),
@@ -88,12 +92,15 @@ const allEnv = z.object({
   CRAWLER_NUM_WORKERS: z.coerce.number().default(1),
   INFERENCE_NUM_WORKERS: z.coerce.number().default(1),
   SEARCH_NUM_WORKERS: z.coerce.number().default(1),
+  SEARCH_JOB_TIMEOUT_SEC: z.coerce.number().default(30),
   WEBHOOK_NUM_WORKERS: z.coerce.number().default(1),
   ASSET_PREPROCESSING_NUM_WORKERS: z.coerce.number().default(1),
+  ASSET_PREPROCESSING_JOB_TIMEOUT_SEC: z.coerce.number().default(60),
   RULE_ENGINE_NUM_WORKERS: z.coerce.number().default(1),
   CRAWLER_DOWNLOAD_BANNER_IMAGE: stringBool("true"),
   CRAWLER_STORE_SCREENSHOT: stringBool("true"),
   CRAWLER_FULL_PAGE_SCREENSHOT: stringBool("false"),
+  CRAWLER_STORE_PDF: stringBool("false"),
   CRAWLER_FULL_PAGE_ARCHIVE: stringBool("false"),
   CRAWLER_VIDEO_DOWNLOAD: stringBool("false"),
   CRAWLER_VIDEO_DOWNLOAD_MAX_SIZE: z.coerce.number().default(50),
@@ -104,6 +111,9 @@ const allEnv = z.object({
     .default("")
     .transform((t) => t.split("%%").filter((a) => a)),
   CRAWLER_SCREENSHOT_TIMEOUT_SEC: z.coerce.number().default(5),
+  CRAWLER_IP_VALIDATION_DNS_RESOLVER_TIMEOUT_SEC: z.coerce.number().default(1),
+  CRAWLER_DOMAIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().min(1).optional(),
+  CRAWLER_DOMAIN_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().min(1).optional(),
   LOG_LEVEL: z.string().default("debug"),
   NO_COLOR: stringBool("false"),
   DEMO_MODE: stringBool("false"),
@@ -112,11 +122,15 @@ const allEnv = z.object({
   DATA_DIR: z.string().default(""),
   ASSETS_DIR: z.string().optional(),
   MAX_ASSET_SIZE_MB: z.coerce.number().default(50),
+  HTML_CONTENT_SIZE_INLINE_THRESHOLD_BYTES: z.coerce.number().default(5 * 1024),
   INFERENCE_LANG: z.string().default("english"),
   WEBHOOK_TIMEOUT_SEC: z.coerce.number().default(5),
   WEBHOOK_RETRY_TIMES: z.coerce.number().int().min(0).default(3),
+  MAX_RSS_FEEDS_PER_USER: z.coerce.number().default(1000),
+  MAX_WEBHOOKS_PER_USER: z.coerce.number().default(100),
   // Build only flag
   SERVER_VERSION: z.string().optional(),
+  CHANGELOG_VERSION: z.string().optional(),
   DISABLE_NEW_RELEASE_CHECK: stringBool("false"),
 
   // A flag to detect if the user is running in the old separete containers setup
@@ -177,10 +191,33 @@ const allEnv = z.object({
         .filter((p) => p),
     )
     .optional(),
-  CRAWLER_NO_PROXY: z.string().optional(),
+  CRAWLER_NO_PROXY: z
+    .string()
+    .transform((val) =>
+      val
+        .split(",")
+        .map((p) => p.trim())
+        .filter((p) => p),
+    )
+    .optional(),
+  CRAWLER_ALLOWED_INTERNAL_HOSTNAMES: z
+    .string()
+    .transform((val) =>
+      val
+        .split(",")
+        .map((p) => p.trim())
+        .filter((p) => p),
+    )
+    .optional(),
 
   // Database configuration
   DB_WAL_MODE: stringBool("false"),
+
+  // OpenTelemetry tracing configuration
+  OTEL_TRACING_ENABLED: stringBool("false"),
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
+  OTEL_SERVICE_NAME: z.string().default("karakeep"),
+  OTEL_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(1.0),
 });
 
 const serverConfigSchema = allEnv.transform((val, ctx) => {
@@ -215,6 +252,11 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
         name: val.OAUTH_PROVIDER_NAME,
         timeout: val.OAUTH_TIMEOUT,
       },
+      turnstile: {
+        enabled: val.TURNSTILE_SITE_KEY !== undefined,
+        siteKey: val.TURNSTILE_SITE_KEY,
+        secretKey: val.TURNSTILE_SECRET_KEY,
+      },
     },
     email: {
       smtp: val.SMTP_HOST
@@ -235,6 +277,8 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
       fetchTimeoutSec: val.INFERENCE_FETCH_TIMEOUT_SEC,
       openAIApiKey: val.OPENAI_API_KEY,
       openAIBaseUrl: val.OPENAI_BASE_URL,
+      openAIProxyUrl: val.OPENAI_PROXY_URL,
+      openAIServiceTier: val.OPENAI_SERVICE_TIER,
       ollamaBaseUrl: val.OLLAMA_BASE_URL,
       ollamaKeepAlive: val.OLLAMA_KEEP_ALIVE,
       textModel: val.INFERENCE_TEXT_MODEL,
@@ -267,6 +311,7 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
       downloadBannerImage: val.CRAWLER_DOWNLOAD_BANNER_IMAGE,
       storeScreenshot: val.CRAWLER_STORE_SCREENSHOT,
       fullPageScreenshot: val.CRAWLER_FULL_PAGE_SCREENSHOT,
+      storePdf: val.CRAWLER_STORE_PDF,
       fullPageArchive: val.CRAWLER_FULL_PAGE_ARCHIVE,
       downloadVideo: val.CRAWLER_VIDEO_DOWNLOAD,
       maxVideoDownloadSize: val.CRAWLER_VIDEO_DOWNLOAD_MAX_SIZE,
@@ -274,6 +319,19 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
       enableAdblocker: val.CRAWLER_ENABLE_ADBLOCKER,
       ytDlpArguments: val.CRAWLER_YTDLP_ARGS,
       screenshotTimeoutSec: val.CRAWLER_SCREENSHOT_TIMEOUT_SEC,
+      htmlContentSizeThreshold: val.HTML_CONTENT_SIZE_INLINE_THRESHOLD_BYTES,
+      ipValidation: {
+        dnsResolverTimeoutSec:
+          val.CRAWLER_IP_VALIDATION_DNS_RESOLVER_TIMEOUT_SEC,
+      },
+      domainRatelimiting:
+        val.CRAWLER_DOMAIN_RATE_LIMIT_WINDOW_MS !== undefined &&
+        val.CRAWLER_DOMAIN_RATE_LIMIT_MAX_REQUESTS !== undefined
+          ? {
+              windowMs: val.CRAWLER_DOMAIN_RATE_LIMIT_WINDOW_MS,
+              maxRequests: val.CRAWLER_DOMAIN_RATE_LIMIT_MAX_REQUESTS,
+            }
+          : null,
     },
     ocr: {
       langs: val.OCR_LANGS,
@@ -282,6 +340,7 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
     },
     search: {
       numWorkers: val.SEARCH_NUM_WORKERS,
+      jobTimeoutSec: val.SEARCH_JOB_TIMEOUT_SEC,
     },
     logLevel: val.LOG_LEVEL,
     logNoColor: val.NO_COLOR,
@@ -295,20 +354,27 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
     assetsDir: val.ASSETS_DIR ?? path.join(val.DATA_DIR, "assets"),
     maxAssetSizeMb: val.MAX_ASSET_SIZE_MB,
     serverVersion: val.SERVER_VERSION,
+    changelogVersion: val.CHANGELOG_VERSION,
     disableNewReleaseCheck: val.DISABLE_NEW_RELEASE_CHECK,
     usingLegacySeparateContainers: val.USING_LEGACY_SEPARATE_CONTAINERS,
     webhook: {
       timeoutSec: val.WEBHOOK_TIMEOUT_SEC,
       retryTimes: val.WEBHOOK_RETRY_TIMES,
       numWorkers: val.WEBHOOK_NUM_WORKERS,
+      maxWebhooksPerUser: val.MAX_WEBHOOKS_PER_USER,
+    },
+    feeds: {
+      maxRssFeedsPerUser: val.MAX_RSS_FEEDS_PER_USER,
     },
     proxy: {
       httpProxy: val.CRAWLER_HTTP_PROXY,
       httpsProxy: val.CRAWLER_HTTPS_PROXY,
       noProxy: val.CRAWLER_NO_PROXY,
     },
+    allowedInternalHostnames: val.CRAWLER_ALLOWED_INTERNAL_HOSTNAMES,
     assetPreprocessing: {
       numWorkers: val.ASSET_PREPROCESSING_NUM_WORKERS,
+      jobTimeoutSec: val.ASSET_PREPROCESSING_JOB_TIMEOUT_SEC,
     },
     ruleEngine: {
       numWorkers: val.RULE_ENGINE_NUM_WORKERS,
@@ -355,6 +421,12 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
     database: {
       walMode: val.DB_WAL_MODE,
     },
+    tracing: {
+      enabled: val.OTEL_TRACING_ENABLED,
+      otlpEndpoint: val.OTEL_EXPORTER_OTLP_ENDPOINT,
+      serviceName: val.OTEL_SERVICE_NAME,
+      sampleRate: val.OTEL_SAMPLE_RATE,
+    },
   };
   if (obj.auth.emailVerificationRequired && !obj.email.smtp) {
     ctx.addIssue({
@@ -364,10 +436,21 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
     });
     return z.NEVER;
   }
+  if (obj.auth.turnstile.enabled && !obj.auth.turnstile.secretKey) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        "TURNSTILE_SECRET_KEY is required when TURNSTILE_SITE_KEY is set",
+      fatal: true,
+    });
+    return z.NEVER;
+  }
   return obj;
 });
 
-const serverConfig = serverConfigSchema.parse(process.env);
+const serverConfig: Readonly<z.infer<typeof serverConfigSchema>> =
+  serverConfigSchema.parse(process.env);
+
 // Always explicitly pick up stuff from server config to avoid accidentally leaking stuff
 export const clientConfig = {
   publicUrl: serverConfig.publicUrl,
@@ -377,9 +460,17 @@ export const clientConfig = {
     disableSignups: serverConfig.auth.disableSignups,
     disablePasswordAuth: serverConfig.auth.disablePasswordAuth,
   },
+  turnstile:
+    serverConfig.auth.turnstile.enabled && serverConfig.auth.turnstile.siteKey
+      ? {
+          siteKey: serverConfig.auth.turnstile.siteKey,
+        }
+      : null,
   inference: {
     isConfigured: serverConfig.inference.isConfigured,
     inferredTagLang: serverConfig.inference.inferredTagLang,
+    enableAutoTagging: serverConfig.inference.enableAutoTagging,
+    enableAutoSummarization: serverConfig.inference.enableAutoSummarization,
   },
   serverVersion: serverConfig.serverVersion,
   disableNewReleaseCheck: serverConfig.disableNewReleaseCheck,

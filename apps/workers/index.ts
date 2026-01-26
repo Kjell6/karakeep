@@ -3,21 +3,24 @@ import "dotenv/config";
 import { buildServer } from "server";
 
 import {
+  initTracing,
   loadAllPlugins,
   prepareQueue,
+  shutdownTracing,
   startQueue,
 } from "@karakeep/shared-server";
 import serverConfig from "@karakeep/shared/config";
 import logger from "@karakeep/shared/logger";
 
 import { shutdownPromise } from "./exit";
+import { AdminMaintenanceWorker } from "./workers/adminMaintenanceWorker";
 import { AssetPreprocessingWorker } from "./workers/assetPreprocessingWorker";
+import { BackupSchedulingWorker, BackupWorker } from "./workers/backupWorker";
 import { CrawlerWorker } from "./workers/crawlerWorker";
 import { FeedRefreshingWorker, FeedWorker } from "./workers/feedWorker";
 import { OpenAiWorker } from "./workers/inference/inferenceWorker";
 import { RuleEngineWorker } from "./workers/ruleEngineWorker";
 import { SearchIndexingWorker } from "./workers/searchWorker";
-import { TidyAssetsWorker } from "./workers/tidyAssetsWorker";
 import { VideoWorker } from "./workers/videoWorker";
 import { WebhookWorker } from "./workers/webhookWorker";
 
@@ -25,12 +28,13 @@ const workerBuilders = {
   crawler: () => CrawlerWorker.build(),
   inference: () => OpenAiWorker.build(),
   search: () => SearchIndexingWorker.build(),
-  tidyAssets: () => TidyAssetsWorker.build(),
+  adminMaintenance: () => AdminMaintenanceWorker.build(),
   video: () => VideoWorker.build(),
   feed: () => FeedWorker.build(),
   assetPreprocessing: () => AssetPreprocessingWorker.build(),
   webhook: () => WebhookWorker.build(),
   ruleEngine: () => RuleEngineWorker.build(),
+  backup: () => BackupWorker.build(),
 } as const;
 
 type WorkerName = keyof typeof workerBuilders;
@@ -49,6 +53,7 @@ function isWorkerEnabled(name: WorkerName) {
 
 async function main() {
   await loadAllPlugins();
+  initTracing("workers");
   logger.info(`Workers version: ${serverConfig.serverVersion ?? "not set"}`);
   await prepareQueue();
 
@@ -69,6 +74,10 @@ async function main() {
     FeedRefreshingWorker.start();
   }
 
+  if (workers.some((w) => w.name === "backup")) {
+    BackupSchedulingWorker.start();
+  }
+
   await Promise.any([
     Promise.all([
       ...workers.map(({ worker }) => worker.run()),
@@ -84,10 +93,14 @@ async function main() {
   if (workers.some((w) => w.name === "feed")) {
     FeedRefreshingWorker.stop();
   }
+  if (workers.some((w) => w.name === "backup")) {
+    BackupSchedulingWorker.stop();
+  }
   for (const { worker } of workers) {
     worker.stop();
   }
   await httpServer.stop();
+  await shutdownTracing();
   process.exit(0);
 }
 

@@ -5,7 +5,8 @@ import { ZodError } from "zod";
 import type { db } from "@karakeep/db";
 import serverConfig from "@karakeep/shared/config";
 
-import { createRateLimitMiddleware } from "./rateLimit";
+import { createRateLimitMiddleware } from "./lib/rateLimit";
+import { createTracingMiddleware } from "./lib/tracing";
 import {
   apiErrorsTotalCounter,
   apiRequestDurationSummary,
@@ -86,7 +87,9 @@ export const procedure = t.procedure
     });
     end();
     return res;
-  });
+  })
+  // OpenTelemetry tracing middleware
+  .use(createTracingMiddleware());
 
 // Default public procedure rate limiting
 export const publicProcedure = procedure.use(
@@ -128,5 +131,5 @@ export const adminProcedure = authedProcedure.use(function isAdmin(opts) {
   return opts.next(opts);
 });
 
-// Export the rate limiting utilities for use in routers
-export { createRateLimitMiddleware };
+// Export the rate limiting middleware for use in routers
+export { createRateLimitMiddleware } from "./lib/rateLimit";

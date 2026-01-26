@@ -4,6 +4,7 @@ import { workerStatsCounter } from "metrics";
 import PDFParser from "pdf2json";
 import { fromBuffer } from "pdf2pic";
 import { createWorker } from "tesseract.js";
+import { withWorkerTracing } from "workerTracing";
 
 import type { AssetPreprocessingRequest } from "@karakeep/shared-server";
 import { db } from "@karakeep/db";
@@ -36,7 +37,7 @@ export class AssetPreprocessingWorker {
       (await getQueueClient())!.createRunner<AssetPreprocessingRequest>(
         AssetPreprocessingQueue,
         {
-          run: run,
+          run: withWorkerTracing("assetPreprocessingWorker.run", run),
           onComplete: async (job) => {
             workerStatsCounter.labels("assetPreprocessing", "completed").inc();
             const jobId = job.id;
@@ -47,6 +48,11 @@ export class AssetPreprocessingWorker {
           },
           onError: async (job) => {
             workerStatsCounter.labels("assetPreProcessing", "failed").inc();
+            if (job.numRetriesLeft == 0) {
+              workerStatsCounter
+                .labels("assetPreProcessing", "failed_permanent")
+                .inc();
+            }
             const jobId = job.id;
             logger.error(
               `[assetPreprocessing][${jobId}] Asset preprocessing failed: ${job.error}\n${job.error.stack}`,
@@ -57,7 +63,7 @@ export class AssetPreprocessingWorker {
         {
           concurrency: serverConfig.assetPreprocessing.numWorkers,
           pollIntervalMs: 1000,
-          timeoutSecs: 30,
+          timeoutSecs: serverConfig.assetPreprocessing.jobTimeoutSec,
         },
       );
 
@@ -356,6 +362,7 @@ async function run(req: DequeuedJob<AssetPreprocessingRequest>) {
   // Propagate priority to child jobs
   const enqueueOpts: EnqueueOptions = {
     priority: req.priority,
+    groupId: bookmark.userId,
   };
   if (!isFixMode || anythingChanged) {
     await OpenAIQueue.enqueue(
