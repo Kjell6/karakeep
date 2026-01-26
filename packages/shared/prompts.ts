@@ -154,6 +154,69 @@ export async function buildTextPrompt(
   );
 }
 
+function constructLinkBannerPrompt(
+  lang: string,
+  customPrompts: string[],
+  metadata: string,
+  content: string,
+  tagStyle: ZTagStyle,
+) {
+  const tagStyleInstruction = getTagStylePrompt(tagStyle);
+
+  return `
+You are an expert whose responsibility is to help with automatic tagging for a read-it-later/bookmarking app.
+Analyze the TEXT_CONTENT below and the attached banner image to suggest relevant tags that describe the bookmark's key themes, topics, and main ideas. The rules are:
+- Aim for a variety of tags, including broad categories, specific keywords, and potential sub-genres.
+- The tags must be in ${lang}.
+- If the tag is not generic enough, don’t include it.
+- Do NOT generate tags related to:
+    - An error page (404, 403, blocked, not found, dns errors)
+    - Boilerplate content (cookie consent, login walls, GDPR notices)
+- Aim for 3-5 tags.
+- If there are no good tags, leave the array empty.
+${tagStyleInstruction}
+${customPrompts && customPrompts.map((p) => `- ${p}`).join("\n")}
+
+<BOOKMARK_METADATA>
+${metadata}
+</BOOKMARK_METADATA>
+
+<TEXT_CONTENT>
+${content}
+</TEXT_CONTENT>
+You must respond in JSON with the key "tags" and the value is an array of string tags.`;
+}
+
+export async function buildLinkBannerPrompt(
+  lang: string,
+  customPrompts: string[],
+  metadata: string,
+  content: string,
+  contextLength: number,
+  tagStyle: ZTagStyle,
+) {
+  const processedContent = preprocessContent(content);
+  const promptTemplate = constructLinkBannerPrompt(
+    lang,
+    customPrompts,
+    metadata,
+    "",
+    tagStyle,
+  );
+  const promptSize = await calculateNumTokens(promptTemplate);
+  const truncatedContent = await truncateContent(
+    processedContent,
+    contextLength - promptSize,
+  );
+  return constructLinkBannerPrompt(
+    lang,
+    customPrompts,
+    metadata,
+    truncatedContent,
+    tagStyle,
+  );
+}
+
 export async function buildSummaryPrompt(
   lang: string,
   customPrompts: string[],

@@ -24,7 +24,11 @@ import {
 import { ASSET_TYPES, readAsset } from "@karakeep/shared/assetdb";
 import serverConfig from "@karakeep/shared/config";
 import logger from "@karakeep/shared/logger";
-import { buildImagePrompt, buildTextPrompt } from "@karakeep/shared/prompts";
+import {
+  buildImagePrompt,
+  buildLinkBannerPrompt,
+  buildTextPrompt,
+} from "@karakeep/shared/prompts";
 import { DequeuedJob, EnqueueOptions } from "@karakeep/shared/queueing";
 import { Bookmark } from "@karakeep/trpc/models/bookmarks";
 
@@ -121,6 +125,93 @@ Content: ${content ?? ""}`,
   }
 
   throw new Error("Unknown bookmark type");
+}
+
+async function inferTagsFromLinkBannerImage(
+  jobId: string,
+  bookmark: NonNullable<Awaited<ReturnType<typeof fetchBookmark>>>,
+  bannerAsset: {
+    id: string;
+    size: number | null;
+    contentType: string | null;
+  },
+  inferenceClient: InferenceClient,
+  abortSignal: AbortSignal,
+  tagStyle: ZTagStyle,
+  inferredTagLang: string,
+): Promise<InferenceResponse | null> {
+  const maxAssetSizeBytes = serverConfig.maxAssetSizeMb * 1024 * 1024;
+  if (bannerAsset.size && bannerAsset.size > maxAssetSizeBytes) {
+    logger.info(
+      `[inference][${jobId}] Banner image for bookmark "${bookmark.id}" exceeds ${serverConfig.maxAssetSizeMb}MB; falling back to text-only inference.`,
+    );
+    return null;
+  }
+
+  let asset: Buffer;
+  let metadata: { contentType: string };
+  try {
+    ({
+      asset,
+      metadata,
+    } = await readAsset({
+      userId: bookmark.userId,
+      assetId: bannerAsset.id,
+    }));
+  } catch (error) {
+    logger.warn(
+      `[inference][${jobId}] Failed to read banner image for bookmark "${bookmark.id}": ${String(
+        error,
+      )}; falling back to text-only inference.`,
+    );
+    return null;
+  }
+
+  if (!metadata.contentType) {
+    logger.warn(
+      `[inference][${jobId}] Banner image for bookmark "${bookmark.id}" is missing a content type; falling back to text-only inference.`,
+    );
+    return null;
+  }
+
+  if (metadata.contentType === ASSET_TYPES.IMAGE_GIF) {
+    logger.info(
+      `[inference][${jobId}] Skipping inference for bookmark with id "${bookmark.id}" because the banner image is a GIF.`,
+    );
+    return null;
+  }
+
+  const content =
+    (await Bookmark.getBookmarkPlainTextContent(
+      bookmark.link,
+      bookmark.userId,
+    )) ?? "";
+
+  const metadataLines = `URL: ${bookmark.link?.url}
+Title: ${bookmark.link?.title ?? ""}
+Description: ${bookmark.link?.description ?? ""}`;
+
+  const prompts = [
+    ...(await fetchCustomPrompts(bookmark.userId, "text")),
+    ...(await fetchCustomPrompts(bookmark.userId, "images")),
+  ];
+
+  const prompt = await buildLinkBannerPrompt(
+    inferredTagLang,
+    prompts,
+    metadataLines,
+    content,
+    serverConfig.inference.contextLength,
+    tagStyle,
+  );
+
+  const base64 = asset.toString("base64");
+  return inferenceClient.inferFromImage(
+    prompt,
+    metadata.contentType,
+    base64,
+    { schema: openAIResponseSchema, abortSignal },
+  );
 }
 
 async function inferTagsFromImage(
@@ -266,13 +357,30 @@ async function inferTags(
 ) {
   let response: InferenceResponse | null;
   if (bookmark.link || bookmark.text) {
-    response = await inferTagsFromText(
-      bookmark,
-      inferenceClient,
-      abortSignal,
-      tagStyle,
-      inferredTagLang,
+    const bannerAsset = bookmark.assets?.find(
+      (asset) => asset.assetType === ASSET_TYPES.LINK_BANNER_IMAGE,
     );
+    if (bookmark.link && bannerAsset) {
+      response = await inferTagsFromLinkBannerImage(
+        jobId,
+        bookmark,
+        bannerAsset,
+        inferenceClient,
+        abortSignal,
+        tagStyle,
+        inferredTagLang,
+      );
+    }
+
+    if (!response) {
+      response = await inferTagsFromText(
+        bookmark,
+        inferenceClient,
+        abortSignal,
+        tagStyle,
+        inferredTagLang,
+      );
+    }
   } else if (bookmark.asset) {
     switch (bookmark.asset.assetType) {
       case "image":
@@ -440,6 +548,14 @@ async function fetchBookmark(linkId: string) {
       link: true,
       text: true,
       asset: true,
+      assets: {
+        columns: {
+          id: true,
+          assetType: true,
+          size: true,
+          contentType: true,
+        },
+      },
     },
   });
 }
