@@ -171,7 +171,7 @@ Analyze the TEXT_CONTENT below and the attached banner image to suggest relevant
 - If the tag is not generic enough, don’t include it.
 - Do NOT generate tags related to:
     - An error page (404, 403, blocked, not found, dns errors)
-    - Boilerplate content (cookie consent, login walls, GDPR notices)
+    - Boilerplate content (cookie consent, login walls, GDPR notices, Data Protection)
 - Aim for 3-5 tags.
 - If there are no good tags, leave the array empty.
 ${tagStyleInstruction}
