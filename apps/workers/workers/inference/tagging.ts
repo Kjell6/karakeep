@@ -10,6 +10,7 @@ import type {
 import type { ZTagStyle } from "@karakeep/shared/types/users";
 import { db } from "@karakeep/db";
 import {
+  AssetTypes,
   bookmarks,
   bookmarkTags,
   customPrompts,
@@ -358,7 +359,7 @@ async function inferTags(
   let response: InferenceResponse | null;
   if (bookmark.link || bookmark.text) {
     const bannerAsset = bookmark.assets?.find(
-      (asset) => asset.assetType === ASSET_TYPES.LINK_BANNER_IMAGE,
+      (asset) => asset.assetType === AssetTypes.LINK_BANNER_IMAGE,
     );
     if (bookmark.link && bannerAsset) {
       response = await inferTagsFromLinkBannerImage(
@@ -562,14 +563,27 @@ async function fetchBookmark(linkId: string) {
 
   let bookmark = await fetch();
 
-  // If it's a link and we don't have a banner image yet, wait a bit and retry.
-  // The crawler might still be finishing up the asset attachment.
-  if (
-    bookmark?.link &&
-    !bookmark.assets.some((a) => a.assetType === ASSET_TYPES.LINK_BANNER_IMAGE)
-  ) {
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    bookmark = await fetch();
+  if (bookmark?.link) {
+    const hasBanner = bookmark.assets.some(
+      (a) => a.assetType === AssetTypes.LINK_BANNER_IMAGE,
+    );
+    logger.info(
+      `[inference] Fetching bookmark ${linkId}. Link detected. Banner present: ${hasBanner}. Total assets: ${bookmark.assets.length}`,
+    );
+
+    if (!hasBanner) {
+      logger.info(
+        `[inference] No banner found for ${linkId}. Waiting 3s for crawler to finish...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      bookmark = await fetch();
+      const hasBannerNow = bookmark?.assets.some(
+        (a) => a.assetType === AssetTypes.LINK_BANNER_IMAGE,
+      );
+      logger.info(
+        `[inference] Refetched bookmark ${linkId}. Banner present now: ${hasBannerNow}. Total assets: ${bookmark?.assets.length}`,
+      );
+    }
   }
 
   return bookmark;
