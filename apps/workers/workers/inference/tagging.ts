@@ -542,22 +542,37 @@ async function connectTags(
 }
 
 async function fetchBookmark(linkId: string) {
-  return await db.query.bookmarks.findFirst({
-    where: eq(bookmarks.id, linkId),
-    with: {
-      link: true,
-      text: true,
-      asset: true,
-      assets: {
-        columns: {
-          id: true,
-          assetType: true,
-          size: true,
-          contentType: true,
+  const fetch = () =>
+    db.query.bookmarks.findFirst({
+      where: eq(bookmarks.id, linkId),
+      with: {
+        link: true,
+        text: true,
+        asset: true,
+        assets: {
+          columns: {
+            id: true,
+            assetType: true,
+            size: true,
+            contentType: true,
+          },
         },
       },
-    },
-  });
+    });
+
+  let bookmark = await fetch();
+
+  // If it's a link and we don't have a banner image yet, wait a bit and retry.
+  // The crawler might still be finishing up the asset attachment.
+  if (
+    bookmark?.link &&
+    !bookmark.assets.some((a) => a.assetType === ASSET_TYPES.LINK_BANNER_IMAGE)
+  ) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    bookmark = await fetch();
+  }
+
+  return bookmark;
 }
 
 export async function runTagging(
