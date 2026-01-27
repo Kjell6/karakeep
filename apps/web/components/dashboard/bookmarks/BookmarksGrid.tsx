@@ -91,7 +91,9 @@ export default function BookmarksGrid({
     () => getBreakpointConfig(gridColumns),
     [gridColumns],
   );
-  const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView();
+  const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView({
+    rootMargin: "400px",
+  });
 
   useEffect(() => {
     bulkActionsStore.setVisibleBookmarks(bookmarks);
@@ -139,6 +141,9 @@ export default function BookmarksGrid({
         </StyledBookmarkCard>
       </ErrorBoundary>
     )),
+    hasNextPage && (
+      <div key="load-more-sentinel" ref={loadMoreRef} className="h-px" />
+    ),
   ];
   return (
     <>
@@ -159,7 +164,6 @@ export default function BookmarksGrid({
       {hasNextPage && (
         <div className="flex justify-center">
           <ActionButton
-            ref={loadMoreRef}
             ignoreDemoMode={true}
             loading={isFetchingNextPage}
             onClick={() => fetchNextPage()}

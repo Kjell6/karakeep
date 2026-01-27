@@ -199,7 +199,9 @@ export default function PublicBookmarkGrid({
   bookmarks: ZPublicBookmark[];
   nextCursor: ZCursor | null;
 }) {
-  const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView();
+  const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView({
+    rootMargin: "400px",
+  });
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.publicBookmarks.getPublicBookmarksInList.useInfiniteQuery(
       { listId: list.id },
@@ -235,11 +237,13 @@ export default function PublicBookmarkGrid({
         {bookmarks.map((bookmark) => (
           <BookmarkCard key={bookmark.id} bookmark={bookmark} />
         ))}
+        {hasNextPage && (
+          <div key="load-more-sentinel" ref={loadMoreRef} className="h-px" />
+        )}
       </Masonry>
       {hasNextPage && (
         <div className="flex justify-center">
           <ActionButton
-            ref={loadMoreRef}
             ignoreDemoMode={true}
             loading={isFetchingNextPage}
             onClick={() => fetchNextPage()}
