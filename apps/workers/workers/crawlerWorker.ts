@@ -181,6 +181,104 @@ interface CrawlerRunResult {
   status: "completed";
 }
 
+/**
+ * Detects if a URL is a Twitter/X tweet URL and extracts the screen name and status ID.
+ */
+function parseTwitterUrl(url: string): { isTwitter: boolean; screenName?: string; statusId?: string } {
+  // Match twitter.com, x.com, and fxtwitter.com (avoid infinite loops)
+  const twitterUrlPattern = /^(?:https?:\/\/)?(?:mobile\.)?(?:twitter\.com|x\.com)\/(\w+)\/status(?:es)?\/(\d+)/i;
+  const match = url.match(twitterUrlPattern);
+  if (match) {
+    return { isTwitter: true, screenName: match[1], statusId: match[2] };
+  }
+  return { isTwitter: false };
+}
+
+interface FxTwitterResponse {
+  code: number;
+  tweet?: {
+    url: string;
+    text: string;
+    author: {
+      name: string;
+      screen_name: string;
+      avatar_url?: string;
+    };
+    media?: {
+      photos?: Array<{ url: string; altText?: string }>;
+      videos?: Array<{ thumbnail_url: string; url: string }>;
+    };
+    likes?: number;
+    retweets?: number;
+    replies?: number;
+  };
+}
+
+async function twitterCrawlPage(
+  jobId: string,
+  url: string,
+  abortSignal: AbortSignal,
+) {
+  return await withSpan(
+    tracer,
+    "crawlerWorker.twitterCrawlPage",
+    { attributes: { url, jobId } },
+    async () => {
+      const parsed = parseTwitterUrl(url);
+      if (!parsed.isTwitter || !parsed.screenName || !parsed.statusId) {
+        throw new Error(`Invalid Twitter URL: ${url}`);
+      }
+
+      const apiUrl = `https://api.fxtwitter.com/${parsed.screenName}/status/${parsed.statusId}`;
+      logger.info(
+        `[Crawler][${jobId}] Detected Twitter URL. Calling fxtwitter API: ${apiUrl}`,
+      );
+
+      const response = await fetchWithProxy(apiUrl, {
+        signal: AbortSignal.any([AbortSignal.timeout(10000), abortSignal]),
+      });
+
+      if (!response.ok) {
+        const status = response.status;
+        const text = await response.text().catch(() => "unknown");
+        logger.error(
+          `[Crawler][${jobId}] fxtwitter API returned error ${status}: ${text}`,
+        );
+        throw new Error(`fxtwitter API error: ${status}`);
+      }
+
+      const data = await response.json() as FxTwitterResponse;
+
+      if (!data.tweet) {
+        throw new Error(`fxtwitter API returned no tweet data for ${url}`);
+      }
+
+      const { tweet } = data;
+      const authorName = tweet.author?.name ?? tweet.author?.screen_name ?? "";
+      const tweetText = tweet.text ?? "";
+      // Prefer photos, fall back to video thumbnail
+      const firstMedia = tweet.media?.photos?.[0]?.url ?? tweet.media?.videos?.[0]?.thumbnail_url;
+
+      // Build HTML content similar to what browserlessCrawlPage returns
+      // This format works well with the metadata extraction pipeline
+      // Include stats as they may be useful for AI tagging
+      const htmlContent = `<title>${authorName}</title>\n<description>${tweetText}</description>${firstMedia ? `\n<meta property="og:image" content="${firstMedia}">` : ""}${tweet.likes !== undefined || tweet.retweets !== undefined ? `\n<meta name="twitter:data" content="likes:${tweet.likes ?? 0}, retweets:${tweet.retweets ?? 0}, replies:${tweet.replies ?? 0}">` : ""}`;
+
+      logger.info(
+        `[Crawler][${jobId}] Successfully fetched tweet via fxtwitter: @${tweet.author?.screen_name} (${tweet.likes ?? 0} likes)`,
+      );
+
+      return {
+        htmlContent,
+        statusCode: 200,
+        screenshot: undefined,
+        pdf: undefined,
+        url: tweet.url ?? url,
+      };
+    },
+  );
+}
+
 function getPlaywrightProxyConfig(): BrowserContextOptions["proxy"] {
   const { proxy } = serverConfig;
 
@@ -557,6 +655,12 @@ async function crawlPage(
       if (!userData) {
         logger.error(`[Crawler][${jobId}] User ${userId} not found`);
         throw new Error(`User ${userId} not found`);
+      }
+
+      // Check if this is a Twitter/X URL and use the fxtwitter API instead
+      const twitterInfo = parseTwitterUrl(url);
+      if (twitterInfo.isTwitter) {
+        return twitterCrawlPage(jobId, url, abortSignal);
       }
 
       const browserCrawlingEnabled = userData.browserCrawlingEnabled;
