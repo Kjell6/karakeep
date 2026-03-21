@@ -92,7 +92,7 @@ export default function BookmarksGrid({
     [gridColumns],
   );
   const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView({
-    rootMargin: "400px",
+    rootMargin: "1500px",
   });
 
   useEffect(() => {
@@ -149,12 +149,12 @@ export default function BookmarksGrid({
     <>
       {bookmarkLayoutSwitch(layout, {
         masonry: (
-          <Masonry className="flex gap-4" breakpointCols={breakpointConfig}>
+          <Masonry className="flex gap-4" columnClassName="pl-8" breakpointCols={breakpointConfig}>
             {children}
           </Masonry>
         ),
         grid: (
-          <Masonry className="flex gap-4" breakpointCols={breakpointConfig}>
+          <Masonry className="flex gap-4" columnClassName="pl-8" breakpointCols={breakpointConfig}>
             {children}
           </Masonry>
         ),
