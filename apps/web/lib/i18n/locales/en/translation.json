@@ -953,6 +953,11 @@
     "save_changes": "Save changes",
     "extracted_content": "Extracted Content"
   },
+  "sidebar": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "open_from_edge": "Show sidebar — hover the left edge, or click to keep it open"
+  },
   "version": {
     "new_release_available": "New release notes available",
     "whats_new_title": "What's new in v{{version}}",

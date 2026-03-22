@@ -984,6 +984,11 @@
     "image_fit_cover": "Deckung (Füllen)",
     "image_fit_contain": "Enthalten (Anpassen)"
   },
+  "sidebar": {
+    "collapse": "Seitenleiste einklappen",
+    "expand": "Seitenleiste ausklappen",
+    "open_from_edge": "Seitenleiste anzeigen — am linken Rand hovern oder klicken, um sie offen zu lassen"
+  },
   "version": {
     "new_release_available": "Neue Versionshinweise verfügbar",
     "whats_new_title": "Was ist neu in v{{version}}",
