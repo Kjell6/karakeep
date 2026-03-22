@@ -22,6 +22,7 @@ import serverConfig from "@karakeep/shared/config";
 import logger from "@karakeep/shared/logger";
 
 import metascraperAmazonImproved from "../metascraper-plugins/metascraper-amazon-improved";
+import metascraperPinterest from "../metascraper-plugins/metascraper-pinterest";
 import metascraperReddit from "../metascraper-plugins/metascraper-reddit";
 import metascraperTiktok from "../metascraper-plugins/metascraper-tiktok";
 import {
@@ -55,6 +56,7 @@ const metascraperParser = metascraper([
   }),
   metascraperReddit(),
   metascraperTiktok(),
+  metascraperPinterest(),
   metascraperAuthor(),
   metascraperPublisher(),
   metascraperTitle(),
