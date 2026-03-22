@@ -83,7 +83,7 @@ Analyze the TEXT_CONTENT below and suggest relevant tags that describe its key t
 - Do NOT generate tags related to:
     - An error page (404, 403, blocked, not found, dns errors)
     - Boilerplate content (cookie consent, login walls, GDPR notices)
-- Aim for 3-5 tags.
+- Aim for around 10 tags.
 - If there are no good tags, leave the array empty.
 ${tagStyleInstruction}
 ${customPrompts && customPrompts.map((p) => `- ${p}`).join("\n")}
@@ -172,7 +172,7 @@ Analyze the TEXT_CONTENT below and the attached banner image to suggest relevant
 - Do NOT generate tags related to:
     - An error page (404, 403, blocked, not found, dns errors)
     - Boilerplate content (cookie consent, login walls, GDPR notices, Data Protection)
-- Aim for 3-5 tags.
+- Aim for around 10 tags.
 - If there are no good tags, leave the array empty.
 ${tagStyleInstruction}
 ${customPrompts && customPrompts.map((p) => `- ${p}`).join("\n")}
