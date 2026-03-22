@@ -1142,9 +1142,6 @@ importers:
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
-      bcryptjs:
-        specifier: ^2.4.3
-        version: 2.4.3
       better-sqlite3:
         specifier: ^11.3.0
         version: 11.3.0
@@ -1167,9 +1164,6 @@ importers:
       '@tsconfig/node22':
         specifier: ^22.0.0
         version: 22.0.2
-      '@types/bcryptjs':
-        specifier: ^2.4.6
-        version: 2.4.6
       '@types/better-sqlite3':
         specifier: ^7.6.11
         version: 7.6.13
