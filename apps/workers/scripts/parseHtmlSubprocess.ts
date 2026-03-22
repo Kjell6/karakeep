@@ -23,6 +23,7 @@ import logger from "@karakeep/shared/logger";
 
 import metascraperAmazonImproved from "../metascraper-plugins/metascraper-amazon-improved";
 import metascraperReddit from "../metascraper-plugins/metascraper-reddit";
+import metascraperTiktok from "../metascraper-plugins/metascraper-tiktok";
 import {
   parseSubprocessErrorSchema,
   parseSubprocessInputSchema,
@@ -53,6 +54,7 @@ const metascraperParser = metascraper([
     },
   }),
   metascraperReddit(),
+  metascraperTiktok(),
   metascraperAuthor(),
   metascraperPublisher(),
   metascraperTitle(),
