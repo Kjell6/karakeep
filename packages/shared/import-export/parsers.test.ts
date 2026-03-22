@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { parseImportFile } from "./parsers";
@@ -12,7 +14,9 @@ describe("parseNetscapeBookmarkFile", () => {
     <DT><A HREF="https://example.com" ADD_DATE="1234567890">Example Site</A>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -36,7 +40,9 @@ describe("parseNetscapeBookmarkFile", () => {
     <DT><A HREF="https://example.com" ADD_DATE="1234567890" TAGS="tag1,tag2,tag3">Example Site</A>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0].tags).toEqual(["tag1", "tag2", "tag3"]);
@@ -57,7 +63,9 @@ describe("parseNetscapeBookmarkFile", () => {
     </DL><p>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -85,7 +93,9 @@ describe("parseNetscapeBookmarkFile", () => {
     </DL><p>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0].paths).toEqual([["Named Folder", "Unnamed"]]);
@@ -108,7 +118,9 @@ describe("parseNetscapeBookmarkFile", () => {
     </DL><p>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(3);
 
@@ -141,7 +153,9 @@ describe("parseNetscapeBookmarkFile", () => {
     <DT><A HREF="https://example2.com" ADD_DATE="1234567891">Bookmark 2</A>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(2);
     expect(result[0].paths).toEqual([[]]);
@@ -169,7 +183,9 @@ describe("parseNetscapeBookmarkFile", () => {
     </DL><p>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0].paths).toEqual([["Level1", "Level2", "Level3", "Level4"]]);
@@ -191,7 +207,9 @@ describe("parseNetscapeBookmarkFile", () => {
     </DL><p>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
@@ -218,7 +236,9 @@ describe("parseNetscapeBookmarkFile", () => {
 
     // Note: The current parser doesn't extract DD notes, but this test
     // documents the expected behavior if/when DD parsing is added
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0].content).toMatchObject({
@@ -236,7 +256,9 @@ describe("parseNetscapeBookmarkFile", () => {
     <DT><A HREF="https://example.com">No Date Bookmark</A>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0].addDate).toBeUndefined();
@@ -251,7 +273,9 @@ describe("parseNetscapeBookmarkFile", () => {
     <DT><A ADD_DATE="1234567890">No URL Bookmark</A>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(1);
     expect(result[0].content).toBeUndefined();
@@ -271,7 +295,9 @@ describe("parseNetscapeBookmarkFile", () => {
     <DT><A HREF="https://root2.com" ADD_DATE="1234567892">Root Bookmark 2</A>
 </DL><p>`;
 
-    const result = parseImportFile("html", html);
+    const parsed = parseImportFile("html", html);
+
+    const result = parsed.bookmarks;
 
     expect(result).toHaveLength(3);
     expect(result[0]).toMatchObject({
@@ -297,5 +323,206 @@ describe("parseNetscapeBookmarkFile", () => {
     expect(() => parseImportFile("html", html)).toThrow(
       "The uploaded html file does not seem to be a bookmark file",
     );
+  });
+});
+
+describe("parseLinkwardenBookmarkFile", () => {
+  const fixture = fs.readFileSync(
+    path.join(__dirname, "fixtures/linkwarden-export.json"),
+    "utf-8",
+  );
+
+  it("parses collections with nested hierarchy into paths", () => {
+    const result = parseImportFile("linkwarden", fixture);
+
+    // 6 links total, but example.com appears in two collections so deduped to 5
+    expect(result.bookmarks).toHaveLength(5);
+
+    // Root-level collection
+    expect(result.bookmarks[0]).toMatchObject({
+      title: "GitHub",
+      content: { type: "link", url: "https://github.com" },
+      tags: ["dev"],
+      addDate: new Date("2025-01-01T00:00:00.000Z").getTime() / 1000,
+      paths: [["Tech"]],
+    });
+
+    // Nested one level deep
+    expect(result.bookmarks[1]).toMatchObject({
+      title: "React",
+      content: { type: "link", url: "https://react.dev" },
+      tags: ["js", "ui"],
+      paths: [["Tech", "Frontend"]],
+    });
+
+    // Nested two levels deep
+    expect(result.bookmarks[2]).toMatchObject({
+      title: "Next.js",
+      content: { type: "link", url: "https://nextjs.org" },
+      tags: [],
+      paths: [["Tech", "Frontend", "Frameworks"]],
+    });
+
+    // Another root-level collection
+    expect(result.bookmarks[3]).toMatchObject({
+      title: "Hacker News",
+      content: { type: "link", url: "https://news.ycombinator.com" },
+      tags: ["news"],
+      paths: [["News"]],
+    });
+  });
+
+  it("deduplicates bookmarks across collections and merges metadata", () => {
+    const result = parseImportFile("linkwarden", fixture);
+
+    // example.com appears in both "Work" and "Personal" collections
+    const example = result.bookmarks.find(
+      (b) =>
+        b.content?.type === "link" && b.content.url === "https://example.com",
+    )!;
+    expect(example.tags).toEqual(["work", "personal"]);
+    expect(example.paths).toEqual([["Work"], ["Personal"]]);
+    // Should keep the earlier date
+    expect(example.addDate).toEqual(
+      new Date("2025-01-01T00:00:00.000Z").getTime() / 1000,
+    );
+  });
+});
+
+describe("parseKarakeepBookmarkFile", () => {
+  it("keeps distinct identities for duplicate sibling list names", () => {
+    const json = JSON.stringify({
+      lists: [
+        {
+          id: "parent",
+          name: "Projects",
+          description: null,
+          icon: "📁",
+          type: "manual",
+          query: null,
+          parentId: null,
+        },
+        {
+          id: "child-1",
+          name: "Inbox",
+          description: null,
+          icon: "📁",
+          type: "manual",
+          query: null,
+          parentId: "parent",
+        },
+        {
+          id: "child-2",
+          name: "Inbox",
+          description: null,
+          icon: "📁",
+          type: "manual",
+          query: null,
+          parentId: "parent",
+        },
+      ],
+      bookmarks: [
+        {
+          createdAt: 123,
+          title: "One",
+          tags: [],
+          lists: ["child-1"],
+          content: { type: "link", url: "https://one.example" },
+          note: null,
+          archived: false,
+        },
+        {
+          createdAt: 456,
+          title: "Two",
+          tags: [],
+          lists: ["child-2"],
+          content: { type: "link", url: "https://two.example" },
+          note: null,
+          archived: false,
+        },
+      ],
+    });
+
+    const result = parseImportFile("karakeep", json);
+
+    expect(result.lists).toEqual([
+      {
+        externalId: "parent",
+        name: "Projects",
+        icon: "📁",
+        description: undefined,
+        parentExternalId: null,
+        type: "manual",
+      },
+      {
+        externalId: "child-1",
+        name: "Inbox",
+        icon: "📁",
+        description: undefined,
+        parentExternalId: "parent",
+        type: "manual",
+      },
+      {
+        externalId: "child-2",
+        name: "Inbox",
+        icon: "📁",
+        description: undefined,
+        parentExternalId: "parent",
+        type: "manual",
+      },
+    ]);
+
+    expect(result.bookmarks).toHaveLength(2);
+    expect(result.bookmarks[0].listExternalIds).toEqual(["child-1"]);
+    expect(result.bookmarks[1].listExternalIds).toEqual(["child-2"]);
+  });
+
+  it("preserves smart list query metadata", () => {
+    const json = JSON.stringify({
+      lists: [
+        {
+          id: "manual",
+          name: "Manual",
+          description: null,
+          icon: "📁",
+          type: "manual",
+          query: null,
+          parentId: null,
+        },
+        {
+          id: "smart",
+          name: "Smart",
+          description: "Smart list description",
+          icon: "⚡",
+          type: "smart",
+          query: "tag:read-later",
+          parentId: null,
+        },
+      ],
+      bookmarks: [
+        {
+          createdAt: 123,
+          title: "One",
+          tags: [],
+          lists: ["manual", "smart"],
+          content: { type: "link", url: "https://one.example" },
+          note: null,
+          archived: false,
+        },
+      ],
+    });
+
+    const result = parseImportFile("karakeep", json);
+
+    expect(result.lists).toContainEqual({
+      externalId: "smart",
+      name: "Smart",
+      icon: "⚡",
+      description: "Smart list description",
+      parentExternalId: null,
+      type: "smart",
+      query: "tag:read-later",
+    });
+    expect(result.bookmarks[0].listExternalIds).toEqual(["manual"]);
   });
 });

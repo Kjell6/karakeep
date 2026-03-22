@@ -1,5 +1,5 @@
 import { experimental_trpcMiddleware, TRPCError } from "@trpc/server";
-import { and, eq, gt, inArray, lt, or } from "drizzle-orm";
+import { and, eq, gt, inArray, like, lt, or } from "drizzle-orm";
 import { z } from "zod";
 
 import type { ZBookmarkContent } from "@karakeep/shared/types/bookmarks";
@@ -14,11 +14,15 @@ import {
   bookmarkTexts,
   customPrompts,
   tagsOnBookmarks,
+  userReadingProgress,
+  users,
 } from "@karakeep/db/schema";
 import {
   AssetPreprocessingQueue,
   LinkCrawlerQueue,
+  LowPriorityCrawlerQueue,
   OpenAIQueue,
+  QueuePriority,
   QuotaService,
   triggerRuleEngineOnEvent,
   triggerSearchReindex,
@@ -27,8 +31,9 @@ import {
 import { SUPPORTED_BOOKMARK_ASSET_TYPES } from "@karakeep/shared/assetdb";
 import serverConfig from "@karakeep/shared/config";
 import { InferenceClientFactory } from "@karakeep/shared/inference";
-import { buildSummaryPrompt } from "@karakeep/shared/prompts";
+import { buildSummaryPrompt } from "@karakeep/shared/prompts.server";
 import { EnqueueOptions } from "@karakeep/shared/queueing";
+import { getRateLimitClient } from "@karakeep/shared/ratelimiting";
 import { FilterQuery, getSearchClient } from "@karakeep/shared/search";
 import { parseSearchQuery } from "@karakeep/shared/searchQueryParser";
 import {
@@ -43,6 +48,7 @@ import {
   zSearchBookmarksRequestSchema,
   zUpdateBookmarksRequestSchema,
 } from "@karakeep/shared/types/bookmarks";
+import { ANCHOR_TEXT_MAX_LENGTH } from "@karakeep/shared/utils/reading-progress-dom";
 import { normalizeTagName } from "@karakeep/shared/utils/tag";
 
 import type { AuthedContext } from "../index";
@@ -50,7 +56,6 @@ import { authedProcedure, createRateLimitMiddleware, router } from "../index";
 import { getBookmarkIdsFromMatcher } from "../lib/search";
 import { Asset } from "../models/assets";
 import { BareBookmark, Bookmark } from "../models/bookmarks";
-import { ImportSession } from "../models/importSessions";
 
 export const ensureBookmarkOwnership = experimental_trpcMiddleware<{
   ctx: AuthedContext;
@@ -105,6 +110,36 @@ async function attemptToDedupLink(ctx: AuthedContext, url: string) {
   ).asZBookmark();
 }
 
+const highBookmarkCreationRateLimitConfig = {
+  name: "bookmarks.createBookmark.highVolume",
+  windowMs: 5 * 60 * 1000,
+  maxRequests: 30,
+} as const;
+
+async function shouldUseLowPriorityQueues(
+  ctx: AuthedContext,
+): Promise<boolean> {
+  if (!serverConfig.rateLimiting.enabled) {
+    return false;
+  }
+
+  const rateLimitClient = await getRateLimitClient();
+  if (!rateLimitClient) {
+    return false;
+  }
+
+  try {
+    const result = await rateLimitClient.checkRateLimit(
+      highBookmarkCreationRateLimitConfig,
+      ctx.user.id,
+    );
+    return !result.allowed;
+  } catch {
+    // Don't block bookmark creation if rate limiting is unavailable.
+    return false;
+  }
+}
+
 export const bookmarksAppRouter = router({
   createBookmark: authedProcedure
     .input(zNewBookmarkRequestSchema)
@@ -120,13 +155,6 @@ export const bookmarksAppRouter = router({
         // This doesn't 100% protect from duplicates because of races, but it's more than enough for this usecase.
         const alreadyExists = await attemptToDedupLink(ctx, input.url);
         if (alreadyExists) {
-          if (input.importSessionId) {
-            const session = await ImportSession.fromId(
-              ctx,
-              input.importSessionId,
-            );
-            await session.attachBookmark(alreadyExists.id);
-          }
           return { ...alreadyExists, alreadyExists: true };
         }
       }
@@ -226,7 +254,7 @@ export const bookmarksAppRouter = router({
                   content: null,
                   metadata: null,
                   fileName: input.fileName ?? null,
-                  sourceUrl: null,
+                  sourceUrl: input.sourceUrl ?? null,
                 })
                 .returning();
               const uploadedAsset = await Asset.fromId(ctx, input.assetId);
@@ -258,6 +286,8 @@ export const bookmarksAppRouter = router({
                 type: BookmarkTypes.ASSET,
                 assetType: asset.assetType,
                 assetId: asset.assetId,
+                fileName: asset.fileName,
+                sourceUrl: asset.sourceUrl,
               };
               break;
             }
@@ -276,21 +306,26 @@ export const bookmarksAppRouter = router({
         },
       );
 
-      if (input.importSessionId) {
-        const session = await ImportSession.fromId(ctx, input.importSessionId);
-        await session.attachBookmark(bookmark.id);
-      }
+      const forceLowPriority = await shouldUseLowPriorityQueues(ctx);
+      const shouldUseLowPriority =
+        input.crawlPriority === "low" || forceLowPriority;
 
       const enqueueOpts: EnqueueOptions = {
         // The lower the priority number, the sooner the job will be processed
-        priority: input.crawlPriority === "low" ? 50 : 0,
+        priority: shouldUseLowPriority
+          ? QueuePriority.Low
+          : QueuePriority.Default,
         groupId: ctx.user.id,
       };
 
       switch (bookmark.content.type) {
         case BookmarkTypes.LINK: {
           // The crawling job triggers openai when it's done
-          await LinkCrawlerQueue.enqueue(
+          // Use a separate queue for low priority crawling to avoid impacting main queue parallelism
+          const crawlerQueue = shouldUseLowPriority
+            ? LowPriorityCrawlerQueue
+            : LinkCrawlerQueue;
+          await crawlerQueue.enqueue(
             {
               bookmarkId: bookmark.id,
             },
@@ -572,7 +607,7 @@ export const bookmarksAppRouter = router({
     )
     .use(ensureBookmarkOwnership)
     .mutation(async ({ input, ctx }) => {
-      await LinkCrawlerQueue.enqueue(
+      await LowPriorityCrawlerQueue.enqueue(
         {
           bookmarkId: input.bookmarkId,
           archiveFullPage: input.archiveFullPage,
@@ -580,8 +615,70 @@ export const bookmarksAppRouter = router({
         },
         {
           groupId: ctx.user.id,
+          priority: QueuePriority.Low,
         },
       );
+    }),
+  updateReadingProgress: authedProcedure
+    .input(
+      z.object({
+        bookmarkId: z.string(),
+        readingProgressOffset: z.number().int().nonnegative(),
+        readingProgressAnchor: z.string().max(ANCHOR_TEXT_MAX_LENGTH).nullish(),
+        readingProgressPercent: z.number().int().min(0).max(100).nullish(),
+      }),
+    )
+    .use(ensureBookmarkAccess)
+    .mutation(async ({ input, ctx }) => {
+      // Validate this is a LINK bookmark - reading progress only applies to links
+      const linkBookmark = await ctx.db.query.bookmarkLinks.findFirst({
+        where: eq(bookmarkLinks.id, input.bookmarkId),
+      });
+      if (!linkBookmark) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Reading progress can only be saved for link bookmarks",
+        });
+      }
+
+      await ctx.db
+        .insert(userReadingProgress)
+        .values({
+          bookmarkId: input.bookmarkId,
+          userId: ctx.user.id,
+          readingProgressOffset: input.readingProgressOffset,
+          readingProgressAnchor: input.readingProgressAnchor ?? null,
+          readingProgressPercent: input.readingProgressPercent ?? null,
+        })
+        .onConflictDoUpdate({
+          target: [userReadingProgress.bookmarkId, userReadingProgress.userId],
+          set: {
+            readingProgressOffset: input.readingProgressOffset,
+            readingProgressAnchor: input.readingProgressAnchor ?? null,
+            readingProgressPercent: input.readingProgressPercent ?? null,
+            modifiedAt: new Date(),
+          },
+        });
+    }),
+  getReadingProgress: authedProcedure
+    .input(
+      z.object({
+        bookmarkId: z.string(),
+      }),
+    )
+    .use(ensureBookmarkAccess)
+    .query(async ({ input, ctx }) => {
+      const progress = await ctx.db.query.userReadingProgress.findFirst({
+        where: and(
+          eq(userReadingProgress.bookmarkId, input.bookmarkId),
+          eq(userReadingProgress.userId, ctx.user.id),
+        ),
+      });
+      return {
+        readingProgressOffset: progress?.readingProgressOffset ?? null,
+        readingProgressAnchor: progress?.readingProgressAnchor ?? null,
+        readingProgressPercent: progress?.readingProgressPercent ?? null,
+      };
     }),
   getBookmark: authedProcedure
     .input(
@@ -686,6 +783,54 @@ export const bookmarksAppRouter = router({
                 offset: resp.hits.length + (input.cursor?.offset || 0),
               },
       };
+    }),
+  checkUrl: authedProcedure
+    .input(
+      z.object({
+        url: z.string(),
+      }),
+    )
+    .output(
+      z.object({
+        bookmarkId: z.string().nullable(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      // Normalize and compare URLs (ignoring hash fragment and trailing slash)
+      function normalizeUrl(url: string): string {
+        const u = new URL(url);
+        u.hash = "";
+        let pathname = u.pathname;
+        if (pathname.endsWith("/") && pathname !== "/") {
+          pathname = pathname.slice(0, -1);
+        }
+        u.pathname = pathname;
+        return u.toString();
+      }
+
+      // Strip hash before querying so the LIKE clause can match
+      const normalizedInput = normalizeUrl(input.url);
+
+      const results = await ctx.db
+        .select({ id: bookmarkLinks.id, url: bookmarkLinks.url })
+        .from(bookmarkLinks)
+        .leftJoin(bookmarks, eq(bookmarks.id, bookmarkLinks.id))
+        .where(
+          and(
+            eq(bookmarks.userId, ctx.user.id),
+            like(bookmarkLinks.url, `${normalizedInput}%`),
+          ),
+        );
+
+      if (results.length === 0) {
+        return { bookmarkId: null };
+      }
+
+      const exactMatch = results.find(
+        (r) => r.url && normalizeUrl(r.url) === normalizedInput,
+      );
+
+      return { bookmarkId: exactMatch?.id ?? null };
     }),
   getBookmarks: authedProcedure
     .input(zGetBookmarksRequestSchema)
@@ -815,9 +960,10 @@ export const bookmarksAppRouter = router({
       const idsToRemove = detachTagsWithNames.map((t) => t.id);
 
       const res = await ctx.db.transaction(async (tx) => {
+        let numChanges = 0;
         // Detaches
         if (idsToRemove.length > 0) {
-          await tx
+          const res = await tx
             .delete(tagsOnBookmarks)
             .where(
               and(
@@ -825,11 +971,12 @@ export const bookmarksAppRouter = router({
                 inArray(tagsOnBookmarks.tagId, idsToRemove),
               ),
             );
+          numChanges += res.changes;
         }
 
         // Attach tags
         if (allIdsToAttach.length > 0) {
-          await tx
+          const res = await tx
             .insert(tagsOnBookmarks)
             .values(
               allIdsToAttach.map((i) => ({
@@ -839,44 +986,50 @@ export const bookmarksAppRouter = router({
               })),
             )
             .onConflictDoNothing();
+          numChanges += res.changes;
         }
 
         // Update bookmark modified timestamp
-        await tx
-          .update(bookmarks)
-          .set({ modifiedAt: new Date() })
-          .where(
-            and(
-              eq(bookmarks.id, input.bookmarkId),
-              eq(bookmarks.userId, ctx.user.id),
-            ),
-          );
+        if (numChanges > 0) {
+          await tx
+            .update(bookmarks)
+            .set({ modifiedAt: new Date() })
+            .where(
+              and(
+                eq(bookmarks.id, input.bookmarkId),
+                eq(bookmarks.userId, ctx.user.id),
+              ),
+            );
+        }
 
         return {
           bookmarkId: input.bookmarkId,
           attached: allIdsToAttach,
           detached: idsToRemove,
+          numChanges,
         };
       });
 
-      await Promise.allSettled([
-        triggerRuleEngineOnEvent(input.bookmarkId, [
-          ...res.detached.map((t) => ({
-            type: "tagRemoved" as const,
-            tagId: t,
-          })),
-          ...res.attached.map((t) => ({
-            type: "tagAdded" as const,
-            tagId: t,
-          })),
-        ]),
-        triggerSearchReindex(input.bookmarkId, {
-          groupId: ctx.user.id,
-        }),
-        triggerWebhook(input.bookmarkId, "edited", ctx.user.id, {
-          groupId: ctx.user.id,
-        }),
-      ]);
+      if (res.numChanges > 0) {
+        await Promise.allSettled([
+          triggerRuleEngineOnEvent(input.bookmarkId, [
+            ...res.detached.map((t) => ({
+              type: "tagRemoved" as const,
+              tagId: t,
+            })),
+            ...res.attached.map((t) => ({
+              type: "tagAdded" as const,
+              tagId: t,
+            })),
+          ]),
+          triggerSearchReindex(input.bookmarkId, {
+            groupId: ctx.user.id,
+          }),
+          triggerWebhook(input.bookmarkId, "edited", ctx.user.id, {
+            groupId: ctx.user.id,
+          }),
+        ]);
+      }
       return res;
     }),
   getBrokenLinks: authedProcedure
@@ -988,8 +1141,15 @@ Author: ${bookmark.author ?? ""}
         },
       });
 
+      const userSettings = await ctx.db.query.users.findFirst({
+        where: eq(users.id, ctx.user.id),
+        columns: {
+          inferredTagLang: true,
+        },
+      });
+
       const summaryPrompt = await buildSummaryPrompt(
-        serverConfig.inference.inferredTagLang,
+        userSettings?.inferredTagLang ?? serverConfig.inference.inferredTagLang,
         prompts.map((p) => p.text),
         bookmarkDetails,
         serverConfig.inference.contextLength,
