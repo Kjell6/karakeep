@@ -70,8 +70,8 @@ export default function BookmarksGridSkeleton({
   return bookmarkLayoutSwitch(layout, {
     masonry: (
       <Masonry
-        className="-ml-4 flex w-auto"
-        columnClassName="pl-4"
+        className="-ml-8 flex w-auto"
+        columnClassName="pl-8"
         breakpointCols={breakpointConfig}
       >
         {children}
@@ -79,8 +79,8 @@ export default function BookmarksGridSkeleton({
     ),
     grid: (
       <Masonry
-        className="-ml-4 flex w-auto"
-        columnClassName="pl-4"
+        className="-ml-8 flex w-auto"
+        columnClassName="pl-8"
         breakpointCols={breakpointConfig}
       >
         {children}

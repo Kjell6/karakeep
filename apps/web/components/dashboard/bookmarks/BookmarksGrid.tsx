@@ -150,7 +150,7 @@ export default function BookmarksGrid({
       {bookmarkLayoutSwitch(layout, {
         masonry: (
           <Masonry
-            className="flex gap-4"
+            className="-ml-8 flex w-auto"
             columnClassName="pl-8"
             breakpointCols={breakpointConfig}
           >
@@ -159,7 +159,7 @@ export default function BookmarksGrid({
         ),
         grid: (
           <Masonry
-            className="flex gap-4"
+            className="-ml-8 flex w-auto"
             columnClassName="pl-8"
             breakpointCols={breakpointConfig}
           >
