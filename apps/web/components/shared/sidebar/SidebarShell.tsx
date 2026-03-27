@@ -114,7 +114,7 @@ export function CollapsibleSidebar({ children }: { children: ReactNode }) {
           ref={edgeTriggerRef}
           type="button"
           className={cn(
-            "fixed left-0 top-16 z-30 hidden h-[calc(100dvh-4rem)] w-3 cursor-pointer border-0 bg-transparent p-0",
+            "fixed left-0 top-16 z-[44] hidden h-[calc(100dvh-4rem)] w-3 cursor-pointer border-0 bg-transparent p-0",
             "transition-colors hover:bg-accent/50 focus-visible:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             "sm:block",
           )}
@@ -136,7 +136,7 @@ export function CollapsibleSidebar({ children }: { children: ReactNode }) {
             "flex h-[calc(100vh-64px)] w-60 flex-col gap-5 border-r bg-background p-4",
             collapsed &&
               hydrated &&
-              "fixed left-0 top-16 z-40 shadow-lg transition-transform duration-200 ease-out",
+              "fixed left-0 top-16 z-[45] shadow-lg transition-transform duration-200 ease-out",
             collapsed &&
               hydrated &&
               !peek &&

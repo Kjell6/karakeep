@@ -90,7 +90,7 @@ function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
   return (
     <button
       className={cn(
-        "absolute left-0 top-0 z-50 h-full w-full bg-opacity-0",
+        "absolute left-0 top-0 z-30 h-full w-full bg-opacity-0",
         {
           "bg-opacity-10": isSelected,
         },
@@ -98,7 +98,7 @@ function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
       )}
       onClick={() => toggleBookmark(bookmark)}
     >
-      <div className="absolute right-2 top-2 z-50 opacity-100">
+      <div className="absolute right-2 top-2 z-30 opacity-100">
         <div
           className={cn(
             "flex h-4 w-4 items-center justify-center rounded-full border border-gray-600",
@@ -135,7 +135,7 @@ function ListView({
         {image("list", "object-cover rounded-lg size-32")}
         {/* Show action buttons over image for non-text bookmarks (top-right) */}
         {bookmark.content.type !== BookmarkTypes.TEXT && (
-          <div className="absolute right-2 top-2 z-40">
+          <div className="absolute right-2 top-2 z-30">
             <BookmarkActionBar bookmark={bookmark} />
           </div>
         )}
@@ -211,7 +211,7 @@ function GridView({
         >
           {img}
           {bookmark.content.type !== BookmarkTypes.TEXT && (
-            <div className="absolute right-2 top-2 z-40">
+            <div className="absolute right-2 top-2 z-30">
               <BookmarkActionBar bookmark={bookmark} />
             </div>
           )}
