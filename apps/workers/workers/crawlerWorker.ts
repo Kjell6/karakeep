@@ -51,7 +51,6 @@ import {
   QuotaService,
   setSpanAttributes,
   triggerSearchReindex,
-  triggerWebhook,
   VideoWorkerQueue,
   withSpan,
   zCrawlLinkRequestSchema,
@@ -80,6 +79,7 @@ import {
 import { getRateLimitClient } from "@karakeep/shared/ratelimiting";
 import { tryCatch } from "@karakeep/shared/tryCatch";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
+import { WebhooksService } from "@karakeep/trpc/models/webhooks.service";
 
 import type {
   ParseSubprocessError,
@@ -1517,6 +1517,20 @@ async function archiveWebpage(
     },
     async () => {
       logger.info(`[Crawler][${jobId}] Will attempt to archive page ...`);
+
+      {
+        // Archival is a heavy operation, so we need to check if the user is within reasonable quota before proceeding
+        const { error: quotaError } = await tryCatch(
+          QuotaService.checkStorageQuota(db, userId, /* estimated size */ 1024),
+        );
+        if (quotaError) {
+          logger.warn(
+            `[Crawler][${jobId}] Skipping archival as the user has exceeded their quota: ${quotaError.message}`,
+          );
+          return null;
+        }
+      }
+
       const assetId = newAssetId();
       const assetPath = path.join(os.tmpdir(), assetId);
 
@@ -2272,7 +2286,15 @@ async function runCrawler(
     }
 
     // Trigger a webhook
-    await triggerWebhook(bookmarkId, "crawled", undefined, enqueueOpts);
+    {
+      const webhookService = new WebhooksService(db);
+      await webhookService.triggerWebhook(
+        bookmarkId,
+        "crawled",
+        userId,
+        enqueueOpts,
+      );
+    }
 
     // Do the archival as a separate last step as it has the potential for failure
     await archivalLogic();

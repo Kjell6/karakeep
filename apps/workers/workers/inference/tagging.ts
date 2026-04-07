@@ -17,11 +17,7 @@ import {
   tagsOnBookmarks,
   users,
 } from "@karakeep/db/schema";
-import {
-  triggerRuleEngineOnEvent,
-  triggerSearchReindex,
-  triggerWebhook,
-} from "@karakeep/shared-server";
+import { triggerSearchReindex } from "@karakeep/shared-server";
 import { ASSET_TYPES, readAsset } from "@karakeep/shared/assetdb";
 import serverConfig from "@karakeep/shared/config";
 import logger from "@karakeep/shared/logger";
@@ -31,7 +27,9 @@ import {
   buildTextPrompt,
 } from "@karakeep/shared/prompts";
 import { DequeuedJob, EnqueueOptions } from "@karakeep/shared/queueing";
+import { RuleEngine } from "@karakeep/trpc/lib/ruleEngine";
 import { Bookmark } from "@karakeep/trpc/models/bookmarks";
+import { WebhooksService } from "@karakeep/trpc/models/webhooks.service";
 
 const openAIResponseSchema = z.object({
   tags: z.array(z.string()),
@@ -525,7 +523,7 @@ async function connectTags(
     return { detachedTags, attachedTags };
   });
 
-  await triggerRuleEngineOnEvent(bookmarkId, [
+  await RuleEngine.triggerOnEvent(userId, bookmarkId, [
     ...res.detachedTags.map((t) => ({
       type: "tagRemoved" as const,
       tagId: t.tagId,
@@ -649,7 +647,15 @@ export async function runTagging(
   };
 
   // Trigger a webhook
-  await triggerWebhook(bookmarkId, "ai tagged", undefined, enqueueOpts);
+  {
+    const webhookService = new WebhooksService(db);
+    await webhookService.triggerWebhook(
+      bookmarkId,
+      "ai tagged",
+      bookmark.userId,
+      enqueueOpts,
+    );
+  }
 
   // Update the search index
   await triggerSearchReindex(bookmarkId, enqueueOpts);
