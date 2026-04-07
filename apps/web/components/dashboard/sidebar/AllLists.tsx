@@ -30,6 +30,8 @@ import { EditListModal } from "../lists/EditListModal";
 import { ListOptions } from "../lists/ListOptions";
 import { InvitationNotificationBadge } from "./InvitationNotificationBadge";
 
+const noop = () => undefined;
+
 function useDropTarget(listId: string, listName: string) {
   const { mutateAsync: addToList } = useAddBookmarkToList();
   const [dropHighlight, setDropHighlight] = useState(false);
@@ -347,8 +349,8 @@ export default function AllLists({
                   setSelectedListId={setSelectedListId}
                   canMoveUp={false}
                   canMoveDown={false}
-                  onMoveUp={() => {}}
-                  onMoveDown={() => {}}
+                  onMoveUp={noop}
+                  onMoveDown={noop}
                 />
               )}
             />

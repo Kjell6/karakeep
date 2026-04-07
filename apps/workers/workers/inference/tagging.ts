@@ -356,7 +356,7 @@ async function inferTags(
   tagStyle: ZTagStyle,
   inferredTagLang: string,
 ) {
-  let response: InferenceResponse | null;
+  let response: InferenceResponse | null = null;
   if (bookmark.link || bookmark.text) {
     const bannerAsset = bookmark.assets?.find(
       (asset) => asset.assetType === AssetTypes.LINK_BANNER_IMAGE,

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode, RefObject } from "react";
 import {
   createContext,
   useCallback,
@@ -8,8 +9,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type ReactNode,
-  type RefObject,
 } from "react";
 import { PanelLeft, PanelLeftClose } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "karakeep:sidebarCollapsed";
 
-export type SidebarShellContextValue = {
+export interface SidebarShellContextValue {
   collapsed: boolean;
   hydrated: boolean;
   peek: boolean;
@@ -27,7 +26,7 @@ export type SidebarShellContextValue = {
   edgeTriggerRef: RefObject<HTMLButtonElement | null>;
   /** Hauptinhalt ohne `container`-Maximalbreite (Sidebar nimmt keinen Platz ein). */
   mainUsesWideLayout: boolean;
-};
+}
 
 const SidebarShellContext = createContext<SidebarShellContextValue | null>(
   null,

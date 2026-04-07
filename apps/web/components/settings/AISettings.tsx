@@ -767,23 +767,8 @@ export function PromptDemo() {
   const clientConfig = useClientConfig();
 
   const tagStyle = settings?.tagStyle ?? "as-generated";
-  const curatedTagIds = settings?.curatedTagIds ?? [];
-  const { data: tagsData } = useQuery(
-    api.tags.list.queryOptions(
-      { ids: curatedTagIds },
-      { enabled: curatedTagIds.length > 0 },
-    ),
-  );
   const inferredTagLang =
     settings?.inferredTagLang ?? clientConfig.inference.inferredTagLang;
-
-  // Resolve curated tag names for preview
-  const curatedTagNames =
-    curatedTagIds.length > 0 && tagsData?.tags
-      ? curatedTagIds
-          .map((id) => tagsData.tags.find((tag) => tag.id === id)?.name)
-          .filter((name): name is string => Boolean(name))
-      : undefined;
 
   // Detect whether any prompt uses a tag-list placeholder ($tags / $aiTags / $userTags)
   const allPromptTexts = (prompts ?? []).map((p) => p.text);
@@ -827,7 +812,6 @@ export function PromptDemo() {
               ),
               "\n<CONTENT_HERE>\n",
               tagStyle,
-              curatedTagNames,
             ).trim()}
           </code>
         </div>
@@ -847,7 +831,6 @@ export function PromptDemo() {
                   .map((p) => p.text),
               ),
               tagStyle,
-              curatedTagNames,
             ).trim()}
           </code>
         </div>

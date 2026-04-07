@@ -205,8 +205,8 @@ interface FxTwitterResponse {
       avatar_url?: string;
     };
     media?: {
-      photos?: Array<{ url: string; altText?: string }>;
-      videos?: Array<{ thumbnail_url: string; url: string }>;
+      photos?: { url: string; altText?: string }[];
+      videos?: { thumbnail_url: string; url: string }[];
     };
     likes?: number;
     retweets?: number;
@@ -222,7 +222,7 @@ async function twitterCrawlPage(
   return await withSpan(
     tracer,
     "crawlerWorker.twitterCrawlPage",
-    { attributes: { url, jobId } },
+    { attributes: { "bookmark.url": url, "job.id": jobId } },
     async () => {
       const parsed = parseTwitterUrl(url);
       if (!parsed.isTwitter || !parsed.screenName || !parsed.statusId) {

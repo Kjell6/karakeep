@@ -470,6 +470,9 @@
             "type": "string",
             "nullable": true
           },
+          "sortOrder": {
+            "type": "integer"
+          },
           "type": {
             "type": "string",
             "enum": [
@@ -503,6 +506,7 @@
           "name",
           "icon",
           "parentId",
+          "sortOrder",
           "public",
           "hasCollaborators",
           "userRole"
