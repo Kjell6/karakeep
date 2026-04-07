@@ -6,6 +6,7 @@ import {
   zEditBookmarkListSchemaWithValidation,
   zMergeListSchema,
   zNewBookmarkListSchema,
+  zReorderBookmarkListsSchema,
 } from "@karakeep/shared/types/lists";
 
 import type { AuthedContext } from "../index";
@@ -93,6 +94,11 @@ export const listsAppRouter = router({
         targetList,
         input.deleteSourceAfterMerge,
       );
+    }),
+  reorder: authedProcedure
+    .input(zReorderBookmarkListsSchema)
+    .mutation(async ({ input, ctx }) => {
+      await List.reorderOwned(ctx, input);
     }),
   delete: authedProcedure
     .input(

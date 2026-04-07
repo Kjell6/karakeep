@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { TRPCError } from "@trpc/server";
-import { and, count, eq, inArray, or } from "drizzle-orm";
+import { and, asc, count, eq, inArray, isNull, or } from "drizzle-orm";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 
@@ -18,6 +18,7 @@ import {
   ZBookmarkList,
   zEditBookmarkListSchemaWithValidation,
   zNewBookmarkListSchema,
+  zReorderBookmarkListsSchema,
 } from "@karakeep/shared/types/lists";
 import { ZCursor } from "@karakeep/shared/types/pagination";
 import { switchCase } from "@karakeep/shared/utils/switch";
@@ -55,6 +56,7 @@ export abstract class List {
       description: this.list.description,
       userId: this.list.userId,
       icon: this.list.icon,
+      sortOrder: this.list.sortOrder,
       type: this.list.type,
       query: this.list.query,
       userRole: this.list.userRole,
@@ -253,6 +255,13 @@ export abstract class List {
     ctx: AuthedContext,
     input: z.infer<typeof zNewBookmarkListSchema>,
   ): Promise<ManualList | SmartList> {
+    const siblingCount = await ctx.db.$count(
+      bookmarkLists,
+      and(
+        eq(bookmarkLists.userId, ctx.user.id),
+        input.parentId ? eq(bookmarkLists.parentId, input.parentId) : isNull(bookmarkLists.parentId),
+      ),
+    );
     const [result] = await ctx.db
       .insert(bookmarkLists)
       .values({
@@ -263,6 +272,7 @@ export abstract class List {
         parentId: input.parentId,
         type: input.type,
         query: input.query,
+        sortOrder: siblingCount,
       })
       .returning();
     return this.fromData(
@@ -292,6 +302,12 @@ export abstract class List {
         rssToken: false,
       },
       where: and(eq(bookmarkLists.userId, ctx.user.id)),
+      orderBy: [
+        asc(bookmarkLists.parentId),
+        asc(bookmarkLists.sortOrder),
+        asc(bookmarkLists.name),
+        asc(bookmarkLists.id),
+      ],
       with: {
         collaborators: {
           columns: {
@@ -806,6 +822,60 @@ export abstract class List {
         },
       ),
     );
+  }
+
+  static async reorderOwned(
+    ctx: AuthedContext,
+    input: z.infer<typeof zReorderBookmarkListsSchema>,
+  ): Promise<void> {
+    const uniqueIds = [...new Set(input.orderedIds)];
+    if (uniqueIds.length !== input.orderedIds.length) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "List order contains duplicates",
+      });
+    }
+
+    const siblingLists = await ctx.db.query.bookmarkLists.findMany({
+      where: and(
+        eq(bookmarkLists.userId, ctx.user.id),
+        input.parentId
+          ? eq(bookmarkLists.parentId, input.parentId)
+          : isNull(bookmarkLists.parentId),
+      ),
+      columns: {
+        id: true,
+      },
+    });
+
+    if (siblingLists.length !== input.orderedIds.length) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "List order is incomplete",
+      });
+    }
+
+    const siblingIds = new Set(siblingLists.map((list) => list.id));
+    if (!input.orderedIds.every((id) => siblingIds.has(id))) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "List order contains invalid siblings",
+      });
+    }
+
+    await ctx.db.transaction(async (tx) => {
+      for (const [sortOrder, listId] of input.orderedIds.entries()) {
+        await tx
+          .update(bookmarkLists)
+          .set({ sortOrder })
+          .where(
+            and(
+              eq(bookmarkLists.id, listId),
+              eq(bookmarkLists.userId, ctx.user.id),
+            ),
+          );
+      }
+    });
   }
 
   abstract get type(): "manual" | "smart";

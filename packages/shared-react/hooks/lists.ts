@@ -70,6 +70,22 @@ export function useMergeLists(
   );
 }
 
+export function useReorderBookmarkLists(
+  opts?: Parameters<TRPCApi["lists"]["reorder"]["mutationOptions"]>[0],
+) {
+  const api = useTRPC();
+  const queryClient = useQueryClient();
+  return useMutation(
+    api.lists.reorder.mutationOptions({
+      ...opts,
+      onSuccess: (res, req, meta, context) => {
+        queryClient.invalidateQueries(api.lists.list.pathFilter());
+        return opts?.onSuccess?.(res, req, meta, context);
+      },
+    }),
+  );
+}
+
 export function useAddBookmarkToList(
   opts?: Parameters<TRPCApi["lists"]["addToList"]["mutationOptions"]>[0],
 ) {

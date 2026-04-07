@@ -60,8 +60,7 @@ function ListItem({
         numBookmarks: listStats?.get(node.item.id),
       })}
       <CollapsibleContent>
-        {node.children
-          .sort((a, b) => a.item.name.localeCompare(b.item.name))
+      {node.children
           .map((l) => (
             <ListItem
               isOpenFunc={isOpenFunc}
@@ -125,7 +124,6 @@ export function CollapsibleBookmarkLists({
   return (
     <div>
       {filteredRoots
-        .sort((a, b) => a.item.name.localeCompare(b.item.name))
         .map((node) => (
           <ListItem
             key={node.item.id}

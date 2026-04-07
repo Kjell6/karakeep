@@ -226,6 +226,38 @@ describe("Lists Routes", () => {
     expect(lists.lists.find((l) => l.id === createdList.id)).toBeDefined();
   });
 
+  test<CustomTestContext>("reorder sibling lists", async ({ apiCallers }) => {
+    const api = apiCallers[0].lists;
+
+    const first = await api.create({
+      name: "First",
+      type: "manual",
+      icon: "1",
+    });
+    const second = await api.create({
+      name: "Second",
+      type: "manual",
+      icon: "2",
+    });
+    const third = await api.create({
+      name: "Third",
+      type: "manual",
+      icon: "3",
+    });
+
+    await api.reorder({
+      parentId: null,
+      orderedIds: [third.id, first.id, second.id],
+    });
+
+    const lists = await api.list();
+    expect(
+      lists.lists
+        .filter((list) => [first.id, second.id, third.id].includes(list.id))
+        .map((list) => list.id),
+    ).toEqual([third.id, first.id, second.id]);
+  });
+
   test<CustomTestContext>("get lists of bookmark and stats", async ({
     apiCallers,
   }) => {

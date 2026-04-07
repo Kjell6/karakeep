@@ -54,6 +54,7 @@ export const zBookmarkListSchema = z.object({
   description: z.string().nullish(),
   icon: z.string(),
   parentId: z.string().nullable(),
+  sortOrder: z.number().int(),
   type: z.enum(["manual", "smart"]).default("manual"),
   query: z.string().nullish(),
   public: z.boolean(),
@@ -62,6 +63,11 @@ export const zBookmarkListSchema = z.object({
 });
 
 export type ZBookmarkList = z.infer<typeof zBookmarkListSchema>;
+
+export const zReorderBookmarkListsSchema = z.object({
+  parentId: z.string().nullable(),
+  orderedIds: z.array(z.string()).min(1),
+});
 
 export const zEditBookmarkListSchema = z.object({
   listId: z.string(),

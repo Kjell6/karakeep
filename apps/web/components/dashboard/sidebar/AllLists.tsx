@@ -21,8 +21,9 @@ import {
   augmentBookmarkListsWithInitialData,
   useAddBookmarkToList,
   useBookmarkLists,
+  useReorderBookmarkLists,
 } from "@karakeep/shared-react/hooks/lists";
-import { ZBookmarkListTreeNode } from "@karakeep/shared/utils/listUtils";
+import { compareBookmarkLists, ZBookmarkListTreeNode } from "@karakeep/shared/utils/listUtils";
 
 import { CollapsibleBookmarkLists } from "../lists/CollapsibleBookmarkLists";
 import { EditListModal } from "../lists/EditListModal";
@@ -95,6 +96,10 @@ function DroppableListSidebarItem({
   numBookmarks,
   selectedListId,
   setSelectedListId,
+  canMoveUp,
+  canMoveDown,
+  onMoveUp,
+  onMoveDown,
 }: {
   node: ZBookmarkListTreeNode;
   level: number;
@@ -102,6 +107,10 @@ function DroppableListSidebarItem({
   numBookmarks?: number;
   selectedListId: string | null;
   setSelectedListId: (id: string | null) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
 }) {
   const canDrop =
     node.item.type === "manual" &&
@@ -137,6 +146,10 @@ function DroppableListSidebarItem({
             }
           }}
           list={node.item}
+          canMoveUp={canMoveUp}
+          canMoveDown={canMoveDown}
+          onMoveUp={onMoveUp}
+          onMoveDown={onMoveDown}
         >
           <Button size="none" variant="ghost" className="relative">
             <MoreHorizontal
@@ -182,8 +195,8 @@ export default function AllLists({
   );
 
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const { mutateAsync: reorderLists } = useReorderBookmarkLists();
 
-  // Fetch live lists data
   const { data: listsData } = useBookmarkLists(undefined, {
     initialData: { lists: initialData.lists },
   });
@@ -192,21 +205,55 @@ export default function AllLists({
     initialData.lists,
   );
 
-  // Check if any shared list is currently being viewed
+  const ownedSiblingsByParent = useMemo(() => {
+    const siblings = new Map<string | null, ZBookmarkList[]>();
+    lists.data
+      .filter((list) => list.userRole === "owner")
+      .forEach((list) => {
+        const key = list.parentId ?? null;
+        const current = siblings.get(key) ?? [];
+        current.push(list);
+        current.sort(compareBookmarkLists);
+        siblings.set(key, current);
+      });
+    return siblings;
+  }, [lists.data]);
+
+  const moveList = useCallback(
+    async (list: ZBookmarkList, direction: -1 | 1) => {
+      const siblings = ownedSiblingsByParent.get(list.parentId ?? null);
+      if (!siblings) return;
+
+      const currentIndex = siblings.findIndex((item) => item.id === list.id);
+      if (currentIndex === -1) return;
+
+      const targetIndex = currentIndex + direction;
+      if (targetIndex < 0 || targetIndex >= siblings.length) return;
+
+      const orderedIds = siblings.map((item) => item.id);
+      const [movedId] = orderedIds.splice(currentIndex, 1);
+      orderedIds.splice(targetIndex, 0, movedId);
+
+      await reorderLists({
+        parentId: list.parentId,
+        orderedIds,
+      });
+    },
+    [ownedSiblingsByParent, reorderLists],
+  );
+
   const isViewingSharedList = useMemo(() => {
     return lists.data.some(
       (list) => list.userRole !== "owner" && pathName.includes(list.id),
     );
   }, [lists.data, pathName]);
 
-  // Check if there are any shared lists
   const hasSharedLists = useMemo(() => {
     return lists.data.some((list) => list.userRole !== "owner");
   }, [lists.data]);
 
   const [sharedListsOpen, setSharedListsOpen] = useState(isViewingSharedList);
 
-  // Auto-open shared lists if viewing one
   useEffect(() => {
     if (isViewingSharedList && !sharedListsOpen) {
       setSharedListsOpen(true);
@@ -244,24 +291,31 @@ export default function AllLists({
         className="px-0.5"
       />
 
-      {/* Owned Lists */}
       <CollapsibleBookmarkLists
         listsData={lists}
         filter={(node) => node.item.userRole === "owner"}
         isOpenFunc={isNodeOpen}
-        render={({ node, level, open, numBookmarks }) => (
-          <DroppableListSidebarItem
-            node={node}
-            level={level}
-            open={open}
-            numBookmarks={numBookmarks}
-            selectedListId={selectedListId}
-            setSelectedListId={setSelectedListId}
-          />
-        )}
+        render={({ node, level, open, numBookmarks }) => {
+          const siblings = ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
+          const index = siblings.findIndex((item) => item.id === node.item.id);
+
+          return (
+            <DroppableListSidebarItem
+              node={node}
+              level={level}
+              open={open}
+              numBookmarks={numBookmarks}
+              selectedListId={selectedListId}
+              setSelectedListId={setSelectedListId}
+              canMoveUp={index > 0}
+              canMoveDown={index >= 0 && index < siblings.length - 1}
+              onMoveUp={() => void moveList(node.item, -1)}
+              onMoveDown={() => void moveList(node.item, 1)}
+            />
+          );
+        }}
       />
 
-      {/* Shared Lists */}
       {hasSharedLists && (
         <Collapsible open={sharedListsOpen} onOpenChange={setSharedListsOpen}>
           <SidebarItem
@@ -291,6 +345,10 @@ export default function AllLists({
                   numBookmarks={numBookmarks}
                   selectedListId={selectedListId}
                   setSelectedListId={setSelectedListId}
+                  canMoveUp={false}
+                  canMoveDown={false}
+                  onMoveUp={() => {}}
+                  onMoveDown={() => {}}
                 />
               )}
             />
