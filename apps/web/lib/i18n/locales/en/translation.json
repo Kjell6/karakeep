@@ -669,8 +669,6 @@
   "lists": {
     "all_lists": "All Lists",
     "favourites": "Favourites",
-    "list_icon_tab_emoji": "Emoji",
-    "list_icon_tab_symbol": "Icons",
     "shared": "Shared",
     "shared_lists": "Shared Lists",
     "new_list": "New List",
@@ -689,6 +687,8 @@
     "search_query": "Search Query",
     "search_query_help": "Learn more about the search query language.",
     "description": "Description (Optional)",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Icons",
     "delete_list": {
       "title": "Delete List",
       "description": "Deleting a list doesn't delete any bookmarks in that list.",

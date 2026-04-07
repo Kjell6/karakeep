@@ -129,9 +129,9 @@ export function MergeListModal({
             <div className="flex w-full gap-2 py-4">
               <span className="inline-flex aspect-square h-10 items-center justify-center rounded border border-input bg-transparent px-2">
                 <ListIcon
-                  icon={list.icon}
                   className="size-6"
-                  emojiClassName="text-2xl leading-none"
+                  icon={list.icon}
+                  strokeWidth={2}
                 />
               </span>
               <Input

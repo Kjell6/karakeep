@@ -37,10 +37,7 @@ interface TiktokCacheEntry {
 const oembedCache = new Map<string, TiktokCacheEntry>();
 
 /** Parallel metascraper rules call fetch concurrently; dedupe the HTTP request. */
-const inflightOembed = new Map<
-  string,
-  Promise<TiktokOembedData | undefined>
->();
+const inflightOembed = new Map<string, Promise<TiktokOembedData | undefined>>();
 
 const purgeExpiredCacheEntries = (now: number) => {
   for (const [key, entry] of oembedCache.entries()) {

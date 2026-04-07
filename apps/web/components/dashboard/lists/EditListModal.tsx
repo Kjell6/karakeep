@@ -40,15 +40,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "@/lib/i18n/client";
-import { cn } from "@/lib/utils";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  makeLucideListIcon,
-  isLucideListIcon,
-  getLucideIconNameFromListIcon,
-} from "@karakeep/shared/listIcon";
+  BOOKMARK_LIST_LUCIDE_ICON_NAMES,
+  formatLucideListIcon,
+} from "@karakeep/shared/listIcons";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -65,7 +63,7 @@ import {
 
 import QueryExplainerTooltip from "../search/QueryExplainerTooltip";
 import { BookmarkListSelector } from "./BookmarkListSelector";
-import { LIST_LUCIDE_ICONS_FOR_PICKER, ListIcon } from "./ListIcon";
+import { ListIcon, LUCIDE_LIST_ICONS } from "./ListIcon";
 
 export function EditListModal({
   open: userOpen,
@@ -233,58 +231,31 @@ export function EditListModal({
                 control={form.control}
                 name="icon"
                 render={({ field }) => {
-                  const iconTab = isLucideListIcon(field.value)
-                    ? "symbol"
-                    : "emoji";
                   return (
                     <FormItem>
                       <FormControl>
                         <Popover>
                           <PopoverTrigger
                             type="button"
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-input"
+                            className="flex h-11 min-w-11 shrink-0 items-center justify-center rounded border border-input px-2"
                           >
                             <ListIcon
-                              icon={field.value}
                               className="size-6"
-                              emojiClassName="text-2xl"
+                              icon={field.value}
+                              strokeWidth={2}
                             />
                           </PopoverTrigger>
-                          <PopoverContent className="w-[min(100vw-2rem,22rem)] p-3">
-                            <Tabs
-                              value={iconTab}
-                              onValueChange={(v) => {
-                                if (
-                                  v === "emoji" &&
-                                  isLucideListIcon(field.value)
-                                ) {
-                                  field.onChange("🚀");
-                                }
-                                if (
-                                  v === "symbol" &&
-                                  !isLucideListIcon(field.value)
-                                ) {
-                                  field.onChange(
-                                    makeLucideListIcon(
-                                      LIST_LUCIDE_ICONS_FOR_PICKER[0]!.name,
-                                    ),
-                                  );
-                                }
-                              }}
-                            >
-                              <TabsList className="grid w-full grid-cols-2">
+                          <PopoverContent className="w-[min(100vw-2rem,22rem)] p-2">
+                            <Tabs defaultValue="emoji" className="w-full">
+                              <TabsList className="mb-2 grid w-full grid-cols-2">
                                 <TabsTrigger value="emoji">
-                                  {t("lists.list_icon_tab_emoji", {
-                                    defaultValue: "Emoji",
-                                  })}
+                                  {t("lists.icon_tab_emoji")}
                                 </TabsTrigger>
-                                <TabsTrigger value="symbol">
-                                  {t("lists.list_icon_tab_symbol", {
-                                    defaultValue: "Icons",
-                                  })}
+                                <TabsTrigger value="icons">
+                                  {t("lists.icon_tab_icons")}
                                 </TabsTrigger>
                               </TabsList>
-                              <TabsContent value="emoji" className="mt-3">
+                              <TabsContent value="emoji" className="mt-0">
                                 <Picker
                                   data={data}
                                   onEmojiSelect={(e: { native: string }) =>
@@ -292,35 +263,31 @@ export function EditListModal({
                                   }
                                 />
                               </TabsContent>
-                              <TabsContent value="symbol" className="mt-3">
-                                <ScrollArea className="h-56 pr-3">
-                                  <div className="grid grid-cols-6 gap-1">
-                                    {LIST_LUCIDE_ICONS_FOR_PICKER.map(
-                                      ({ name, Icon }) => {
-                                        const selected =
-                                          isLucideListIcon(field.value) &&
-                                          getLucideIconNameFromListIcon(
-                                            field.value,
-                                          ) === name;
+                              <TabsContent value="icons" className="mt-0">
+                                <ScrollArea className="h-[min(52vh,420px)] pr-2">
+                                  <div className="grid w-full grid-cols-8 gap-1">
+                                    {BOOKMARK_LIST_LUCIDE_ICON_NAMES.map(
+                                      (name) => {
+                                        const Icon = LUCIDE_LIST_ICONS[name];
+                                        const value = formatLucideListIcon(name);
+                                        const selected = field.value === value;
                                         return (
                                           <button
                                             key={name}
                                             type="button"
                                             title={name}
-                                            className={cn(
-                                              "flex size-9 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                                              selected &&
-                                                "border-primary bg-accent text-foreground",
-                                            )}
                                             onClick={() =>
-                                              field.onChange(
-                                                makeLucideListIcon(name),
-                                              )
+                                              field.onChange(value)
+                                            }
+                                            className={
+                                              selected
+                                                ? "flex aspect-square w-full min-w-0 items-center justify-center rounded-md border-2 border-primary bg-accent p-0.5"
+                                                : "flex aspect-square w-full min-w-0 items-center justify-center rounded-md border border-transparent p-0.5 hover:bg-accent"
                                             }
                                           >
                                             <Icon
-                                              className="size-4 stroke-[1.5]"
-                                              aria-hidden
+                                              className="size-4 shrink-0"
+                                              strokeWidth={2}
                                             />
                                           </button>
                                         );

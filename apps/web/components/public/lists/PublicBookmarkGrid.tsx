@@ -13,9 +13,14 @@ import { useTRPC } from "@karakeep/shared-react/trpc";
 import { cn } from "@/lib/utils";
 import tailwindConfig from "@/tailwind.config";
 import { Expand, FileIcon, ImageIcon } from "lucide-react";
-import { useInView } from "react-intersection-observer";
-import Masonry from "react-masonry-css";
 import resolveConfig from "tailwindcss/resolveConfig";
+
+import {
+  estimatePublicBookmarkHeight,
+} from "@/lib/masonry/balancedMasonry";
+import { useAnyColumnSentinelInView } from "@/lib/masonry/useAnyColumnSentinelInView";
+import { useBalancedMasonry } from "@/lib/masonry/useBalancedMasonry";
+import { useMasonryColumnCount } from "@/lib/masonry/useMasonryColumnCount";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import {
@@ -201,9 +206,10 @@ export default function PublicBookmarkGrid({
   nextCursor: ZCursor | null;
 }) {
   const api = useTRPC();
-  const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView({
-    rootMargin: "400px",
-  });
+  const breakpointConfig = useMemo(() => getBreakpointConfig(), []);
+  const columnCount = useMasonryColumnCount(breakpointConfig);
+  const { inView: loadMoreButtonInView, getSentinelRef } =
+    useAnyColumnSentinelInView("400px");
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery(
       api.publicBookmarks.getPublicBookmarksInList.infiniteQueryOptions(
@@ -224,27 +230,43 @@ export default function PublicBookmarkGrid({
     if (loadMoreButtonInView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [loadMoreButtonInView]);
-
-  const breakpointConfig = useMemo(() => getBreakpointConfig(), []);
+  }, [loadMoreButtonInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const bookmarks = useMemo(() => {
     return data.pages.flatMap((b) => b.bookmarks);
   }, [data]);
+
+  const { columns: bookmarkColumns, getItemRef } = useBalancedMasonry({
+    items: bookmarks,
+    columnCount,
+    estimateHeight: estimatePublicBookmarkHeight,
+    itemGapPx: 12,
+  });
+
   return (
     <>
-      <Masonry
-        className="-ml-4 flex w-auto"
-        columnClassName="pl-4"
-        breakpointCols={breakpointConfig}
-      >
-        {bookmarks.map((bookmark) => (
-          <BookmarkCard key={bookmark.id} bookmark={bookmark} />
+      <div className="-ml-4 flex w-auto">
+        {bookmarkColumns.map((columnBookmarks, colIdx) => (
+          <div
+            key={colIdx}
+            className="pl-4"
+            style={{ width: `${100 / columnCount}%` }}
+          >
+            {columnBookmarks.map((bookmark) => (
+              <div key={bookmark.id} ref={getItemRef(bookmark.id)}>
+                <BookmarkCard bookmark={bookmark} />
+              </div>
+            ))}
+            {hasNextPage && (
+              <div
+                ref={getSentinelRef(colIdx)}
+                className="pointer-events-none h-px w-full"
+                aria-hidden
+              />
+            )}
+          </div>
         ))}
-        {hasNextPage && (
-          <div key="load-more-sentinel" ref={loadMoreRef} className="h-px" />
-        )}
-      </Masonry>
+      </div>
       {hasNextPage && (
         <div className="flex justify-center">
           <ActionButton

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -17,33 +17,11 @@ import LoadingSpinner from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 
+import { listIconToPlainLabel } from "@karakeep/shared/listIcons";
 import { useBookmarkLists } from "@karakeep/shared-react/hooks/lists";
-import { getLucideIconNameFromListIcon } from "@karakeep/shared/listIcon";
 import { ZBookmarkList } from "@karakeep/shared/types/lists";
 
 import { ListIcon } from "./ListIcon";
-
-export function ListPathSegments({ path }: { path: ZBookmarkList[] }) {
-  return (
-    <span className="inline-flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5 text-left">
-      {path.map((p, i) => (
-        <span key={p.id} className="inline-flex items-center gap-1">
-          {i > 0 && (
-            <span className="text-muted-foreground" aria-hidden>
-              /
-            </span>
-          )}
-          <ListIcon
-            icon={p.icon}
-            className="size-3.5 shrink-0"
-            emojiClassName="text-sm leading-none"
-          />
-          <span className="min-w-0 truncate">{p.name}</span>
-        </span>
-      ))}
-    </span>
-  );
-}
 
 export function BookmarkListSelector({
   value,
@@ -92,8 +70,26 @@ export function BookmarkListSelector({
   const selectedListPath = allPaths?.find(
     (path) => path[path.length - 1].id === value,
   );
-  const selectedListPathSegments = selectedListPath ? (
-    <ListPathSegments path={selectedListPath} />
+  const selectedListName = selectedListPath ? (
+    <span className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5 text-left">
+      {selectedListPath.map((p, i) => (
+        <Fragment key={p.id}>
+          {i > 0 ? (
+            <span className="text-muted-foreground" aria-hidden>
+              /
+            </span>
+          ) : null}
+          <span className="inline-flex min-w-0 items-center gap-1">
+            <ListIcon
+              className="size-4 shrink-0"
+              icon={p.icon}
+              strokeWidth={2}
+            />
+            <span className="truncate">{p.name}</span>
+          </span>
+        </Fragment>
+      ))}
+    </span>
   ) : null;
 
   return (
@@ -105,9 +101,7 @@ export function BookmarkListSelector({
           aria-expanded={open}
           className={cn("w-full justify-between", className)}
         >
-          <span className="min-w-0 flex-1 truncate text-left">
-            {selectedListPathSegments || placeholder}
-          </span>
+          {selectedListName || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -126,14 +120,19 @@ export function BookmarkListSelector({
             <CommandGroup className="max-h-60 overflow-y-auto">
               {allPaths?.map((path) => {
                 const l = path[path.length - 1];
-                const lucideName = getLucideIconNameFromListIcon(l.icon);
                 return (
                   <CommandItem
                     key={l.id}
                     value={l.id}
-                    keywords={[l.name, l.icon, lucideName ?? ""].filter(
-                      Boolean,
-                    )}
+                    keywords={[
+                      l.name,
+                      l.icon,
+                      listIconToPlainLabel(l.icon),
+                      ...path.flatMap((p) => [
+                        p.name,
+                        listIconToPlainLabel(p.icon),
+                      ]),
+                    ]}
                     onSelect={(currentValue) => {
                       onChange(currentValue);
                       setOpen(false);
@@ -142,11 +141,29 @@ export function BookmarkListSelector({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4 shrink-0",
+                        "mr-2 h-4 w-4",
                         value === l.id ? "opacity-100" : "opacity-0",
                       )}
                     />
-                    <ListPathSegments path={path} />
+                    <span className="flex min-w-0 flex-wrap items-center gap-x-1 gap-y-0.5">
+                      {path.map((p, i) => (
+                        <Fragment key={p.id}>
+                          {i > 0 ? (
+                            <span className="text-muted-foreground" aria-hidden>
+                              /
+                            </span>
+                          ) : null}
+                          <span className="inline-flex min-w-0 items-center gap-1">
+                            <ListIcon
+                              className="size-4 shrink-0"
+                              icon={p.icon}
+                              strokeWidth={2}
+                            />
+                            <span className="truncate">{p.name}</span>
+                          </span>
+                        </Fragment>
+                      ))}
+                    </span>
                   </CommandItem>
                 );
               })}

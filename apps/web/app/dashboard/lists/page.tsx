@@ -4,7 +4,7 @@ import { PendingInvitationsCard } from "@/components/dashboard/lists/PendingInvi
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/server";
 import { api } from "@/server/api/client";
-import { Plus } from "lucide-react";
+import { ClipboardList, Plus } from "lucide-react";
 
 export default async function ListsPage() {
   // oxlint-disable-next-line rules-of-hooks
@@ -14,7 +14,14 @@ export default async function ListsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <p className="text-2xl">📋 {t("lists.all_lists")}</p>
+        <p className="flex items-center gap-2 text-2xl">
+          <ClipboardList
+            className="size-6 shrink-0 -translate-x-0.5"
+            strokeWidth={2}
+            aria-hidden
+          />
+          {t("lists.all_lists")}
+        </p>
         <EditListModal>
           <Button className="flex items-center">
             <Plus className="mr-2 size-4" />

@@ -25,6 +25,7 @@ import { Archive, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { listIconToPlainLabel } from "@karakeep/shared/listIcons";
 import {
   useAddBookmarkToList,
   useBookmarkLists,
@@ -32,10 +33,7 @@ import {
 } from "@karakeep/shared-react/hooks/lists";
 import { useTRPC } from "@karakeep/shared-react/trpc";
 
-import {
-  BookmarkListSelector,
-  ListPathSegments,
-} from "../lists/BookmarkListSelector";
+import { BookmarkListSelector } from "../lists/BookmarkListSelector";
 import ArchiveBookmarkButton from "./action-buttons/ArchiveBookmarkButton";
 
 export default function ManageListsModal({
@@ -148,10 +146,14 @@ export default function ManageListsModal({
                       key={list.id}
                       className="flex items-center justify-between rounded-lg border border-border bg-background px-2 py-1 text-foreground"
                     >
-                      <p className="min-w-0">
-                        <ListPathSegments
-                          path={allLists.getPathById(list.id)!}
-                        />
+                      <p>
+                        {allLists
+                          .getPathById(list.id)!
+                          .map(
+                            (l) =>
+                              `${listIconToPlainLabel(l.icon)} ${l.name}`,
+                          )
+                          .join(" / ")}
                       </p>
                       <ActionButton
                         type="button"

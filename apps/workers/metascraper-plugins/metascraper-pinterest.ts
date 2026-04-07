@@ -229,13 +229,7 @@ const metascraperPinterest = () => {
   const rules: Rules = {
     pkgName: "metascraper-pinterest",
     test,
-    title: (async ({
-      url,
-      htmlDom,
-    }: {
-      url: string;
-      htmlDom: CheerioAPI;
-    }) => {
+    title: (async ({ url, htmlDom }: { url: string; htmlDom: CheerioAPI }) => {
       const data = await fetchPinterestOembed(url);
       const fromOembed = data ? pickBestText(data) : undefined;
       if (fromOembed) {
@@ -268,13 +262,7 @@ const metascraperPinterest = () => {
       }
       return undefined;
     }) as unknown as RulesOptions,
-    image: (async ({
-      url,
-      htmlDom,
-    }: {
-      url: string;
-      htmlDom: CheerioAPI;
-    }) => {
+    image: (async ({ url, htmlDom }: { url: string; htmlDom: CheerioAPI }) => {
       const data = await fetchPinterestOembed(url);
       const thumb = data?.thumbnail_url?.trim();
       if (thumb) {
@@ -293,8 +281,7 @@ const metascraperPinterest = () => {
       const data = await fetchPinterestOembed(url);
       let text = data ? pickBestText(data) : undefined;
       if (!text) {
-        text =
-          metaDescriptionFromDom(htmlDom) ?? metaTitleFromDom(htmlDom);
+        text = metaDescriptionFromDom(htmlDom) ?? metaTitleFromDom(htmlDom);
       }
       if (text) {
         return textToReadableHtml(text);

@@ -23,10 +23,7 @@ import {
   useBookmarkLists,
   useReorderBookmarkLists,
 } from "@karakeep/shared-react/hooks/lists";
-import {
-  compareBookmarkLists,
-  ZBookmarkListTreeNode,
-} from "@karakeep/shared/utils/listUtils";
+import { compareBookmarkLists, ZBookmarkListTreeNode } from "@karakeep/shared/utils/listUtils";
 
 import { CollapsibleBookmarkLists } from "../lists/CollapsibleBookmarkLists";
 import { EditListModal } from "../lists/EditListModal";
@@ -135,11 +132,13 @@ function DroppableListSidebarItem({
         )
       }
       logo={
-        <ListIcon
-          icon={node.item.icon}
-          className="size-4 text-muted-foreground"
-          emojiClassName="text-lg"
-        />
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5">
+          <ListIcon
+            className="size-6"
+            icon={node.item.icon}
+            strokeWidth={2}
+          />
+        </span>
       }
       name={node.item.name}
       path={`/dashboard/lists/${node.item.id}`}
@@ -278,17 +277,20 @@ export default function AllLists({
           <Link href="#">
             <Plus
               className="mr-2 size-4 text-muted-foreground"
-              strokeWidth={1.5}
+              strokeWidth={2}
             />
           </Link>
         </EditListModal>
       </li>
       <SidebarItem
         logo={
-          <ClipboardList
-            className="size-4 shrink-0 stroke-[1.5] text-muted-foreground"
-            aria-hidden
-          />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
+            <ClipboardList
+              className="size-6"
+              strokeWidth={2}
+              aria-hidden
+            />
+          </span>
         }
         name={t("lists.all_lists")}
         path={`/dashboard/lists`}
@@ -298,10 +300,9 @@ export default function AllLists({
       />
       <SidebarItem
         logo={
-          <Star
-            className="size-4 shrink-0 stroke-[1.5] text-muted-foreground"
-            aria-hidden
-          />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
+            <Star className="size-6" strokeWidth={2} aria-hidden />
+          </span>
         }
         name={t("lists.favourites")}
         path={`/dashboard/favourites`}
@@ -314,8 +315,7 @@ export default function AllLists({
         filter={(node) => node.item.userRole === "owner"}
         isOpenFunc={isNodeOpen}
         render={({ node, level, open, numBookmarks }) => {
-          const siblings =
-            ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
+          const siblings = ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
           const index = siblings.findIndex((item) => item.id === node.item.id);
 
           return (
@@ -344,7 +344,11 @@ export default function AllLists({
                 open={sharedListsOpen}
               />
             }
-            logo={<span className="text-lg">👥</span>}
+            logo={
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center text-lg leading-none">
+                👥
+              </span>
+            }
             name={t("lists.shared_lists")}
             path="#"
             linkClassName="py-0.5"

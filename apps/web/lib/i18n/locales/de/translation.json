@@ -684,8 +684,6 @@
   "lists": {
     "all_lists": "Alle Listen",
     "favourites": "Favoriten",
-    "list_icon_tab_emoji": "Emoji",
-    "list_icon_tab_symbol": "Symbole",
     "new_list": "Neue Liste",
     "new_nested_list": "Neue verschachtelte Liste",
     "edit_list": "Liste bearbeiten",
@@ -701,6 +699,8 @@
     "delete_after_merge": "Original-Liste nach dem Zusammenführen löschen",
     "no_destination": "Kein Ziel",
     "description": "Beschreibung (Optional)",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Symbole",
     "share_list": "Liste teilen",
     "rss": {
       "title": "RSS-Feed",

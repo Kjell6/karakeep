@@ -71,11 +71,11 @@ export default function ListHeader({
       <div className="flex items-center gap-2">
         <span className="flex items-center gap-2 text-2xl">
           <ListIcon
+            className="size-6 shrink-0"
             icon={list.icon}
-            className="size-8 shrink-0"
-            emojiClassName="text-3xl leading-none"
+            strokeWidth={2}
           />
-          <span>{list.name}</span>
+          {list.name}
         </span>
         {list.hasCollaborators && collaboratorsData && (
           <div className="group flex">

@@ -8,9 +8,15 @@ import { cn } from "@/lib/utils";
 import tailwindConfig from "@/tailwind.config";
 import { Slot } from "@radix-ui/react-slot";
 import { ErrorBoundary } from "react-error-boundary";
-import { useInView } from "react-intersection-observer";
-import Masonry from "react-masonry-css";
 import resolveConfig from "tailwindcss/resolveConfig";
+
+import {
+  EDITOR_CARD_ESTIMATE_HEIGHT_PX,
+  estimateDashboardBookmarkHeight,
+} from "@/lib/masonry/balancedMasonry";
+import { useAnyColumnSentinelInView } from "@/lib/masonry/useAnyColumnSentinelInView";
+import { useBalancedMasonry } from "@/lib/masonry/useBalancedMasonry";
+import { useMasonryColumnCount } from "@/lib/masonry/useMasonryColumnCount";
 
 import type { ZBookmark } from "@karakeep/shared/types/bookmarks";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
@@ -86,9 +92,9 @@ export default function BookmarksGrid({
     () => getBreakpointConfig(gridColumns),
     [gridColumns],
   );
-  const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView({
-    rootMargin: "1500px",
-  });
+  const columnCount = useMasonryColumnCount(breakpointConfig);
+  const { inView: loadMoreButtonInView, getSentinelRef } =
+    useAnyColumnSentinelInView("1500px");
 
   useEffect(() => {
     bulkActionsStore.setVisibleBookmarks(bookmarks);
@@ -108,47 +114,62 @@ export default function BookmarksGrid({
     if (loadMoreButtonInView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [loadMoreButtonInView]);
+  }, [
+    loadMoreButtonInView,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
+
+  const { columns: bookmarkColumns, getItemRef } = useBalancedMasonry({
+    items: bookmarks,
+    columnCount,
+    estimateHeight: estimateDashboardBookmarkHeight,
+    itemGapPx: 16,
+    leadFirstColumnHeightPx: showEditorCard ? EDITOR_CARD_ESTIMATE_HEIGHT_PX : 0,
+  });
 
   if (bookmarks.length == 0 && !showEditorCard) {
     return <NoBookmarksBanner />;
   }
 
-  const children = [
-    showEditorCard && (
-      // Editor card should not have the note background by default
-      <StyledBookmarkCard key={"editor"}>
-        <EditorCard />
-      </StyledBookmarkCard>
-    ),
-    ...bookmarks.map((b) => (
-      <ErrorBoundary key={b.id} fallback={<UnknownCard bookmark={b} />}>
-        {/*
-          Keep background only for Text (notes) cards. Other card types render
-          without the `bg-card` background.
-        */}
-        <StyledBookmarkCard
-          className={
-            b.content.type === BookmarkTypes.TEXT ? "bg-card" : undefined
-          }
-        >
-          <BookmarkCard bookmark={b} />
-        </StyledBookmarkCard>
-      </ErrorBoundary>
-    )),
-    hasNextPage && (
-      <div key="load-more-sentinel" ref={loadMoreRef} className="h-px" />
-    ),
-  ];
   return (
     <>
-      <Masonry
-        className="-ml-8 flex w-auto"
-        columnClassName="pl-8"
-        breakpointCols={breakpointConfig}
-      >
-        {children}
-      </Masonry>
+      <div className="-ml-8 flex w-auto">
+        {bookmarkColumns.map((columnBookmarks, colIdx) => (
+          <div
+            key={colIdx}
+            className="pl-8"
+            style={{ width: `${100 / columnCount}%` }}
+          >
+            {colIdx === 0 && showEditorCard && (
+              <StyledBookmarkCard key="editor">
+                <EditorCard />
+              </StyledBookmarkCard>
+            )}
+            {columnBookmarks.map((b) => (
+              <div key={b.id} ref={getItemRef(b.id)}>
+                <ErrorBoundary fallback={<UnknownCard bookmark={b} />}>
+                  <StyledBookmarkCard
+                    className={
+                      b.content.type === BookmarkTypes.TEXT ? "bg-card" : undefined
+                    }
+                  >
+                    <BookmarkCard bookmark={b} />
+                  </StyledBookmarkCard>
+                </ErrorBoundary>
+              </div>
+            ))}
+            {hasNextPage && (
+              <div
+                ref={getSentinelRef(colIdx)}
+                className="pointer-events-none h-px w-full"
+                aria-hidden
+              />
+            )}
+          </div>
+        ))}
+      </div>
       {hasNextPage && (
         <div className="flex justify-center">
           <ActionButton

@@ -51,10 +51,7 @@ export default function BookmarkActionBar({
       )}
     >
       {bookmark.favourited && (
-        <FavouritedActionIcon
-          className="m-1 size-8 rounded p-1"
-          favourited
-        />
+        <FavouritedActionIcon className="m-1 size-8 rounded p-1" favourited />
       )}
       <Link
         href={`/dashboard/preview/${bookmark.id}`}
@@ -66,10 +63,7 @@ export default function BookmarkActionBar({
       >
         <Maximize2 size={16} />
       </Link>
-      <BookmarkOptions
-        bookmark={bookmark}
-        triggerClassName={overlayGhost}
-      />
+      <BookmarkOptions bookmark={bookmark} triggerClassName={overlayGhost} />
     </div>
   );
 }

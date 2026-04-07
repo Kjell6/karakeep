@@ -259,7 +259,9 @@ export abstract class List {
       bookmarkLists,
       and(
         eq(bookmarkLists.userId, ctx.user.id),
-        input.parentId ? eq(bookmarkLists.parentId, input.parentId) : isNull(bookmarkLists.parentId),
+        input.parentId
+          ? eq(bookmarkLists.parentId, input.parentId)
+          : isNull(bookmarkLists.parentId),
       ),
     );
     const [result] = await ctx.db

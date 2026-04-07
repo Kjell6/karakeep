@@ -9,11 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "@/components/ui/sonner";
+import { ListIcon } from "@/components/dashboard/lists/ListIcon";
 import { useTranslation } from "@/lib/i18n/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, Mail, X } from "lucide-react";
-
-import { ListIcon } from "./ListIcon";
 
 import { useTRPC } from "@karakeep/shared-react/trpc";
 
@@ -82,9 +81,9 @@ function InvitationRow({ invitation }: { invitation: Invitation }) {
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <ListIcon
+            className="size-6 shrink-0"
             icon={invitation.list.icon ?? "📋"}
-            className="size-4 shrink-0 text-muted-foreground"
-            emojiClassName="text-base leading-none"
+            strokeWidth={2}
           />
           <span className="font-medium">{invitation.list.name}</span>
         </div>

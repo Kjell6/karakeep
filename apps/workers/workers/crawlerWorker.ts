@@ -184,9 +184,14 @@ interface CrawlerRunResult {
 /**
  * Detects if a URL is a Twitter/X tweet URL and extracts the screen name and status ID.
  */
-function parseTwitterUrl(url: string): { isTwitter: boolean; screenName?: string; statusId?: string } {
+function parseTwitterUrl(url: string): {
+  isTwitter: boolean;
+  screenName?: string;
+  statusId?: string;
+} {
   // Match twitter.com, x.com, and fxtwitter.com (avoid infinite loops)
-  const twitterUrlPattern = /^(?:https?:\/\/)?(?:mobile\.)?(?:twitter\.com|x\.com)\/(\w+)\/status(?:es)?\/(\d+)/i;
+  const twitterUrlPattern =
+    /^(?:https?:\/\/)?(?:mobile\.)?(?:twitter\.com|x\.com)\/(\w+)\/status(?:es)?\/(\d+)/i;
   const match = url.match(twitterUrlPattern);
   if (match) {
     return { isTwitter: true, screenName: match[1], statusId: match[2] };
@@ -247,7 +252,7 @@ async function twitterCrawlPage(
         throw new Error(`fxtwitter API error: ${status}`);
       }
 
-      const data = await response.json() as FxTwitterResponse;
+      const data = (await response.json()) as FxTwitterResponse;
 
       if (!data.tweet) {
         throw new Error(`fxtwitter API returned no tweet data for ${url}`);
@@ -257,7 +262,9 @@ async function twitterCrawlPage(
       const authorName = tweet.author?.name ?? tweet.author?.screen_name ?? "";
       const tweetText = tweet.text ?? "";
       // Prefer photos, fall back to video thumbnail
-      const firstMedia = tweet.media?.photos?.[0]?.url ?? tweet.media?.videos?.[0]?.thumbnail_url;
+      const firstMedia =
+        tweet.media?.photos?.[0]?.url ??
+        tweet.media?.videos?.[0]?.thumbnail_url;
 
       // Build HTML content similar to what browserlessCrawlPage returns
       // This format works well with the metadata extraction pipeline

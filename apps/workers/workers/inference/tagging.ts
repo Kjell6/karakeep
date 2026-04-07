@@ -152,10 +152,7 @@ async function inferTagsFromLinkBannerImage(
   let asset: Buffer;
   let metadata: { contentType: string };
   try {
-    ({
-      asset,
-      metadata,
-    } = await readAsset({
+    ({ asset, metadata } = await readAsset({
       userId: bookmark.userId,
       assetId: bannerAsset.id,
     }));
@@ -207,12 +204,10 @@ Description: ${bookmark.link?.description ?? ""}`;
   );
 
   const base64 = asset.toString("base64");
-  return inferenceClient.inferFromImage(
-    prompt,
-    metadata.contentType,
-    base64,
-    { schema: openAIResponseSchema, abortSignal },
-  );
+  return inferenceClient.inferFromImage(prompt, metadata.contentType, base64, {
+    schema: openAIResponseSchema,
+    abortSignal,
+  });
 }
 
 async function inferTagsFromImage(

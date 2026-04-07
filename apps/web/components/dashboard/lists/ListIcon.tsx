@@ -1,177 +1,240 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { BookmarkListLucideIconName } from "@karakeep/shared/listIcons";
 import {
-  Anchor,
+  isLucideListIcon,
+  lucideListIconName,
+} from "@karakeep/shared/listIcons";
+import {
+  Activity,
+  AlarmClock,
   Archive,
+  Award,
   Bell,
-  BookOpen,
+  Bike,
+  BookCopy,
+  BookMarked,
   Bookmark,
-  Bot,
+  BookOpen,
   Box,
   Brain,
   Briefcase,
+  Bug,
+  Bus,
   Camera,
   Car,
-  ClipboardList,
+  Cat,
   Cloud,
   Code,
   Coffee,
   Compass,
-  Database,
+  Cpu,
+  Crown,
+  Dog,
+  Egg,
+  Eye,
+  FileText,
   Film,
   Flag,
   Flame,
   Folder,
   FolderOpen,
   Gamepad2,
+  Gem,
   Gift,
   Globe,
   GraduationCap,
   Heart,
   Home,
-  Image,
   Inbox,
+  Key,
   Laptop,
-  Layers,
   Leaf,
+  Layers,
+  LayoutGrid,
   Library,
   Lightbulb,
+  Link2,
   List,
+  ListChecks,
+  Lock,
   Mail,
   MapPin,
+  Medal,
   MessageCircle,
   Mic,
   Moon,
+  Mountain,
   Music,
   Newspaper,
   Package,
   Palette,
+  PenLine,
+  Phone,
   Pin,
   Plane,
-  Radio,
+  Pizza,
   Rocket,
   Rss,
-  Search,
-  Server,
-  ShoppingCart,
+  Scale,
+  Settings,
+  Shield,
+  Ship,
+  ShoppingBag,
   Smartphone,
+  Snowflake,
   Sparkles,
   Star,
   Sun,
   Tag,
+  Target,
+  Train,
   TreePine,
   Trophy,
+  Truck,
   Umbrella,
-  User,
   Users,
-  Video,
+  Wallet,
+  Waves,
+  Wine,
   Wrench,
   Zap,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-import {
-  getLucideIconNameFromListIcon,
-  isLucideListIcon,
-} from "@karakeep/shared/listIcon";
+export const LUCIDE_LIST_ICONS: Record<
+  BookmarkListLucideIconName,
+  LucideIcon
+> = {
+  Activity,
+  AlarmClock,
+  Archive,
+  Award,
+  Bell,
+  Bike,
+  BookCopy,
+  BookMarked,
+  Bookmark,
+  BookOpen,
+  Box,
+  Brain,
+  Briefcase,
+  Bug,
+  Bus,
+  Camera,
+  Car,
+  Cat,
+  Cloud,
+  Code,
+  Coffee,
+  Compass,
+  Cpu,
+  Crown,
+  Dog,
+  Egg,
+  Eye,
+  FileText,
+  Film,
+  Flag,
+  Flame,
+  Folder,
+  FolderOpen,
+  Gamepad2,
+  Gem,
+  Gift,
+  Globe,
+  GraduationCap,
+  Heart,
+  Home,
+  Inbox,
+  Key,
+  Laptop,
+  Leaf,
+  Layers,
+  LayoutGrid,
+  Library,
+  Lightbulb,
+  Link2,
+  List,
+  ListChecks,
+  Lock,
+  Mail,
+  MapPin,
+  Medal,
+  MessageCircle,
+  Mic,
+  Moon,
+  Mountain,
+  Music,
+  Newspaper,
+  Package,
+  Palette,
+  PenLine,
+  Phone,
+  Pin,
+  Plane,
+  Pizza,
+  Rocket,
+  Rss,
+  Scale,
+  Settings,
+  Shield,
+  Ship,
+  ShoppingBag,
+  Smartphone,
+  Snowflake,
+  Sparkles,
+  Star,
+  Sun,
+  Tag,
+  Target,
+  Train,
+  TreePine,
+  Trophy,
+  Truck,
+  Umbrella,
+  Users,
+  Wallet,
+  Waves,
+  Wine,
+  Wrench,
+  Zap,
+};
 
-/** Curated Lucide icons available when creating or editing a list (order = grid order). */
-export const LIST_LUCIDE_ICONS_FOR_PICKER: {
-  name: string;
-  Icon: LucideIcon;
-}[] = [
-  { name: "Star", Icon: Star },
-  { name: "Heart", Icon: Heart },
-  { name: "Bookmark", Icon: Bookmark },
-  { name: "BookOpen", Icon: BookOpen },
-  { name: "Library", Icon: Library },
-  { name: "Folder", Icon: Folder },
-  { name: "FolderOpen", Icon: FolderOpen },
-  { name: "ClipboardList", Icon: ClipboardList },
-  { name: "List", Icon: List },
-  { name: "Inbox", Icon: Inbox },
-  { name: "Archive", Icon: Archive },
-  { name: "Tag", Icon: Tag },
-  { name: "Flag", Icon: Flag },
-  { name: "Home", Icon: Home },
-  { name: "Briefcase", Icon: Briefcase },
-  { name: "GraduationCap", Icon: GraduationCap },
-  { name: "Lightbulb", Icon: Lightbulb },
-  { name: "Zap", Icon: Zap },
-  { name: "Sparkles", Icon: Sparkles },
-  { name: "Rocket", Icon: Rocket },
-  { name: "Globe", Icon: Globe },
-  { name: "Code", Icon: Code },
-  { name: "Music", Icon: Music },
-  { name: "Film", Icon: Film },
-  { name: "Image", Icon: Image },
-  { name: "Newspaper", Icon: Newspaper },
-  { name: "Rss", Icon: Rss },
-  { name: "ShoppingCart", Icon: ShoppingCart },
-  { name: "Plane", Icon: Plane },
-  { name: "Car", Icon: Car },
-  { name: "Coffee", Icon: Coffee },
-  { name: "Gamepad2", Icon: Gamepad2 },
-  { name: "Trophy", Icon: Trophy },
-  { name: "Gift", Icon: Gift },
-  { name: "Flame", Icon: Flame },
-  { name: "Leaf", Icon: Leaf },
-  { name: "TreePine", Icon: TreePine },
-  { name: "Sun", Icon: Sun },
-  { name: "Moon", Icon: Moon },
-  { name: "Cloud", Icon: Cloud },
-  { name: "Umbrella", Icon: Umbrella },
-  { name: "Anchor", Icon: Anchor },
-  { name: "Palette", Icon: Palette },
-  { name: "Camera", Icon: Camera },
-  { name: "Video", Icon: Video },
-  { name: "Mic", Icon: Mic },
-  { name: "Smartphone", Icon: Smartphone },
-  { name: "Laptop", Icon: Laptop },
-  { name: "Search", Icon: Search },
-  { name: "Users", Icon: Users },
-  { name: "User", Icon: User },
-  { name: "Pin", Icon: Pin },
-  { name: "MapPin", Icon: MapPin },
-  { name: "Compass", Icon: Compass },
-  { name: "Layers", Icon: Layers },
-  { name: "Package", Icon: Package },
-  { name: "Box", Icon: Box },
-  { name: "Database", Icon: Database },
-  { name: "Server", Icon: Server },
-  { name: "Wrench", Icon: Wrench },
-  { name: "Bell", Icon: Bell },
-  { name: "Mail", Icon: Mail },
-  { name: "MessageCircle", Icon: MessageCircle },
-  { name: "Radio", Icon: Radio },
-  { name: "Bot", Icon: Bot },
-  { name: "Brain", Icon: Brain },
-];
+export interface ListIconProps {
+  icon: string;
+  className?: string;
+  /** Lucide stroke width; emojis ignore this. */
+  strokeWidth?: number;
+}
 
-const LUCIDE_LIST_ICONS_BY_NAME: Record<string, LucideIcon> =
-  Object.fromEntries(
-    LIST_LUCIDE_ICONS_FOR_PICKER.map(({ name, Icon }) => [name, Icon]),
-  );
-
+/**
+ * Renders a list icon: either a Lucide symbol (`lucide:Name`) or legacy emoji text.
+ */
 export function ListIcon({
   icon,
   className,
-  emojiClassName,
-}: {
-  icon: string;
-  className?: string;
-  /** Applied to emoji icons only (Lucide uses `className`). */
-  emojiClassName?: string;
-}) {
+  strokeWidth = 2,
+}: ListIconProps) {
   if (isLucideListIcon(icon)) {
-    const name = getLucideIconNameFromListIcon(icon);
-    const Lucide = name ? LUCIDE_LIST_ICONS_BY_NAME[name] : undefined;
-    const IconComponent = Lucide ?? Folder;
+    const name = lucideListIconName(icon) as BookmarkListLucideIconName | null;
+    if (!name) {
+      return null;
+    }
+    const Icon = LUCIDE_LIST_ICONS[name];
+    if (!Icon) {
+      return (
+        <span className={cn("text-lg leading-none", className)} title={icon}>
+          ?
+        </span>
+      );
+    }
     return (
-      <IconComponent
-        className={cn("size-4 shrink-0 stroke-[1.5]", className)}
+      <Icon
         aria-hidden
+        className={cn("shrink-0", className)}
+        strokeWidth={strokeWidth}
       />
     );
   }
@@ -179,8 +242,8 @@ export function ListIcon({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 text-lg leading-none",
-        emojiClassName,
+        "inline-flex items-center justify-center text-xl leading-none",
+        className,
       )}
       aria-hidden
     >

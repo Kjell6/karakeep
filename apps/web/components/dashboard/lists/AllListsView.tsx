@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties, ReactNode } from "react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import {
   CollapsibleTriggerChevron,
 } from "@/components/ui/collapsible";
 import { useTranslation } from "@/lib/i18n/client";
-import { Archive, MoreHorizontal, Star, Users } from "lucide-react";
+import { MoreHorizontal, Star } from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
@@ -29,16 +30,14 @@ function ListItem({
   list,
   open,
   collapsible,
-  staticLogo,
 }: {
   name: string;
-  icon?: string;
+  icon: ReactNode;
   path: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
   list?: ZBookmarkList;
   open?: boolean;
   collapsible: boolean;
-  staticLogo?: React.ReactNode;
 }) {
   return (
     <li
@@ -49,20 +48,13 @@ function ListItem({
         {collapsible && (
           <CollapsibleTriggerChevron className="size-5" open={open ?? false} />
         )}
-        <Link href={path} className="flex flex-1 items-center gap-2">
-          {staticLogo ? (
-            <span className="flex shrink-0 items-center text-muted-foreground">
-              {staticLogo}
-            </span>
-          ) : (
-            icon && (
-              <ListIcon
-                icon={icon}
-                className="size-5 shrink-0 text-muted-foreground"
-                emojiClassName="text-xl"
-              />
-            )
-          )}
+        <Link
+          href={path}
+          className="flex min-h-8 flex-1 items-center gap-2"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center text-lg leading-none [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
+            {icon}
+          </span>
           <p className="text-nowrap text-lg">{name}</p>
         </Link>
       </span>
@@ -105,14 +97,14 @@ export default function AllListsView({
       <ListItem
         collapsible={false}
         name={t("lists.favourites")}
+        icon={<Star className="size-5.5" strokeWidth={2} aria-hidden />}
         path={`/dashboard/favourites`}
-        staticLogo={<Star className="size-5 stroke-[1.5]" aria-hidden />}
       />
       <ListItem
         collapsible={false}
         name={t("common.archive")}
+        icon="🗄️"
         path={`/dashboard/archive`}
-        staticLogo={<Archive className="size-5 stroke-[1.5]" aria-hidden />}
       />
 
       {/* Owned Lists */}
@@ -122,7 +114,13 @@ export default function AllListsView({
         render={({ node, level, open }) => (
           <ListItem
             name={node.item.name}
-            icon={node.item.icon}
+            icon={
+              <ListIcon
+                className="size-5.5"
+                icon={node.item.icon}
+                strokeWidth={2}
+              />
+            }
             list={node.item}
             path={`/dashboard/lists/${node.item.id}`}
             collapsible={node.children.length > 0}
@@ -138,9 +136,9 @@ export default function AllListsView({
           <ListItem
             collapsible={true}
             name={t("lists.shared_lists")}
+            icon="👥"
             path="#"
             open={sharedListsOpen}
-            staticLogo={<Users className="size-5 stroke-[1.5]" aria-hidden />}
           />
           <CollapsibleContent>
             <CollapsibleBookmarkLists
@@ -150,7 +148,13 @@ export default function AllListsView({
               render={({ node, level, open }) => (
                 <ListItem
                   name={node.item.name}
-                  icon={node.item.icon}
+                  icon={
+              <ListIcon
+                className="size-5.5"
+                icon={node.item.icon}
+                strokeWidth={2}
+              />
+            }
                   list={node.item}
                   path={`/dashboard/lists/${node.item.id}`}
                   collapsible={node.children.length > 0}

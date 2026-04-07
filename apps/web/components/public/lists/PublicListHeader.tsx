@@ -1,9 +1,8 @@
 import Link from "next/link";
 import KarakeepLogo from "@/components/KarakeepIcon";
+import { ListIcon } from "@/components/dashboard/lists/ListIcon";
 import { buttonVariants } from "@/components/ui/button";
 import { BookmarkIcon, RssIcon } from "lucide-react";
-
-import { ListIcon } from "@/components/dashboard/lists/ListIcon";
 
 export default function PublicListHeader({
   list,
@@ -25,11 +24,11 @@ export default function PublicListHeader({
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           {/* Header */}
           <div className="flex min-w-0 flex-1 items-start gap-3">
-            <span className="flex shrink-0 transition-transform duration-200 hover:scale-110">
+            <span className="inline-flex transition-transform duration-200 hover:scale-110">
               <ListIcon
+                className="size-6"
                 icon={list.icon}
-                className="size-10"
-                emojiClassName="text-4xl leading-none"
+                strokeWidth={2}
               />
             </span>
             <div className="min-w-0 flex-1">
