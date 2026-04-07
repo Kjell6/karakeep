@@ -92,7 +92,7 @@ export default async function Dashboard({
     ...items(t),
     {
       name: t("lists.all_lists"),
-      icon: <ClipboardList size={24} strokeWidth={2} aria-hidden />,
+      icon: <ClipboardList size={22} strokeWidth={2} aria-hidden />,
       path: "/dashboard/lists",
     },
   ];

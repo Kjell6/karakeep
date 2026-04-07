@@ -134,7 +134,7 @@ function DroppableListSidebarItem({
       logo={
         <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5">
           <ListIcon
-            className="size-6"
+            className="size-5.5"
             icon={node.item.icon}
             strokeWidth={2}
           />
@@ -286,7 +286,7 @@ export default function AllLists({
         logo={
           <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
             <ClipboardList
-              className="size-6"
+              className="size-5.5"
               strokeWidth={2}
               aria-hidden
             />
@@ -301,7 +301,7 @@ export default function AllLists({
       <SidebarItem
         logo={
           <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
-            <Star className="size-6" strokeWidth={2} aria-hidden />
+            <Star className="size-5.5" strokeWidth={2} aria-hidden />
           </span>
         }
         name={t("lists.favourites")}
