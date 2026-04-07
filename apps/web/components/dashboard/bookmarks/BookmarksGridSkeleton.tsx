@@ -2,11 +2,7 @@
 // This removes the need for handling the layout in this component.
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  bookmarkLayoutSwitch,
-  useBookmarkLayout,
-  useGridColumns,
-} from "@/lib/userLocalSettings/bookmarksLayout";
+import { useGridColumns } from "@/lib/userLocalSettings/bookmarksLayout";
 import tailwindConfig from "@/tailwind.config";
 import Masonry from "react-masonry-css";
 import resolveConfig from "tailwindcss/resolveConfig";
@@ -48,7 +44,6 @@ export default function BookmarksGridSkeleton({
 }: {
   count?: number;
 }) {
-  const layout = useBookmarkLayout();
   const gridColumns = useGridColumns();
   const breakpointConfig = useMemo(
     () => getBreakpointConfig(gridColumns),
@@ -56,37 +51,16 @@ export default function BookmarksGridSkeleton({
   );
 
   const children = Array.from({ length: count }, (_, i) => (
-    <BookmarkCardSkeleton
-      key={i}
-      height={bookmarkLayoutSwitch(layout, {
-        masonry: "h-48",
-        grid: "h-48",
-        list: "h-32",
-        compact: "h-4",
-      })}
-    />
+    <BookmarkCardSkeleton key={i} height="h-48" />
   ));
 
-  return bookmarkLayoutSwitch(layout, {
-    masonry: (
-      <Masonry
-        className="-ml-8 flex w-auto"
-        columnClassName="pl-8"
-        breakpointCols={breakpointConfig}
-      >
-        {children}
-      </Masonry>
-    ),
-    grid: (
-      <Masonry
-        className="-ml-8 flex w-auto"
-        columnClassName="pl-8"
-        breakpointCols={breakpointConfig}
-      >
-        {children}
-      </Masonry>
-    ),
-    list: <div className="grid grid-cols-1">{children}</div>,
-    compact: <div className="grid grid-cols-1">{children}</div>,
-  });
+  return (
+    <Masonry
+      className="-ml-8 flex w-auto"
+      columnClassName="pl-8"
+      breakpointCols={breakpointConfig}
+    >
+      {children}
+    </Masonry>
+  );
 }

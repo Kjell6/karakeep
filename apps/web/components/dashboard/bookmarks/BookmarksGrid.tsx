@@ -3,11 +3,7 @@ import NoBookmarksBanner from "@/components/dashboard/bookmarks/NoBookmarksBanne
 import { ActionButton } from "@/components/ui/action-button";
 import useBulkActionsStore from "@/lib/bulkActions";
 import { useInBookmarkGridStore } from "@/lib/store/useInBookmarkGridStore";
-import {
-  bookmarkLayoutSwitch,
-  useBookmarkLayout,
-  useGridColumns,
-} from "@/lib/userLocalSettings/bookmarksLayout";
+import { useGridColumns } from "@/lib/userLocalSettings/bookmarksLayout";
 import { cn } from "@/lib/utils";
 import tailwindConfig from "@/tailwind.config";
 import { Slot } from "@radix-ui/react-slot";
@@ -83,7 +79,6 @@ export default function BookmarksGrid({
   isFetchingNextPage?: boolean;
   fetchNextPage?: () => void;
 }) {
-  const layout = useBookmarkLayout();
   const gridColumns = useGridColumns();
   const bulkActionsStore = useBulkActionsStore();
   const inBookmarkGrid = useInBookmarkGridStore();
@@ -147,28 +142,13 @@ export default function BookmarksGrid({
   ];
   return (
     <>
-      {bookmarkLayoutSwitch(layout, {
-        masonry: (
-          <Masonry
-            className="-ml-8 flex w-auto"
-            columnClassName="pl-8"
-            breakpointCols={breakpointConfig}
-          >
-            {children}
-          </Masonry>
-        ),
-        grid: (
-          <Masonry
-            className="-ml-8 flex w-auto"
-            columnClassName="pl-8"
-            breakpointCols={breakpointConfig}
-          >
-            {children}
-          </Masonry>
-        ),
-        list: <div className="grid grid-cols-1">{children}</div>,
-        compact: <div className="grid grid-cols-1">{children}</div>,
-      })}
+      <Masonry
+        className="-ml-8 flex w-auto"
+        columnClassName="pl-8"
+        breakpointCols={breakpointConfig}
+      >
+        {children}
+      </Masonry>
       {hasNextPage && (
         <div className="flex justify-center">
           <ActionButton

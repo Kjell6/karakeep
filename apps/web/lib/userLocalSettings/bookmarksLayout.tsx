@@ -34,9 +34,8 @@ export function useBookmarkDisplaySettings() {
   };
 }
 
-export function useBookmarkLayout() {
-  const settings = useUserLocalSettings();
-  return settings.bookmarkGridLayout;
+export function useBookmarkLayout(): BookmarksLayoutTypes {
+  return "masonry";
 }
 
 export function useInterfaceLang() {

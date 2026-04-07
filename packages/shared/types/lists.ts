@@ -1,6 +1,26 @@
 import { z } from "zod";
 
+import {
+  getLucideIconNameFromListIcon,
+  isLucideListIcon,
+} from "../listIcon";
 import { parseSearchQuery } from "../searchQueryParser";
+
+function isValidListIconField(icon: string): boolean {
+  if (!icon.length) {
+    return false;
+  }
+  if (!isLucideListIcon(icon)) {
+    return true;
+  }
+  const name = getLucideIconNameFromListIcon(icon);
+  return (
+    name !== null &&
+    name.length > 0 &&
+    name.length <= 64 &&
+    /^[A-Za-z][A-Za-z0-9]*$/.test(name)
+  );
+}
 
 export const MAX_LIST_NAME_LENGTH = 100;
 export const MAX_LIST_DESCRIPTION_LENGTH = 500;
@@ -46,6 +66,10 @@ export const zNewBookmarkListSchema = z
     message:
       "Smart lists cannot have unqualified terms (aka full text search terms) in the query",
     path: ["query"],
+  })
+  .refine((val) => isValidListIconField(val.icon), {
+    message: "Invalid list icon",
+    path: ["icon"],
   });
 
 export const zBookmarkListSchema = z.object({
@@ -94,6 +118,16 @@ export const zEditBookmarkListSchema = z.object({
 });
 
 export const zEditBookmarkListSchemaWithValidation = zEditBookmarkListSchema
+  .refine(
+    (val) =>
+      val.icon === undefined ||
+      val.icon === null ||
+      isValidListIconField(val.icon),
+    {
+      message: "Invalid list icon",
+      path: ["icon"],
+    },
+  )
   .refine((val) => val.parentId != val.listId, {
     message: "List can't be its own parent",
     path: ["parentId"],
