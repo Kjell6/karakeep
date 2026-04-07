@@ -56,8 +56,7 @@ export default function BookmarkDragHandle({
       className={cn(
         "absolute left-2 top-2 z-20",
         "flex size-8 cursor-grab items-center justify-center rounded-md p-0",
-        variant === "image-overlay" &&
-          "drop-shadow-sm [&_svg]:drop-shadow-sm",
+        variant === "image-overlay" && "drop-shadow-sm [&_svg]:drop-shadow-sm",
         "opacity-0 transition-opacity duration-100",
         "group-hover:opacity-100",
         toneClasses,

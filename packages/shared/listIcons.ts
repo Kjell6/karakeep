@@ -29,6 +29,8 @@ export const BOOKMARK_LIST_ICON_GROUPS = [
       "Calendar",
       "Archive",
       "AlarmClock",
+      "Bot",
+      "Wand2",
     ],
   },
   {
@@ -73,6 +75,7 @@ export const BOOKMARK_LIST_ICON_GROUPS = [
       "Luggage",
       "Umbrella",
       "Wallet",
+      "DoorOpen",
     ],
   },
   {
@@ -100,6 +103,8 @@ export const BOOKMARK_LIST_ICON_GROUPS = [
       "Lightbulb",
       "Folder",
       "FolderOpen",
+      "Terminal",
+      "Braces",
     ],
   },
   {
@@ -144,6 +149,13 @@ export const BOOKMARK_LIST_ICON_GROUPS = [
       "Wrench",
       "Settings",
       "Cog",
+      "Printer",
+      "Cuboid",
+      "ScanLine",
+      "PenTool",
+      "Shapes",
+      "LayoutTemplate",
+      "Microscope",
     ],
   },
   {
@@ -161,6 +173,10 @@ export const BOOKMARK_LIST_ICON_GROUPS = [
       "Waves",
       "Flower2",
       "Rainbow",
+      "Sprout",
+      "Bean",
+      "Vegan",
+      "Dna",
     ],
   },
   {
@@ -191,6 +207,9 @@ export const BOOKMARK_LIST_ICON_GROUPS = [
       "Map",
       "ParkingCircle",
       "Rocket",
+      "Skull",
+      "Swords",
+      "Ghost",
     ],
   },
   {
@@ -232,6 +251,8 @@ export const BOOKMARK_LIST_ICON_GROUPS = [
       "Baby",
       "PersonStanding",
       "Paintbrush",
+      "Guitar",
+      "Footprints",
     ],
   },
   {

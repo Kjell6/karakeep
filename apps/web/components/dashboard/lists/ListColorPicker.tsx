@@ -26,9 +26,11 @@ export function ListColorPicker({
   disabled?: boolean;
 }) {
   const { t } = useTranslation();
-  
-  const isPreset = value ? LIST_COLOR_PRESETS.includes(value as any) : false;
-  const isCustom = value && !isPreset;
+
+  const isPreset = value
+    ? (LIST_COLOR_PRESETS as readonly string[]).includes(value)
+    : false;
+  const isCustom = Boolean(value && !isPreset);
   const display = value ?? "#64748b";
 
   return (
@@ -62,13 +64,15 @@ export function ListColorPicker({
               "relative flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-md border-2 transition-transform focus-within:ring-2 focus-within:ring-ring",
               isCustom
                 ? "scale-110 border-foreground"
-                : "border-transparent hover:scale-105",
+                : "border-border bg-muted hover:border-muted-foreground/30 hover:bg-accent",
             )}
-            style={{
-              background: isCustom
-                ? value
-                : "conic-gradient(from 90deg, red, yellow, lime, aqua, blue, magenta, red)",
-            }}
+            style={
+              isCustom && value
+                ? {
+                    backgroundColor: value,
+                  }
+                : undefined
+            }
           >
             <input
               type="color"
@@ -96,10 +100,6 @@ export function ListColorPicker({
           </Button>
         )}
       </div>
-
-      <p className="text-xs text-muted-foreground">
-        {t("lists.list_color_hint")}
-      </p>
     </div>
   );
 }

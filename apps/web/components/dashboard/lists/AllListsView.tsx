@@ -41,7 +41,7 @@ function ListItem({
 }) {
   return (
     <li
-      className="my-2 flex items-center justify-between rounded-md border border-border p-2 hover:bg-accent/50"
+      className="my-2 flex items-center justify-between rounded-md border border-input p-2 hover:bg-accent/50"
       style={style}
     >
       <span className="flex flex-1 items-center gap-1">
@@ -151,7 +151,9 @@ export default function AllListsView({
                       className="size-5.5"
                       icon={node.item.icon}
                       strokeWidth={2}
-                      style={node.item.color ? { color: node.item.color } : undefined}
+                      style={
+                        node.item.color ? { color: node.item.color } : undefined
+                      }
                     />
                   }
                   list={node.item}

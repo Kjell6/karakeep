@@ -258,14 +258,18 @@ export function EditListModal({
                             className={cn(
                               "p-2",
                               listIconPickerTab === "emoji"
-                                ? "w-[min(100vw-2rem,26rem)]"
+                                ? "w-fit max-w-[min(100vw-2rem,26rem)]"
                                 : "w-[min(100vw-2rem,22rem)]",
                             )}
                           >
                             <Tabs
                               value={listIconPickerTab}
                               onValueChange={setListIconPickerTab}
-                              className="w-full"
+                              className={
+                                listIconPickerTab === "emoji"
+                                  ? "w-fit"
+                                  : "w-full"
+                              }
                             >
                               <TabsList className="mb-2 grid w-full grid-cols-2">
                                 <TabsTrigger value="emoji">
@@ -275,13 +279,15 @@ export function EditListModal({
                                   {t("lists.icon_tab_icons")}
                                 </TabsTrigger>
                               </TabsList>
-                              <TabsContent value="emoji" className="mt-0">
-                                <Picker
-                                  data={data}
-                                  onEmojiSelect={(e: { native: string }) =>
-                                    field.onChange(e.native)
-                                  }
-                                />
+                              <TabsContent value="emoji" className="mt-0 w-fit">
+                                <div className="w-fit [&_em-emoji-picker]:!w-auto">
+                                  <Picker
+                                    data={data}
+                                    onEmojiSelect={(e: { native: string }) =>
+                                      field.onChange(e.native)
+                                    }
+                                  />
+                                </div>
                               </TabsContent>
                               <TabsContent value="icons" className="mt-0">
                                 <ScrollArea className="h-[min(52vh,420px)] pr-2">

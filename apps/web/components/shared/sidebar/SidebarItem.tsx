@@ -24,11 +24,14 @@ export default function SidebarItem({
   draggable,
   reorderDropEdge = null,
   isDragging = false,
+  listAccentColor = null,
 }: {
   name: string;
   logo: React.ReactNode;
   path: string;
   style?: React.CSSProperties;
+  /** Optional #RRGGBB — left stripe in the sidebar row */
+  listAccentColor?: string | null;
   className?: string;
   linkClassName?: string;
   right?: React.ReactNode;
@@ -52,7 +55,7 @@ export default function SidebarItem({
         path == currentPath
           ? "bg-accent/50 text-foreground"
           : "text-muted-foreground",
-        dropHighlight && "bg-accent ring-2 ring-primary",
+        dropHighlight && "bg-accent",
         reorderDropEdge === "top" &&
           "shadow-[inset_0_2px_0_0_hsl(var(--primary))]",
         reorderDropEdge === "bottom" &&
@@ -60,7 +63,16 @@ export default function SidebarItem({
         isDragging && "opacity-50",
         className,
       )}
-      style={style}
+      style={{
+        ...style,
+        ...(listAccentColor
+          ? {
+              borderLeftWidth: 3,
+              borderLeftStyle: "solid",
+              borderLeftColor: listAccentColor,
+            }
+          : {}),
+      }}
       draggable={draggable}
       onDrop={onDrop}
       onDragOver={onDragOver}
