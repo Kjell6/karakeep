@@ -824,7 +824,20 @@
       "failed_to_accept": "Impossibile accettare l'invito",
       "failed_to_decline": "Impossibile rifiutare l'invito"
     },
-    "shared_lists": "Elenchi condivisi"
+    "shared_lists": "Elenchi condivisi",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Icone",
+    "icon_group_general": "Generale",
+    "icon_group_favorites_mood": "Preferiti e umore",
+    "icon_group_home_living": "Casa e quotidiano",
+    "icon_group_work_study": "Lavoro e studio",
+    "icon_group_communication": "Comunicazione",
+    "icon_group_media_tech": "Media e tech",
+    "icon_group_nature_weather": "Natura e meteo",
+    "icon_group_travel_places": "Viaggi e luoghi",
+    "icon_group_food_drink": "Cibo e bevande",
+    "icon_group_sports_hobby": "Sport e hobby",
+    "icon_group_health_buildings": "Salute ed edifici"
   },
   "tags": {
     "your_tags": "I tuoi tag",

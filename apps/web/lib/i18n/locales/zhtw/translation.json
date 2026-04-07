@@ -765,7 +765,20 @@
       "failed_to_accept": "接受邀請失敗",
       "failed_to_decline": "拒絕邀請失敗"
     },
-    "shared_lists": "共用清單"
+    "shared_lists": "共用清單",
+    "icon_tab_emoji": "表情符號",
+    "icon_tab_icons": "圖示",
+    "icon_group_general": "一般",
+    "icon_group_favorites_mood": "收藏與心情",
+    "icon_group_home_living": "居家與生活",
+    "icon_group_work_study": "工作與學習",
+    "icon_group_communication": "溝通",
+    "icon_group_media_tech": "媒體與科技",
+    "icon_group_nature_weather": "自然與天氣",
+    "icon_group_travel_places": "旅行與地點",
+    "icon_group_food_drink": "飲食",
+    "icon_group_sports_hobby": "運動與嗜好",
+    "icon_group_health_buildings": "健康與建築"
   },
   "tags": {
     "all_tags": "所有標籤",

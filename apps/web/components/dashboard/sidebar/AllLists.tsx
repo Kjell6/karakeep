@@ -14,7 +14,13 @@ import { toast } from "@/components/ui/sonner";
 import { BOOKMARK_DRAG_MIME } from "@/lib/bookmark-drag";
 import { useTranslation } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
-import { ClipboardList, MoreHorizontal, Plus, Star } from "lucide-react";
+import {
+  ClipboardList,
+  MoreHorizontal,
+  Plus,
+  Star,
+  Users,
+} from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
@@ -23,7 +29,10 @@ import {
   useBookmarkLists,
   useReorderBookmarkLists,
 } from "@karakeep/shared-react/hooks/lists";
-import { compareBookmarkLists, ZBookmarkListTreeNode } from "@karakeep/shared/utils/listUtils";
+import {
+  compareBookmarkLists,
+  ZBookmarkListTreeNode,
+} from "@karakeep/shared/utils/listUtils";
 
 import { CollapsibleBookmarkLists } from "../lists/CollapsibleBookmarkLists";
 import { EditListModal } from "../lists/EditListModal";
@@ -284,12 +293,8 @@ export default function AllLists({
       </li>
       <SidebarItem
         logo={
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
-            <ClipboardList
-              className="size-5.5"
-              strokeWidth={2}
-              aria-hidden
-            />
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:shrink-0 [&>svg]:-translate-x-0.5">
+            <ClipboardList className="size-5.5" strokeWidth={2} aria-hidden />
           </span>
         }
         name={t("lists.all_lists")}
@@ -300,7 +305,7 @@ export default function AllLists({
       />
       <SidebarItem
         logo={
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:shrink-0 [&>svg]:-translate-x-0.5">
             <Star className="size-5.5" strokeWidth={2} aria-hidden />
           </span>
         }
@@ -315,7 +320,8 @@ export default function AllLists({
         filter={(node) => node.item.userRole === "owner"}
         isOpenFunc={isNodeOpen}
         render={({ node, level, open, numBookmarks }) => {
-          const siblings = ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
+          const siblings =
+            ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
           const index = siblings.findIndex((item) => item.id === node.item.id);
 
           return (
@@ -345,8 +351,8 @@ export default function AllLists({
               />
             }
             logo={
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center text-lg leading-none">
-                👥
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:shrink-0 [&>svg]:-translate-x-0.5">
+                <Users className="size-5.5" strokeWidth={2} aria-hidden />
               </span>
             }
             name={t("lists.shared_lists")}

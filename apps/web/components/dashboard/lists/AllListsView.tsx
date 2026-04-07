@@ -10,7 +10,7 @@ import {
   CollapsibleTriggerChevron,
 } from "@/components/ui/collapsible";
 import { useTranslation } from "@/lib/i18n/client";
-import { MoreHorizontal, Star } from "lucide-react";
+import { Archive, MoreHorizontal, Star, Users } from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
@@ -48,11 +48,8 @@ function ListItem({
         {collapsible && (
           <CollapsibleTriggerChevron className="size-5" open={open ?? false} />
         )}
-        <Link
-          href={path}
-          className="flex min-h-8 flex-1 items-center gap-2"
-        >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center text-lg leading-none [&>svg]:-translate-x-0.5 [&>svg]:shrink-0">
+        <Link href={path} className="flex min-h-8 flex-1 items-center gap-2">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center text-lg leading-none [&>svg]:shrink-0 [&>svg]:-translate-x-0.5">
             {icon}
           </span>
           <p className="text-nowrap text-lg">{name}</p>
@@ -103,7 +100,9 @@ export default function AllListsView({
       <ListItem
         collapsible={false}
         name={t("common.archive")}
-        icon="🗄️"
+        icon={
+          <Archive className="size-5.5" strokeWidth={2} aria-hidden />
+        }
         path={`/dashboard/archive`}
       />
 
@@ -136,7 +135,9 @@ export default function AllListsView({
           <ListItem
             collapsible={true}
             name={t("lists.shared_lists")}
-            icon="👥"
+            icon={
+              <Users className="size-5.5" strokeWidth={2} aria-hidden />
+            }
             path="#"
             open={sharedListsOpen}
           />
@@ -149,12 +150,12 @@ export default function AllListsView({
                 <ListItem
                   name={node.item.name}
                   icon={
-              <ListIcon
-                className="size-5.5"
-                icon={node.item.icon}
-                strokeWidth={2}
-              />
-            }
+                    <ListIcon
+                      className="size-5.5"
+                      icon={node.item.icon}
+                      strokeWidth={2}
+                    />
+                  }
                   list={node.item}
                   path={`/dashboard/lists/${node.item.id}`}
                   collapsible={node.children.length > 0}

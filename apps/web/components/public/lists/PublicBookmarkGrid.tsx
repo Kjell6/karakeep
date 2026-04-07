@@ -15,9 +15,7 @@ import tailwindConfig from "@/tailwind.config";
 import { Expand, FileIcon, ImageIcon } from "lucide-react";
 import resolveConfig from "tailwindcss/resolveConfig";
 
-import {
-  estimatePublicBookmarkHeight,
-} from "@/lib/masonry/balancedMasonry";
+import { estimatePublicBookmarkHeight } from "@/lib/masonry/balancedMasonry";
 import { useAnyColumnSentinelInView } from "@/lib/masonry/useAnyColumnSentinelInView";
 import { useBalancedMasonry } from "@/lib/masonry/useBalancedMasonry";
 import { useMasonryColumnCount } from "@/lib/masonry/useMasonryColumnCount";

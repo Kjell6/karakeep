@@ -758,7 +758,20 @@
       "failed_to_accept": "招待の承諾に失敗しました",
       "failed_to_decline": "招待の辞退に失敗しました"
     },
-    "shared_lists": "共有リスト"
+    "shared_lists": "共有リスト",
+    "icon_tab_emoji": "絵文字",
+    "icon_tab_icons": "アイコン",
+    "icon_group_general": "一般",
+    "icon_group_favorites_mood": "お気に入り・気分",
+    "icon_group_home_living": "家と暮らし",
+    "icon_group_work_study": "仕事と学習",
+    "icon_group_communication": "コミュニケーション",
+    "icon_group_media_tech": "メディアと技術",
+    "icon_group_nature_weather": "自然と天気",
+    "icon_group_travel_places": "旅行と場所",
+    "icon_group_food_drink": "食べ物と飲み物",
+    "icon_group_sports_hobby": "スポーツと趣味",
+    "icon_group_health_buildings": "健康と建物"
   },
   "options": {
     "dark_mode": "ダークモード",

@@ -768,7 +768,20 @@
       "failed_to_accept": "Davetiye kabul edilemedi",
       "failed_to_decline": "Davetiye reddedilemedi"
     },
-    "shared_lists": "Paylaşılan Listeler"
+    "shared_lists": "Paylaşılan Listeler",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Simgeler",
+    "icon_group_general": "Genel",
+    "icon_group_favorites_mood": "Favoriler ve ruh hali",
+    "icon_group_home_living": "Ev ve günlük yaşam",
+    "icon_group_work_study": "İş ve eğitim",
+    "icon_group_communication": "İletişim",
+    "icon_group_media_tech": "Medya ve teknoloji",
+    "icon_group_nature_weather": "Doğa ve hava",
+    "icon_group_travel_places": "Seyahat ve yerler",
+    "icon_group_food_drink": "Yiyecek ve içecek",
+    "icon_group_sports_hobby": "Spor ve hobiler",
+    "icon_group_health_buildings": "Sağlık ve binalar"
   },
   "tags": {
     "all_tags": "Tüm Etiketler",

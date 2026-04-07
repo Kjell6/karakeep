@@ -5,189 +5,262 @@
  */
 export const LUCIDE_LIST_ICON_PREFIX = "lucide:" as const;
 
-/** Favoriten, Auszeichnung, Status */
-const LUCIDE_LIST_FAVORITES = [
-  "Star",
-  "Heart",
-  "Sparkles",
-  "Zap",
-  "Flame",
-  "Flag",
-  "Trophy",
-  "Medal",
-  "Award",
-  "Gem",
-  "Crown",
-  "Target",
-  "Lightbulb",
-  "Eye",
-  "Palette",
-  "Activity",
-  "Shield",
-] as const;
-
-/** Listen, Lesen, Ablage */
-const LUCIDE_LIST_BOOKS = [
-  "Bookmark",
-  "BookMarked",
-  "BookOpen",
-  "BookCopy",
-  "List",
-  "ListChecks",
-  "LayoutGrid",
-  "Layers",
-  "Library",
-  "Newspaper",
-  "Rss",
-  "FileText",
-  "ClipboardList",
-  "NotebookPen",
-  "Inbox",
-  "Archive",
-  "Folder",
-  "FolderOpen",
-  "Package",
-  "Box",
-  "Link2",
-] as const;
-
-/** Kalender & Zeit */
-const LUCIDE_LIST_TIME = [
-  "Calendar",
-  "CalendarDays",
-  "AlarmClock",
-  "Sun",
-  "Moon",
-] as const;
-
-/** Zuhause, Kommunikation, Netz */
-const LUCIDE_LIST_HOME = [
-  "Home",
-  "Key",
-  "Lock",
-  "Mail",
-  "Phone",
-  "MessageCircle",
-  "Users",
-  "Bell",
-  "Globe",
-  "Wifi",
-  "Router",
-] as const;
-
-/** Arbeit & Technik */
-const LUCIDE_LIST_WORK = [
-  "Briefcase",
-  "Laptop",
-  "Smartphone",
-  "Cpu",
-  "Code",
-  "Terminal",
-  "Database",
-  "Server",
-  "Settings",
-  "Scale",
-  "HardDrive",
-  "PenLine",
-  "Mic",
-  "BarChart3",
-  "Banknote",
-] as const;
-
-/** Medien */
-const LUCIDE_LIST_MEDIA = [
-  "Camera",
-  "Film",
-  "Music",
-  "Image",
-  "Images",
-  "Video",
-  "Videotape",
-  "Gamepad2",
-] as const;
-
-/** Transport & Orte */
-const LUCIDE_LIST_TRANSPORT = [
-  "Car",
-  "Bus",
-  "Train",
-  "Plane",
-  "PlaneTakeoff",
-  "Ship",
-  "Truck",
-  "Bike",
-  "MapPin",
-  "Mountain",
-  "TreePine",
-  "Anchor",
-  "Sailboat",
-  "Umbrella",
-  "Compass",
-] as const;
-
-/** Natur & Wetter */
-const LUCIDE_LIST_NATURE = [
-  "Cloud",
-  "Snowflake",
-  "Waves",
-  "Leaf",
-  "Flower2",
-] as const;
-
-/** Essen & Trinken */
-const LUCIDE_LIST_FOOD = [
-  "Coffee",
-  "Wine",
-  "Pizza",
-  "Cherry",
-  "Apple",
-  "Cookie",
-  "Candy",
-  "IceCream",
-  "Egg",
-] as const;
-
-/** Tiere, Naturkunde, Sonstiges */
-const LUCIDE_LIST_LIFE = [
-  "Dog",
-  "Cat",
-  "Bug",
-  "Brain",
-  "Gift",
-  "GraduationCap",
-  "Pin",
-  "Rocket",
-] as const;
-
-/** Einkauf & Geld */
-const LUCIDE_LIST_SHOP = [
-  "Wallet",
-  "ShoppingBag",
-  "ShoppingCart",
-  "ShoppingBasket",
-] as const;
-
-/** Weitere nützliche Symbole */
-const LUCIDE_LIST_MORE = ["Bluetooth", "Tag", "Wrench"] as const;
-
-/** Curated Lucide icons (grouped for UX; storage is still `lucide:Name`). */
-export const BOOKMARK_LIST_LUCIDE_ICON_NAMES = [
-  ...LUCIDE_LIST_FAVORITES,
-  ...LUCIDE_LIST_BOOKS,
-  ...LUCIDE_LIST_TIME,
-  ...LUCIDE_LIST_HOME,
-  ...LUCIDE_LIST_WORK,
-  ...LUCIDE_LIST_MEDIA,
-  ...LUCIDE_LIST_TRANSPORT,
-  ...LUCIDE_LIST_NATURE,
-  ...LUCIDE_LIST_FOOD,
-  ...LUCIDE_LIST_LIFE,
-  ...LUCIDE_LIST_SHOP,
-  ...LUCIDE_LIST_MORE,
+/**
+ * Lucide icons grouped for the list picker (order within each group is intentional).
+ */
+export const BOOKMARK_LIST_ICON_GROUPS = [
+  {
+    id: "general",
+    i18nKey: "icon_group_general",
+    icons: [
+      "Pin",
+      "Tag",
+      "Link2",
+      "LayoutGrid",
+      "Layers",
+      "Box",
+      "Gift",
+      "Eye",
+      "Shield",
+      "Scale",
+      "Clock",
+      "Timer",
+      "Hourglass",
+      "Calendar",
+      "Archive",
+      "AlarmClock",
+    ],
+  },
+  {
+    id: "favorites_mood",
+    i18nKey: "icon_group_favorites_mood",
+    icons: [
+      "Star",
+      "Heart",
+      "Sparkles",
+      "Flame",
+      "Zap",
+      "ThumbsUp",
+      "Smile",
+      "Laugh",
+      "PartyPopper",
+      "Award",
+      "Trophy",
+      "Medal",
+      "Crown",
+      "Gem",
+      "Flag",
+    ],
+  },
+  {
+    id: "home_living",
+    i18nKey: "icon_group_home_living",
+    icons: [
+      "Home",
+      "Key",
+      "Lock",
+      "ShoppingBag",
+      "Package",
+      "Bed",
+      "Sofa",
+      "Lamp",
+      "Armchair",
+      "CookingPot",
+      "Shirt",
+      "Watch",
+      "Glasses",
+      "Backpack",
+      "Luggage",
+      "Umbrella",
+      "Wallet",
+    ],
+  },
+  {
+    id: "work_study",
+    i18nKey: "icon_group_work_study",
+    icons: [
+      "Briefcase",
+      "Laptop",
+      "GraduationCap",
+      "Library",
+      "FileText",
+      "PenLine",
+      "BookOpen",
+      "BookCopy",
+      "BookMarked",
+      "Bookmark",
+      "List",
+      "ListChecks",
+      "ClipboardList",
+      "Notebook",
+      "NotepadText",
+      "BookText",
+      "ScrollText",
+      "Brain",
+      "Lightbulb",
+      "Folder",
+      "FolderOpen",
+    ],
+  },
+  {
+    id: "communication",
+    i18nKey: "icon_group_communication",
+    icons: [
+      "Mail",
+      "Phone",
+      "MessageCircle",
+      "Send",
+      "Share2",
+      "Inbox",
+      "Bell",
+      "BellRing",
+      "Megaphone",
+      "Newspaper",
+      "Rss",
+      "Podcast",
+      "Users",
+    ],
+  },
+  {
+    id: "media_tech",
+    i18nKey: "icon_group_media_tech",
+    icons: [
+      "Camera",
+      "Film",
+      "Music",
+      "Smartphone",
+      "Monitor",
+      "Headphones",
+      "Mic",
+      "Video",
+      "Tv",
+      "Radio",
+      "Wifi",
+      "Code",
+      "Cpu",
+      "Palette",
+      "Gamepad2",
+      "Bug",
+      "Wrench",
+      "Settings",
+      "Cog",
+    ],
+  },
+  {
+    id: "nature_weather",
+    i18nKey: "icon_group_nature_weather",
+    icons: [
+      "Sun",
+      "Moon",
+      "Cloud",
+      "CloudRain",
+      "Snowflake",
+      "Leaf",
+      "TreePine",
+      "Mountain",
+      "Waves",
+      "Flower2",
+      "Rainbow",
+    ],
+  },
+  {
+    id: "travel_places",
+    i18nKey: "icon_group_travel_places",
+    icons: [
+      "Plane",
+      "PlaneTakeoff",
+      "Train",
+      "TrainFront",
+      "Bus",
+      "Car",
+      "Truck",
+      "Ship",
+      "Sailboat",
+      "Anchor",
+      "MapPin",
+      "Compass",
+      "Globe",
+      "Globe2",
+      "Earth",
+      "Landmark",
+      "Hotel",
+      "Castle",
+      "Tent",
+      "Caravan",
+      "Fuel",
+      "Map",
+      "ParkingCircle",
+      "Rocket",
+    ],
+  },
+  {
+    id: "food_drink",
+    i18nKey: "icon_group_food_drink",
+    icons: [
+      "Pizza",
+      "Coffee",
+      "Wine",
+      "Apple",
+      "Banana",
+      "Candy",
+      "Cherry",
+      "Cookie",
+      "Croissant",
+      "Donut",
+      "Egg",
+      "Grape",
+      "IceCream",
+      "Milk",
+      "Sandwich",
+      "Soup",
+      "UtensilsCrossed",
+    ],
+  },
+  {
+    id: "sports_hobby",
+    i18nKey: "icon_group_sports_hobby",
+    icons: [
+      "Bike",
+      "Dumbbell",
+      "Volleyball",
+      "Target",
+      "Activity",
+      "Fish",
+      "Bird",
+      "Dog",
+      "Cat",
+      "Baby",
+      "PersonStanding",
+      "Paintbrush",
+    ],
+  },
+  {
+    id: "health_buildings",
+    i18nKey: "icon_group_health_buildings",
+    icons: [
+      "Stethoscope",
+      "Hospital",
+      "Ambulance",
+      "School",
+      "Church",
+      "Store",
+      "Factory",
+      "Construction",
+      "HardHat",
+      "TrafficCone",
+    ],
+  },
 ] as const;
 
 export type BookmarkListLucideIconName =
-  (typeof BOOKMARK_LIST_LUCIDE_ICON_NAMES)[number];
+  (typeof BOOKMARK_LIST_ICON_GROUPS)[number]["icons"][number];
+
+const ALLOWED_LUCIDE_ICON_NAMES = new Set<string>(
+  BOOKMARK_LIST_ICON_GROUPS.flatMap((g) => [...g.icons]),
+);
+
+export const BOOKMARK_LIST_LUCIDE_ICON_NAMES: readonly BookmarkListLucideIconName[] =
+  Array.from(ALLOWED_LUCIDE_ICON_NAMES) as BookmarkListLucideIconName[];
 
 export function isLucideListIcon(icon: string): boolean {
   return icon.startsWith(LUCIDE_LIST_ICON_PREFIX);
@@ -204,8 +277,10 @@ export function formatLucideListIcon(name: BookmarkListLucideIconName): string {
   return `${LUCIDE_LIST_ICON_PREFIX}${name}`;
 }
 
-export function isAllowedLucideListIconName(name: string): name is BookmarkListLucideIconName {
-  return (BOOKMARK_LIST_LUCIDE_ICON_NAMES as readonly string[]).includes(name);
+export function isAllowedLucideListIconName(
+  name: string,
+): name is BookmarkListLucideIconName {
+  return ALLOWED_LUCIDE_ICON_NAMES.has(name);
 }
 
 const MAX_EMOJI_OR_LEGACY_ICON_LENGTH = 64;

@@ -13,7 +13,9 @@ export function useMasonryColumnCount(
   useEffect(() => {
     const update = () => {
       const w =
-        typeof window !== "undefined" ? window.innerWidth : Number.POSITIVE_INFINITY;
+        typeof window !== "undefined"
+          ? window.innerWidth
+          : Number.POSITIVE_INFINITY;
       setCount(getMasonryColumnCountForWindowWidth(breakpointCols, w));
     };
 

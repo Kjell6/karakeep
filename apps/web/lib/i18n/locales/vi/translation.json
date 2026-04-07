@@ -761,7 +761,20 @@
       "failed_to_accept": "Không chấp nhận được lời mời",
       "failed_to_decline": "Không từ chối được lời mời"
     },
-    "shared_lists": "Danh sách dùng chung"
+    "shared_lists": "Danh sách dùng chung",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Biểu tượng",
+    "icon_group_general": "Chung",
+    "icon_group_favorites_mood": "Yêu thích & tâm trạng",
+    "icon_group_home_living": "Nhà cửa & đời sống",
+    "icon_group_work_study": "Công việc & học tập",
+    "icon_group_communication": "Giao tiếp",
+    "icon_group_media_tech": "Đa phương tiện & công nghệ",
+    "icon_group_nature_weather": "Thiên nhiên & thời tiết",
+    "icon_group_travel_places": "Du lịch & địa điểm",
+    "icon_group_food_drink": "Ẩm thực",
+    "icon_group_sports_hobby": "Thể thao & sở thích",
+    "icon_group_health_buildings": "Sức khỏe & công trình"
   },
   "search": {
     "is_favorited": "Được ưa thích",

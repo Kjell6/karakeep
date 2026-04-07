@@ -826,7 +826,20 @@
       "failed_to_accept": "Не вдалося прийняти запрошення",
       "failed_to_decline": "Не вдалося відхилити запрошення"
     },
-    "shared_lists": "Спільні списки"
+    "shared_lists": "Спільні списки",
+    "icon_tab_emoji": "Емодзі",
+    "icon_tab_icons": "Піктограми",
+    "icon_group_general": "Загальне",
+    "icon_group_favorites_mood": "Обране та настрій",
+    "icon_group_home_living": "Дім і побут",
+    "icon_group_work_study": "Робота та навчання",
+    "icon_group_communication": "Спілкування",
+    "icon_group_media_tech": "Медіа та техніка",
+    "icon_group_nature_weather": "Природа і погода",
+    "icon_group_travel_places": "Подорожі та місця",
+    "icon_group_food_drink": "Їжа та напої",
+    "icon_group_sports_hobby": "Спорт і хобі",
+    "icon_group_health_buildings": "Здоров'я та будівлі"
   },
   "tags": {
     "your_tags": "Ваші теги",

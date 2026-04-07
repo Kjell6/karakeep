@@ -765,7 +765,20 @@
       "failed_to_accept": "Kunde inte acceptera inbjudan",
       "failed_to_decline": "Kunde inte neka inbjudan"
     },
-    "shared_lists": "Delade listor"
+    "shared_lists": "Delade listor",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Ikoner",
+    "icon_group_general": "Allmänt",
+    "icon_group_favorites_mood": "Favoriter och humör",
+    "icon_group_home_living": "Hem och vardag",
+    "icon_group_work_study": "Arbete och studier",
+    "icon_group_communication": "Kommunikation",
+    "icon_group_media_tech": "Media och teknik",
+    "icon_group_nature_weather": "Natur och väder",
+    "icon_group_travel_places": "Resor och platser",
+    "icon_group_food_drink": "Mat och dryck",
+    "icon_group_sports_hobby": "Sport och hobbyer",
+    "icon_group_health_buildings": "Hälsa och byggnader"
   },
   "tags": {
     "drag_and_drop_merging_info": "Dra och släpp taggar på varandra för att sammanfoga dem",

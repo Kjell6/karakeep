@@ -150,8 +150,7 @@ export default function ManageListsModal({
                         {allLists
                           .getPathById(list.id)!
                           .map(
-                            (l) =>
-                              `${listIconToPlainLabel(l.icon)} ${l.name}`,
+                            (l) => `${listIconToPlainLabel(l.icon)} ${l.name}`,
                           )
                           .join(" / ")}
                       </p>

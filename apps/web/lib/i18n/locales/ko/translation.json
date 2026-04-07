@@ -944,7 +944,20 @@
       "failed_to_accept": "초대 수락 실패",
       "failed_to_decline": "초대 거절 실패"
     },
-    "shared_lists": "공유 목록"
+    "shared_lists": "공유 목록",
+    "icon_tab_emoji": "이모지",
+    "icon_tab_icons": "아이콘",
+    "icon_group_general": "일반",
+    "icon_group_favorites_mood": "즐겨찾기·기분",
+    "icon_group_home_living": "집과 일상",
+    "icon_group_work_study": "일과 학습",
+    "icon_group_communication": "소통",
+    "icon_group_media_tech": "미디어·기술",
+    "icon_group_nature_weather": "자연·날씨",
+    "icon_group_travel_places": "여행·장소",
+    "icon_group_food_drink": "음식·음료",
+    "icon_group_sports_hobby": "스포츠·취미",
+    "icon_group_health_buildings": "건강·건물"
   },
   "options": {
     "light_mode": "라이트 모드",

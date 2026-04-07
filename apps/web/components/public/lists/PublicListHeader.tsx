@@ -25,11 +25,7 @@ export default function PublicListHeader({
           {/* Header */}
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <span className="inline-flex transition-transform duration-200 hover:scale-110">
-              <ListIcon
-                className="size-6"
-                icon={list.icon}
-                strokeWidth={2}
-              />
+              <ListIcon className="size-6" icon={list.icon} strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
               <h1 className="text-3xl font-bold leading-tight text-foreground">

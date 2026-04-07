@@ -583,7 +583,20 @@
       "failed_to_accept": "Theip ar ghlacadh leis an gcuireadh",
       "failed_to_decline": "Theip ar dhiúltú don chuireadh"
     },
-    "shared_lists": "Liostaí Comhroinnte"
+    "shared_lists": "Liostaí Comhroinnte",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Deilbhíní",
+    "icon_group_general": "Ginearálta",
+    "icon_group_favorites_mood": "Ceanáin & meon",
+    "icon_group_home_living": "Baile & saol",
+    "icon_group_work_study": "Oba & staidéar",
+    "icon_group_communication": "Cumarsáid",
+    "icon_group_media_tech": "Meáin & teic",
+    "icon_group_nature_weather": "Dúlra & aimsir",
+    "icon_group_travel_places": "Taisteal & ionaid",
+    "icon_group_food_drink": "Bia & deoch",
+    "icon_group_sports_hobby": "Spórt & caitheamh aimsire",
+    "icon_group_health_buildings": "Sláinte & foirgnimh"
   },
   "tags": {
     "unused_tags": "Clibeanna Neamhúsáidte",

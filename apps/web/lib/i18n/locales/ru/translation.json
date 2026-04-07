@@ -129,7 +129,20 @@
       "failed_to_accept": "Не удалось принять приглашение",
       "failed_to_decline": "Не удалось отклонить приглашение"
     },
-    "shared_lists": "Общие списки"
+    "shared_lists": "Общие списки",
+    "icon_tab_emoji": "Эмодзи",
+    "icon_tab_icons": "Значки",
+    "icon_group_general": "Общее",
+    "icon_group_favorites_mood": "Избранное и настроение",
+    "icon_group_home_living": "Дом и быт",
+    "icon_group_work_study": "Работа и учёба",
+    "icon_group_communication": "Общение",
+    "icon_group_media_tech": "Медиа и техника",
+    "icon_group_nature_weather": "Природа и погода",
+    "icon_group_travel_places": "Путешествия и места",
+    "icon_group_food_drink": "Еда и напитки",
+    "icon_group_sports_hobby": "Спорт и хобби",
+    "icon_group_health_buildings": "Здоровье и здания"
   },
   "settings": {
     "user_settings": "Настройки пользователя",

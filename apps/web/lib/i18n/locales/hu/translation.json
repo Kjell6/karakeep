@@ -691,7 +691,20 @@
       "failed_to_accept": "Nem sikerült elfogadni a meghívást",
       "failed_to_decline": "Nem sikerült elutasítani a meghívást"
     },
-    "shared_lists": "Megosztott listák"
+    "shared_lists": "Megosztott listák",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Ikonok",
+    "icon_group_general": "Általános",
+    "icon_group_favorites_mood": "Kedvencek és hangulat",
+    "icon_group_home_living": "Otthon és mindennapok",
+    "icon_group_work_study": "Munka és tanulás",
+    "icon_group_communication": "Kommunikáció",
+    "icon_group_media_tech": "Média és technika",
+    "icon_group_nature_weather": "Természet és időjárás",
+    "icon_group_travel_places": "Utazás és helyek",
+    "icon_group_food_drink": "Étel és ital",
+    "icon_group_sports_hobby": "Sport és hobbi",
+    "icon_group_health_buildings": "Egészség és épületek"
   },
   "admin": {
     "background_jobs": {

@@ -17,9 +17,9 @@ export function useBalancedMasonry<T extends { id: string }>({
   itemGapPx?: number;
   leadFirstColumnHeightPx?: number;
 }) {
-  const [measuredHeights, setMeasuredHeights] = useState<Record<string, number>>(
-    {},
-  );
+  const [measuredHeights, setMeasuredHeights] = useState<
+    Record<string, number>
+  >({});
   const observersRef = useRef(new Map<string, ResizeObserver>());
   const refCallbacksRef = useRef(
     new Map<string, (node: HTMLDivElement | null) => void>(),
@@ -27,7 +27,9 @@ export function useBalancedMasonry<T extends { id: string }>({
 
   const updateHeight = useCallback(
     (id: string, node: HTMLDivElement) => {
-      const nextHeight = Math.ceil(node.getBoundingClientRect().height + itemGapPx);
+      const nextHeight = Math.ceil(
+        node.getBoundingClientRect().height + itemGapPx,
+      );
 
       setMeasuredHeights((prev) => {
         if (prev[id] === nextHeight) {
@@ -111,9 +113,7 @@ export function useBalancedMasonry<T extends { id: string }>({
         items,
         columnCount,
         (item) => measuredHeights[item.id] ?? estimateHeight(item),
-        leadFirstColumnHeightPx > 0
-          ? { leadFirstColumnHeightPx }
-          : undefined,
+        leadFirstColumnHeightPx > 0 ? { leadFirstColumnHeightPx } : undefined,
       ),
     [
       items,

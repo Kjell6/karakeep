@@ -769,7 +769,20 @@
       "failed_to_accept": "Kutsun hyväksyminen epäonnistui",
       "failed_to_decline": "Kutsun hylkääminen epäonnistui"
     },
-    "shared_lists": "Jaetut listat"
+    "shared_lists": "Jaetut listat",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Kuvakkeet",
+    "icon_group_general": "Yleiset",
+    "icon_group_favorites_mood": "Suosikit ja tunnelma",
+    "icon_group_home_living": "Koti ja arki",
+    "icon_group_work_study": "Työ ja opiskelu",
+    "icon_group_communication": "Viestintä",
+    "icon_group_media_tech": "Media ja tekniikka",
+    "icon_group_nature_weather": "Luonto ja sää",
+    "icon_group_travel_places": "Matkat ja paikat",
+    "icon_group_food_drink": "Ruoka ja juoma",
+    "icon_group_sports_hobby": "Urheilu ja harrastukset",
+    "icon_group_health_buildings": "Terveys ja rakennukset"
   },
   "tags": {
     "all_tags": "Kaikki tunnisteet",

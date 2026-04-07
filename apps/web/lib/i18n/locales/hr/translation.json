@@ -768,7 +768,20 @@
       "failed_to_accept": "Nije uspjelo prihvatiti pozivnicu",
       "failed_to_decline": "Nije uspjelo odbiti pozivnicu"
     },
-    "shared_lists": "Zajednički popisi"
+    "shared_lists": "Zajednički popisi",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Ikone",
+    "icon_group_general": "Općenito",
+    "icon_group_favorites_mood": "Favoriti i raspoloženje",
+    "icon_group_home_living": "Dom i život",
+    "icon_group_work_study": "Posao i učenje",
+    "icon_group_communication": "Komunikacija",
+    "icon_group_media_tech": "Mediji i tehnologija",
+    "icon_group_nature_weather": "Priroda i vrijeme",
+    "icon_group_travel_places": "Putovanja i mjesta",
+    "icon_group_food_drink": "Hrana i piće",
+    "icon_group_sports_hobby": "Sport i hobiji",
+    "icon_group_health_buildings": "Zdravlje i zgrade"
   },
   "tags": {
     "all_tags": "Sve oznake",

@@ -824,7 +824,20 @@
       "failed_to_accept": "Produciuse un erro ao aceptar a invitación",
       "failed_to_decline": "Produciuse un erro ao rexeitar a invitación"
     },
-    "shared_lists": "Listas compartidas"
+    "shared_lists": "Listas compartidas",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Iconas",
+    "icon_group_general": "Xeral",
+    "icon_group_favorites_mood": "Favoritos e estado de ánimo",
+    "icon_group_home_living": "Fogar e vida cotiá",
+    "icon_group_work_study": "Traballo e estudos",
+    "icon_group_communication": "Comunicación",
+    "icon_group_media_tech": "Medios e tecnoloxía",
+    "icon_group_nature_weather": "Natureza e tempo",
+    "icon_group_travel_places": "Viaxes e lugares",
+    "icon_group_food_drink": "Comida e bebida",
+    "icon_group_sports_hobby": "Deporte e aficións",
+    "icon_group_health_buildings": "Saúde e edificios"
   },
   "preview": {
     "view_original": "Ver orixinal",

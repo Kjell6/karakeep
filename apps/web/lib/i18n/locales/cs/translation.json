@@ -583,7 +583,20 @@
       "failed_to_accept": "Nepodařilo se přijmout pozvánku",
       "failed_to_decline": "Nepodařilo se odmítnout pozvánku"
     },
-    "shared_lists": "Sdílené seznamy"
+    "shared_lists": "Sdílené seznamy",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Ikony",
+    "icon_group_general": "Obecné",
+    "icon_group_favorites_mood": "Oblíbené a nálada",
+    "icon_group_home_living": "Domov a bydlení",
+    "icon_group_work_study": "Práce a studium",
+    "icon_group_communication": "Komunikace",
+    "icon_group_media_tech": "Média a technika",
+    "icon_group_nature_weather": "Příroda a počasí",
+    "icon_group_travel_places": "Cestování a místa",
+    "icon_group_food_drink": "Jídlo a pití",
+    "icon_group_sports_hobby": "Sport a koníčky",
+    "icon_group_health_buildings": "Zdraví a budovy"
   },
   "tags": {
     "unused_tags": "Nepoužité tagy",

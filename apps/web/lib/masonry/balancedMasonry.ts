@@ -1,4 +1,7 @@
-import type { ZBookmark, ZPublicBookmark } from "@karakeep/shared/types/bookmarks";
+import type {
+  ZBookmark,
+  ZPublicBookmark,
+} from "@karakeep/shared/types/bookmarks";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 import { getBookmarkLinkImageUrl } from "@karakeep/shared/utils/bookmarkUtils";
 
@@ -35,7 +38,8 @@ export function getMasonryColumnCountForWindowWidth(
       continue;
     }
     const optBreakpoint = Number.parseInt(key, 10);
-    const isCurrentBreakpoint = optBreakpoint > 0 && windowWidth <= optBreakpoint;
+    const isCurrentBreakpoint =
+      optBreakpoint > 0 && windowWidth <= optBreakpoint;
 
     if (isCurrentBreakpoint && optBreakpoint < matchedBreakpoint) {
       matchedBreakpoint = optBreakpoint;
@@ -74,7 +78,9 @@ export function estimateDashboardBookmarkHeight(bookmark: ZBookmark): number {
   }
 }
 
-export function estimatePublicBookmarkHeight(bookmark: ZPublicBookmark): number {
+export function estimatePublicBookmarkHeight(
+  bookmark: ZPublicBookmark,
+): number {
   const base = BASE_CHROME_PX + CARD_MARGIN_BOTTOM_PX;
   const v = stableHash01(bookmark.id);
 
@@ -129,8 +135,7 @@ export function distributeIntoShortestColumns<T>(
         candidates.push(c);
       }
     }
-    const colIdx =
-      candidates[tieRoundRobin % candidates.length] ?? 0;
+    const colIdx = candidates[tieRoundRobin % candidates.length] ?? 0;
     tieRoundRobin++;
 
     columns[colIdx].push(item);

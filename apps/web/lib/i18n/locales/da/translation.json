@@ -850,7 +850,20 @@
       "failed_to_accept": "Kunne ikke acceptere invitationen",
       "failed_to_decline": "Kunne ikke afvise invitationen"
     },
-    "shared_lists": "Delte lister"
+    "shared_lists": "Delte lister",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Ikoner",
+    "icon_group_general": "Generelt",
+    "icon_group_favorites_mood": "Favoritter og stemning",
+    "icon_group_home_living": "Hjem og hverdag",
+    "icon_group_work_study": "Arbejde og studie",
+    "icon_group_communication": "Kommunikation",
+    "icon_group_media_tech": "Medier og teknologi",
+    "icon_group_nature_weather": "Natur og vejr",
+    "icon_group_travel_places": "Rejser og steder",
+    "icon_group_food_drink": "Mad og drikke",
+    "icon_group_sports_hobby": "Sport og hobbyer",
+    "icon_group_health_buildings": "Sundhed og bygninger"
   },
   "preview": {
     "view_original": "Se original",

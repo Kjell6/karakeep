@@ -880,7 +880,20 @@
       "failed_to_accept": "Nie udało się zaakceptować zaproszenia",
       "failed_to_decline": "Nie udało się odrzucić zaproszenia"
     },
-    "shared_lists": "Listy współdzielone"
+    "shared_lists": "Listy współdzielone",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Ikony",
+    "icon_group_general": "Ogólne",
+    "icon_group_favorites_mood": "Ulubione i nastrój",
+    "icon_group_home_living": "Dom i codzienność",
+    "icon_group_work_study": "Praca i nauka",
+    "icon_group_communication": "Komunikacja",
+    "icon_group_media_tech": "Media i technologia",
+    "icon_group_nature_weather": "Natura i pogoda",
+    "icon_group_travel_places": "Podróże i miejsca",
+    "icon_group_food_drink": "Jedzenie i napoje",
+    "icon_group_sports_hobby": "Sport i hobby",
+    "icon_group_health_buildings": "Zdrowie i budynki"
   },
   "preview": {
     "view_original": "Zobacz oryginał",

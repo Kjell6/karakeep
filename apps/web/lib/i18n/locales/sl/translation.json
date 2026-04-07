@@ -833,7 +833,20 @@
       "failed_to_accept": "Sprejem povabila ni uspel",
       "failed_to_decline": "Zavrnitev povabila ni uspela"
     },
-    "shared_lists": "Deljeni seznami"
+    "shared_lists": "Deljeni seznami",
+    "icon_tab_emoji": "Emoji",
+    "icon_tab_icons": "Ikone",
+    "icon_group_general": "Splošno",
+    "icon_group_favorites_mood": "Priljubljeno in razpoloženje",
+    "icon_group_home_living": "Dom in vsakdanje življenje",
+    "icon_group_work_study": "Delo in študij",
+    "icon_group_communication": "Komunikacija",
+    "icon_group_media_tech": "Mediji in tehnologija",
+    "icon_group_nature_weather": "Narava in vreme",
+    "icon_group_travel_places": "Potovanja in kraji",
+    "icon_group_food_drink": "Hrana in pijača",
+    "icon_group_sports_hobby": "Šport in hobiji",
+    "icon_group_health_buildings": "Zdravje in stavbe"
   },
   "options": {
     "dark_mode": "Temni način",

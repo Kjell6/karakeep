@@ -114,19 +114,16 @@ export default function BookmarksGrid({
     if (loadMoreButtonInView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [
-    loadMoreButtonInView,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
-  ]);
+  }, [loadMoreButtonInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const { columns: bookmarkColumns, getItemRef } = useBalancedMasonry({
     items: bookmarks,
     columnCount,
     estimateHeight: estimateDashboardBookmarkHeight,
     itemGapPx: 16,
-    leadFirstColumnHeightPx: showEditorCard ? EDITOR_CARD_ESTIMATE_HEIGHT_PX : 0,
+    leadFirstColumnHeightPx: showEditorCard
+      ? EDITOR_CARD_ESTIMATE_HEIGHT_PX
+      : 0,
   });
 
   if (bookmarks.length == 0 && !showEditorCard) {
@@ -152,7 +149,9 @@ export default function BookmarksGrid({
                 <ErrorBoundary fallback={<UnknownCard bookmark={b} />}>
                   <StyledBookmarkCard
                     className={
-                      b.content.type === BookmarkTypes.TEXT ? "bg-card" : undefined
+                      b.content.type === BookmarkTypes.TEXT
+                        ? "bg-card"
+                        : undefined
                     }
                   >
                     <BookmarkCard bookmark={b} />
