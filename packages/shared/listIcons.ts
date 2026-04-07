@@ -5,101 +5,185 @@
  */
 export const LUCIDE_LIST_ICON_PREFIX = "lucide:" as const;
 
-/** Curated Lucide icons available when creating or editing a list (sorted A–Z). */
-export const BOOKMARK_LIST_LUCIDE_ICON_NAMES = [
-  "Activity",
-  "AlarmClock",
-  "Archive",
-  "Award",
-  "Bell",
-  "Bike",
-  "BookCopy",
-  "BookMarked",
-  "Bookmark",
-  "BookOpen",
-  "Box",
-  "Brain",
-  "Briefcase",
-  "Bug",
-  "Bus",
-  "Camera",
-  "Car",
-  "Cat",
-  "Cloud",
-  "Code",
-  "Coffee",
-  "Compass",
-  "Cpu",
-  "Crown",
-  "Dog",
-  "Egg",
-  "Eye",
-  "FileText",
-  "Film",
-  "Flag",
-  "Flame",
-  "Folder",
-  "FolderOpen",
-  "Gamepad2",
-  "Gem",
-  "Gift",
-  "Globe",
-  "GraduationCap",
+/** Favoriten, Auszeichnung, Status */
+const LUCIDE_LIST_FAVORITES = [
+  "Star",
   "Heart",
-  "Home",
-  "Inbox",
-  "Key",
-  "Laptop",
-  "Leaf",
-  "Layers",
-  "LayoutGrid",
-  "Library",
+  "Sparkles",
+  "Zap",
+  "Flame",
+  "Flag",
+  "Trophy",
+  "Medal",
+  "Award",
+  "Gem",
+  "Crown",
+  "Target",
   "Lightbulb",
-  "Link2",
+  "Eye",
+  "Palette",
+  "Activity",
+  "Shield",
+] as const;
+
+/** Listen, Lesen, Ablage */
+const LUCIDE_LIST_BOOKS = [
+  "Bookmark",
+  "BookMarked",
+  "BookOpen",
+  "BookCopy",
   "List",
   "ListChecks",
+  "LayoutGrid",
+  "Layers",
+  "Library",
+  "Newspaper",
+  "Rss",
+  "FileText",
+  "ClipboardList",
+  "NotebookPen",
+  "Inbox",
+  "Archive",
+  "Folder",
+  "FolderOpen",
+  "Package",
+  "Box",
+  "Link2",
+] as const;
+
+/** Kalender & Zeit */
+const LUCIDE_LIST_TIME = [
+  "Calendar",
+  "CalendarDays",
+  "AlarmClock",
+  "Sun",
+  "Moon",
+] as const;
+
+/** Zuhause, Kommunikation, Netz */
+const LUCIDE_LIST_HOME = [
+  "Home",
+  "Key",
   "Lock",
   "Mail",
-  "MapPin",
-  "Medal",
-  "MessageCircle",
-  "Mic",
-  "Moon",
-  "Mountain",
-  "Music",
-  "Newspaper",
-  "Package",
-  "Palette",
-  "PenLine",
   "Phone",
-  "Pin",
-  "Plane",
-  "Pizza",
-  "Rocket",
-  "Rss",
-  "Scale",
-  "Settings",
-  "Shield",
-  "Ship",
-  "ShoppingBag",
-  "Smartphone",
-  "Snowflake",
-  "Sparkles",
-  "Star",
-  "Sun",
-  "Tag",
-  "Target",
-  "Train",
-  "TreePine",
-  "Trophy",
-  "Truck",
-  "Umbrella",
+  "MessageCircle",
   "Users",
-  "Wallet",
+  "Bell",
+  "Globe",
+  "Wifi",
+  "Router",
+] as const;
+
+/** Arbeit & Technik */
+const LUCIDE_LIST_WORK = [
+  "Briefcase",
+  "Laptop",
+  "Smartphone",
+  "Cpu",
+  "Code",
+  "Terminal",
+  "Database",
+  "Server",
+  "Settings",
+  "Scale",
+  "HardDrive",
+  "PenLine",
+  "Mic",
+  "BarChart3",
+  "Banknote",
+] as const;
+
+/** Medien */
+const LUCIDE_LIST_MEDIA = [
+  "Camera",
+  "Film",
+  "Music",
+  "Image",
+  "Images",
+  "Video",
+  "Videotape",
+  "Gamepad2",
+] as const;
+
+/** Transport & Orte */
+const LUCIDE_LIST_TRANSPORT = [
+  "Car",
+  "Bus",
+  "Train",
+  "Plane",
+  "PlaneTakeoff",
+  "Ship",
+  "Truck",
+  "Bike",
+  "MapPin",
+  "Mountain",
+  "TreePine",
+  "Anchor",
+  "Sailboat",
+  "Umbrella",
+  "Compass",
+] as const;
+
+/** Natur & Wetter */
+const LUCIDE_LIST_NATURE = [
+  "Cloud",
+  "Snowflake",
   "Waves",
+  "Leaf",
+  "Flower2",
+] as const;
+
+/** Essen & Trinken */
+const LUCIDE_LIST_FOOD = [
+  "Coffee",
   "Wine",
-  "Wrench",
-  "Zap",
+  "Pizza",
+  "Cherry",
+  "Apple",
+  "Cookie",
+  "Candy",
+  "IceCream",
+  "Egg",
+] as const;
+
+/** Tiere, Naturkunde, Sonstiges */
+const LUCIDE_LIST_LIFE = [
+  "Dog",
+  "Cat",
+  "Bug",
+  "Brain",
+  "Gift",
+  "GraduationCap",
+  "Pin",
+  "Rocket",
+] as const;
+
+/** Einkauf & Geld */
+const LUCIDE_LIST_SHOP = [
+  "Wallet",
+  "ShoppingBag",
+  "ShoppingCart",
+  "ShoppingBasket",
+] as const;
+
+/** Weitere nützliche Symbole */
+const LUCIDE_LIST_MORE = ["Bluetooth", "Tag", "Wrench"] as const;
+
+/** Curated Lucide icons (grouped for UX; storage is still `lucide:Name`). */
+export const BOOKMARK_LIST_LUCIDE_ICON_NAMES = [
+  ...LUCIDE_LIST_FAVORITES,
+  ...LUCIDE_LIST_BOOKS,
+  ...LUCIDE_LIST_TIME,
+  ...LUCIDE_LIST_HOME,
+  ...LUCIDE_LIST_WORK,
+  ...LUCIDE_LIST_MEDIA,
+  ...LUCIDE_LIST_TRANSPORT,
+  ...LUCIDE_LIST_NATURE,
+  ...LUCIDE_LIST_FOOD,
+  ...LUCIDE_LIST_LIFE,
+  ...LUCIDE_LIST_SHOP,
+  ...LUCIDE_LIST_MORE,
 ] as const;
 
 export type BookmarkListLucideIconName =

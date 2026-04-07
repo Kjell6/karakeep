@@ -36,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "@/lib/i18n/client";
@@ -245,9 +244,15 @@ export function EditListModal({
                               strokeWidth={2}
                             />
                           </PopoverTrigger>
-                          <PopoverContent className="w-[min(100vw-2rem,22rem)] p-2">
-                            <Tabs defaultValue="emoji" className="w-full">
-                              <TabsList className="mb-2 grid w-full grid-cols-2">
+                          <PopoverContent
+                            align="start"
+                            className="w-[min(100vw-2rem,23rem)] max-w-none p-2"
+                          >
+                            <Tabs
+                              defaultValue="emoji"
+                              className="flex w-full flex-col"
+                            >
+                              <TabsList className="mb-2 grid w-full shrink-0 grid-cols-2">
                                 <TabsTrigger value="emoji">
                                   {t("lists.icon_tab_emoji")}
                                 </TabsTrigger>
@@ -255,7 +260,10 @@ export function EditListModal({
                                   {t("lists.icon_tab_icons")}
                                 </TabsTrigger>
                               </TabsList>
-                              <TabsContent value="emoji" className="mt-0">
+                              <TabsContent
+                                value="emoji"
+                                className="mt-0 min-w-0 overflow-visible"
+                              >
                                 <Picker
                                   data={data}
                                   onEmojiSelect={(e: { native: string }) =>
@@ -263,8 +271,13 @@ export function EditListModal({
                                   }
                                 />
                               </TabsContent>
-                              <TabsContent value="icons" className="mt-0">
-                                <ScrollArea className="h-[min(52vh,420px)] pr-2">
+                              <TabsContent
+                                value="icons"
+                                className="mt-0 flex min-h-0 flex-col"
+                              >
+                                <div
+                                  className="max-h-[min(52vh,420px)] min-h-0 overflow-y-auto overflow-x-hidden overscroll-y-contain pr-1 [-webkit-overflow-scrolling:touch]"
+                                >
                                   <div className="grid w-full grid-cols-8 gap-1">
                                     {BOOKMARK_LIST_LUCIDE_ICON_NAMES.map(
                                       (name) => {
@@ -294,7 +307,7 @@ export function EditListModal({
                                       },
                                     )}
                                   </div>
-                                </ScrollArea>
+                                </div>
                               </TabsContent>
                             </Tabs>
                           </PopoverContent>
