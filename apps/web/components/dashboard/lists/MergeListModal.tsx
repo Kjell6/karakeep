@@ -31,6 +31,7 @@ import { useMergeLists } from "@karakeep/shared-react/hooks/lists";
 import { ZBookmarkList, zMergeListSchema } from "@karakeep/shared/types/lists";
 
 import { BookmarkListSelector } from "./BookmarkListSelector";
+import { ListIcon } from "./ListIcon";
 
 export function MergeListModal({
   open: userOpen,
@@ -126,8 +127,12 @@ export function MergeListModal({
               <DialogTitle>{t("lists.merge_list")}</DialogTitle>
             </DialogHeader>
             <div className="flex w-full gap-2 py-4">
-              <span className="inline-flex aspect-square h-10 items-center justify-center rounded border border-input bg-transparent px-2 text-2xl">
-                {list.icon}
+              <span className="inline-flex aspect-square h-10 items-center justify-center rounded border border-input bg-transparent px-2">
+                <ListIcon
+                  icon={list.icon}
+                  className="size-6"
+                  emojiClassName="text-2xl leading-none"
+                />
               </span>
               <Input
                 type="text"

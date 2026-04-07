@@ -60,19 +60,18 @@ function ListItem({
         numBookmarks: listStats?.get(node.item.id),
       })}
       <CollapsibleContent>
-      {node.children
-          .map((l) => (
-            <ListItem
-              isOpenFunc={isOpenFunc}
-              key={l.item.id}
-              node={l}
-              render={render}
-              level={level + 1}
-              indentOffset={indentOffset}
-              listStats={listStats}
-              className={className}
-            />
-          ))}
+        {node.children.map((l) => (
+          <ListItem
+            isOpenFunc={isOpenFunc}
+            key={l.item.id}
+            node={l}
+            render={render}
+            level={level + 1}
+            indentOffset={indentOffset}
+            listStats={listStats}
+            className={className}
+          />
+        ))}
       </CollapsibleContent>
     </Collapsible>
   );
@@ -123,19 +122,18 @@ export function CollapsibleBookmarkLists({
 
   return (
     <div>
-      {filteredRoots
-        .map((node) => (
-          <ListItem
-            key={node.item.id}
-            node={node}
-            render={render}
-            level={0}
-            indentOffset={indentOffset}
-            className={className}
-            listStats={listStats?.stats}
-            isOpenFunc={isOpenFunc ?? (() => false)}
-          />
-        ))}
+      {filteredRoots.map((node) => (
+        <ListItem
+          key={node.item.id}
+          node={node}
+          render={render}
+          level={0}
+          indentOffset={indentOffset}
+          className={className}
+          listStats={listStats?.stats}
+          isOpenFunc={isOpenFunc ?? (() => false)}
+        />
+      ))}
     </div>
   );
 }

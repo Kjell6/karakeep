@@ -39,9 +39,7 @@ export default function ViewOptions() {
             <span className="text-sm font-semibold">
               {t("view_options.columns")}
             </span>
-            <span className="text-sm text-muted-foreground">
-              {tempColumns}
-            </span>
+            <span className="text-sm text-muted-foreground">{tempColumns}</span>
           </div>
           <Slider
             value={[tempColumns]}

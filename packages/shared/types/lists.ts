@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-import {
-  getLucideIconNameFromListIcon,
-  isLucideListIcon,
-} from "../listIcon";
+import { getLucideIconNameFromListIcon, isLucideListIcon } from "../listIcon";
 import { parseSearchQuery } from "../searchQueryParser";
 
 function isValidListIconField(icon: string): boolean {

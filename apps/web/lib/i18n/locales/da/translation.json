@@ -834,10 +834,10 @@
     },
     "leave_list": {
       "title": "Forlad liste",
-      "confirm_message": "Er du sikker på, at du vil forlade {{icon}} {{name}}?",
+      "confirm_message": "Er du sikker på, at du vil forlade {{listLabel}}?",
       "warning": "Du vil ikke længere kunne se eller tilgå bogmærker på denne liste. Listens ejer kan tilføje dig igen, hvis det skulle blive nødvendigt.",
       "action": "Forlad liste",
-      "success": "Du har forladt \"{{icon}} {{name}}\""
+      "success": "Du har forladt \"{{listLabel}}\""
     },
     "invitations": {
       "pending": "Afventende invitationer",

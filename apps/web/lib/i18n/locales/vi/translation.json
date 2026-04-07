@@ -745,10 +745,10 @@
     },
     "leave_list": {
       "title": "Rời khỏi danh sách",
-      "confirm_message": "Bạn có chắc chắn muốn rời khỏi {{icon}} {{name}} không?",
+      "confirm_message": "Bạn có chắc chắn muốn rời khỏi {{listLabel}} không?",
       "warning": "Bạn sẽ không còn có thể xem hoặc truy cập dấu trang trong danh sách này nữa. Chủ sở hữu danh sách có thể thêm bạn lại nếu cần.",
       "action": "Rời khỏi danh sách",
-      "success": "Bạn đã rời khỏi \"{{icon}} {{name}}\""
+      "success": "Bạn đã rời khỏi \"{{listLabel}}\""
     },
     "invitations": {
       "pending": "Lời mời đang chờ",

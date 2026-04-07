@@ -14,7 +14,7 @@ import { toast } from "@/components/ui/sonner";
 import { BOOKMARK_DRAG_MIME } from "@/lib/bookmark-drag";
 import { useTranslation } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
-import { MoreHorizontal, Plus } from "lucide-react";
+import { ClipboardList, MoreHorizontal, Plus, Star } from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
@@ -23,10 +23,14 @@ import {
   useBookmarkLists,
   useReorderBookmarkLists,
 } from "@karakeep/shared-react/hooks/lists";
-import { compareBookmarkLists, ZBookmarkListTreeNode } from "@karakeep/shared/utils/listUtils";
+import {
+  compareBookmarkLists,
+  ZBookmarkListTreeNode,
+} from "@karakeep/shared/utils/listUtils";
 
 import { CollapsibleBookmarkLists } from "../lists/CollapsibleBookmarkLists";
 import { EditListModal } from "../lists/EditListModal";
+import { ListIcon } from "../lists/ListIcon";
 import { ListOptions } from "../lists/ListOptions";
 import { InvitationNotificationBadge } from "./InvitationNotificationBadge";
 
@@ -131,9 +135,11 @@ function DroppableListSidebarItem({
         )
       }
       logo={
-        <span className="flex">
-          <span className="text-lg"> {node.item.icon}</span>
-        </span>
+        <ListIcon
+          icon={node.item.icon}
+          className="size-4 text-muted-foreground"
+          emojiClassName="text-lg"
+        />
       }
       name={node.item.name}
       path={`/dashboard/lists/${node.item.id}`}
@@ -278,7 +284,12 @@ export default function AllLists({
         </EditListModal>
       </li>
       <SidebarItem
-        logo={<span className="text-lg">📋</span>}
+        logo={
+          <ClipboardList
+            className="size-4 shrink-0 stroke-[1.5] text-muted-foreground"
+            aria-hidden
+          />
+        }
         name={t("lists.all_lists")}
         path={`/dashboard/lists`}
         linkClassName="py-0.5"
@@ -286,7 +297,12 @@ export default function AllLists({
         right={<InvitationNotificationBadge />}
       />
       <SidebarItem
-        logo={<span className="text-lg">⭐️</span>}
+        logo={
+          <Star
+            className="size-4 shrink-0 stroke-[1.5] text-muted-foreground"
+            aria-hidden
+          />
+        }
         name={t("lists.favourites")}
         path={`/dashboard/favourites`}
         linkClassName="py-0.5"
@@ -298,7 +314,8 @@ export default function AllLists({
         filter={(node) => node.item.userRole === "owner"}
         isOpenFunc={isNodeOpen}
         render={({ node, level, open, numBookmarks }) => {
-          const siblings = ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
+          const siblings =
+            ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
           const index = siblings.findIndex((item) => item.id === node.item.id);
 
           return (

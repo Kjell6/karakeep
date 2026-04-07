@@ -13,6 +13,8 @@ import { useTranslation } from "@/lib/i18n/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, Mail, X } from "lucide-react";
 
+import { ListIcon } from "./ListIcon";
+
 import { useTRPC } from "@karakeep/shared-react/trpc";
 
 interface Invitation {
@@ -79,10 +81,12 @@ function InvitationRow({ invitation }: { invitation: Invitation }) {
     <div className="flex items-center justify-between rounded-lg border p-4">
       <div className="flex-1">
         <div className="flex items-center gap-2">
+          <ListIcon
+            icon={invitation.list.icon ?? "📋"}
+            className="size-4 shrink-0 text-muted-foreground"
+            emojiClassName="text-base leading-none"
+          />
           <span className="font-medium">{invitation.list.name}</span>
-          <span className="text-xs text-muted-foreground">
-            {invitation.list.icon}
-          </span>
         </div>
         {invitation.list.description && (
           <div className="mt-1 text-sm text-muted-foreground">

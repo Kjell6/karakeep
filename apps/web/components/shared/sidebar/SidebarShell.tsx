@@ -139,7 +139,7 @@ export function CollapsibleSidebar({ children }: { children: ReactNode }) {
             collapsed &&
               hydrated &&
               !peek &&
-              "-translate-x-full pointer-events-none",
+              "pointer-events-none -translate-x-full",
             collapsed && hydrated && peek && "translate-x-0",
           )}
           onMouseLeave={(e) => {
@@ -156,7 +156,7 @@ export function CollapsibleSidebar({ children }: { children: ReactNode }) {
             setPeek(false);
           }}
         >
-          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-x-hidden overflow-y-auto">
+          <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden">
             {children}
           </div>
         </aside>
@@ -165,21 +165,12 @@ export function CollapsibleSidebar({ children }: { children: ReactNode }) {
   );
 }
 
-export function SidebarCollapseToggle({
-  className,
-}: {
-  className?: string;
-}) {
+export function SidebarCollapseToggle({ className }: { className?: string }) {
   const { t } = useTranslation();
   const { collapsed, hydrated, persistCollapsed } = useSidebarShell();
 
   if (!hydrated) {
-    return (
-      <div
-        className={cn("size-8 shrink-0", className)}
-        aria-hidden
-      />
-    );
+    return <div className={cn("size-8 shrink-0", className)} aria-hidden />;
   }
 
   return (

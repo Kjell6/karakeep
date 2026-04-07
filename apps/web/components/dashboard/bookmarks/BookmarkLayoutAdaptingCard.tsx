@@ -1,5 +1,6 @@
 import type { BookmarksLayoutTypes } from "@/lib/userLocalSettings/types";
-import React, { useEffect, useState } from "react";
+import { useImageTopRightIsDark } from "@/lib/hooks/useImageTopRightIsDark";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import useBulkActionsStore from "@/lib/bulkActions";
@@ -28,6 +29,37 @@ interface Props {
   className?: string;
   fitHeight?: boolean;
   wrapTags: boolean;
+}
+
+/** Wraps the card image and places action buttons; icon colors follow top-right luminance. */
+function ImageWithTopRightActions({
+  bookmark,
+  className,
+  children,
+}: {
+  bookmark: ZBookmark;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const imageIsDark = useImageTopRightIsDark(ref, [bookmark.id]);
+
+  if (bookmark.content.type === BookmarkTypes.TEXT) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <div ref={ref} className={className}>
+      {children}
+      <div className="absolute right-2 top-2 z-30">
+        <BookmarkActionBar
+          bookmark={bookmark}
+          variant="image-overlay"
+          imageRegionDark={imageIsDark}
+        />
+      </div>
+    </div>
+  );
 }
 
 function BottomRow({
@@ -131,15 +163,12 @@ function ListView({
       {/* Image wrapper — make relative so we can position action buttons over the image
           and show a border (via ring) around the image when the parent card is hovered.
        */}
-      <div className="relative flex size-32 items-center justify-center overflow-hidden transition-all group-hover:ring-1 group-hover:ring-border">
+      <ImageWithTopRightActions
+        bookmark={bookmark}
+        className="relative flex size-32 items-center justify-center overflow-hidden transition-all group-hover:ring-1 group-hover:ring-border"
+      >
         {image("list", "object-cover rounded-lg size-32")}
-        {/* Show action buttons over image for non-text bookmarks (top-right) */}
-        {bookmark.content.type !== BookmarkTypes.TEXT && (
-          <div className="absolute right-2 top-2 z-30">
-            <BookmarkActionBar bookmark={bookmark} />
-          </div>
-        )}
-      </div>
+      </ImageWithTopRightActions>
       {/* Reduce vertical gap between content and action buttons */}
       <div className="flex h-full flex-1 flex-col justify-between gap-1 overflow-hidden">
         <div className="flex flex-col gap-2 overflow-hidden">
@@ -202,7 +231,8 @@ function GridView({
         // positioned at the top-right of the image for non-text bookmarks.
         // Also add `group-hover:ring` so hovering the parent card highlights
         // only the image area (no card-level hover effects).
-        <div
+        <ImageWithTopRightActions
+          bookmark={bookmark}
           className={cn(
             layout === "masonry"
               ? "relative w-full shrink-0 overflow-hidden rounded-b-lg transition-all group-hover:ring-1 group-hover:ring-border"
@@ -210,12 +240,7 @@ function GridView({
           )}
         >
           {img}
-          {bookmark.content.type !== BookmarkTypes.TEXT && (
-            <div className="absolute right-2 top-2 z-30">
-              <BookmarkActionBar bookmark={bookmark} />
-            </div>
-          )}
-        </div>
+        </ImageWithTopRightActions>
       )}
       {/* Reduce vertical gap between content and action buttons */}
       <div className="flex h-full flex-col justify-between gap-1 overflow-hidden p-2">

@@ -684,6 +684,8 @@
   "lists": {
     "all_lists": "Alle Listen",
     "favourites": "Favoriten",
+    "list_icon_tab_emoji": "Emoji",
+    "list_icon_tab_symbol": "Symbole",
     "new_list": "Neue Liste",
     "new_nested_list": "Neue verschachtelte Liste",
     "edit_list": "Liste bearbeiten",
@@ -749,10 +751,10 @@
     },
     "leave_list": {
       "title": "Liste verlassen",
-      "confirm_message": "Bist du sicher, dass du {{icon}} {{name}} verlassen möchtest?",
+      "confirm_message": "Bist du sicher, dass du {{listLabel}} verlassen möchtest?",
       "warning": "Du kannst keine Lesezeichen in dieser Liste mehr sehen oder darauf zugreifen. Der Listeninhaber kann dich bei Bedarf wieder hinzufügen.",
       "action": "Liste verlassen",
-      "success": "Du hast \"{{icon}} {{name}}\" verlassen"
+      "success": "Du hast \"{{listLabel}}\" verlassen"
     },
     "invitations": {
       "pending": "Ausstehende Einladungen",

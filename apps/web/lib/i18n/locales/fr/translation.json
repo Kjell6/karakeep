@@ -749,10 +749,10 @@
     },
     "leave_list": {
       "title": "Quitter la liste",
-      "confirm_message": "Êtes-vous sûr de vouloir quitter {{icon}} {{name}} ?",
+      "confirm_message": "Êtes-vous sûr de vouloir quitter {{listLabel}} ?",
       "warning": "Vous ne pourrez plus visualiser ni accéder aux signets dans cette liste. Le propriétaire de la liste peut vous rajouter si nécessaire.",
       "action": "Quitter la liste",
-      "success": "Vous avez quitté « {{icon}} {{name}} »"
+      "success": "Vous avez quitté « {{listLabel}} »"
     },
     "invitations": {
       "pending": "Invitations en attente",

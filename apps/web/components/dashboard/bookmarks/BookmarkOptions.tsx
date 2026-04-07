@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,7 +85,14 @@ function isSubsectionItem(item: ActionItemType): item is SubsectionItem {
   return "items" in item;
 }
 
-export default function BookmarkOptions({ bookmark }: { bookmark: ZBookmark }) {
+export default function BookmarkOptions({
+  bookmark,
+  triggerClassName,
+}: {
+  bookmark: ZBookmark;
+  /** Merged onto the “…” menu trigger (e.g. overlay contrast on card images). */
+  triggerClassName?: string;
+}) {
   const { t } = useTranslation();
   const linkId = bookmark.id;
   const { data: session } = useSession();
@@ -473,7 +481,10 @@ export default function BookmarkOptions({ bookmark }: { bookmark: ZBookmark }) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="px-1 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className={cn(
+              "px-1 focus-visible:ring-0 focus-visible:ring-offset-0",
+              triggerClassName,
+            )}
           >
             <MoreHorizontal />
           </Button>

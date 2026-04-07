@@ -36,11 +36,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/components/ui/sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "@/lib/i18n/client";
+import { cn } from "@/lib/utils";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  makeLucideListIcon,
+  isLucideListIcon,
+  getLucideIconNameFromListIcon,
+} from "@karakeep/shared/listIcon";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -57,6 +65,7 @@ import {
 
 import QueryExplainerTooltip from "../search/QueryExplainerTooltip";
 import { BookmarkListSelector } from "./BookmarkListSelector";
+import { LIST_LUCIDE_ICONS_FOR_PICKER, ListIcon } from "./ListIcon";
 
 export function EditListModal({
   open: userOpen,
@@ -224,20 +233,103 @@ export function EditListModal({
                 control={form.control}
                 name="icon"
                 render={({ field }) => {
+                  const iconTab = isLucideListIcon(field.value)
+                    ? "symbol"
+                    : "emoji";
                   return (
                     <FormItem>
                       <FormControl>
                         <Popover>
-                          <PopoverTrigger className="h-full rounded border border-input px-2 text-2xl">
-                            {field.value}
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto">
-                            <Picker
-                              data={data}
-                              onEmojiSelect={(e: { native: string }) =>
-                                field.onChange(e.native)
-                              }
+                          <PopoverTrigger
+                            type="button"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded border border-input"
+                          >
+                            <ListIcon
+                              icon={field.value}
+                              className="size-6"
+                              emojiClassName="text-2xl"
                             />
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[min(100vw-2rem,22rem)] p-3">
+                            <Tabs
+                              value={iconTab}
+                              onValueChange={(v) => {
+                                if (
+                                  v === "emoji" &&
+                                  isLucideListIcon(field.value)
+                                ) {
+                                  field.onChange("🚀");
+                                }
+                                if (
+                                  v === "symbol" &&
+                                  !isLucideListIcon(field.value)
+                                ) {
+                                  field.onChange(
+                                    makeLucideListIcon(
+                                      LIST_LUCIDE_ICONS_FOR_PICKER[0]!.name,
+                                    ),
+                                  );
+                                }
+                              }}
+                            >
+                              <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="emoji">
+                                  {t("lists.list_icon_tab_emoji", {
+                                    defaultValue: "Emoji",
+                                  })}
+                                </TabsTrigger>
+                                <TabsTrigger value="symbol">
+                                  {t("lists.list_icon_tab_symbol", {
+                                    defaultValue: "Icons",
+                                  })}
+                                </TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="emoji" className="mt-3">
+                                <Picker
+                                  data={data}
+                                  onEmojiSelect={(e: { native: string }) =>
+                                    field.onChange(e.native)
+                                  }
+                                />
+                              </TabsContent>
+                              <TabsContent value="symbol" className="mt-3">
+                                <ScrollArea className="h-56 pr-3">
+                                  <div className="grid grid-cols-6 gap-1">
+                                    {LIST_LUCIDE_ICONS_FOR_PICKER.map(
+                                      ({ name, Icon }) => {
+                                        const selected =
+                                          isLucideListIcon(field.value) &&
+                                          getLucideIconNameFromListIcon(
+                                            field.value,
+                                          ) === name;
+                                        return (
+                                          <button
+                                            key={name}
+                                            type="button"
+                                            title={name}
+                                            className={cn(
+                                              "flex size-9 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                                              selected &&
+                                                "border-primary bg-accent text-foreground",
+                                            )}
+                                            onClick={() =>
+                                              field.onChange(
+                                                makeLucideListIcon(name),
+                                              )
+                                            }
+                                          >
+                                            <Icon
+                                              className="size-4 stroke-[1.5]"
+                                              aria-hidden
+                                            />
+                                          </button>
+                                        );
+                                      },
+                                    )}
+                                  </div>
+                                </ScrollArea>
+                              </TabsContent>
+                            </Tabs>
                           </PopoverContent>
                         </Popover>
                       </FormControl>

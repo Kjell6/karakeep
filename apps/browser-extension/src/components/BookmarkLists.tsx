@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 
+import { formatListTitlePlain } from "@karakeep/shared/listIcon";
 import {
   useBookmarkLists,
   useRemoveBookmarkFromList,
@@ -32,7 +33,9 @@ export default function BookmarkLists({ bookmarkId }: { bookmarkId: string }) {
           <span>
             {allLists
               .getPathById(l.id)!
-              .map((l) => `${l.icon} ${l.name}`)
+              .map((segment) =>
+                formatListTitlePlain(segment.icon, segment.name),
+              )
               .join(" / ")}
           </span>
           <Button

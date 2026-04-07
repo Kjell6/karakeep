@@ -675,10 +675,10 @@
     },
     "leave_list": {
       "title": "Lista elhagyása",
-      "confirm_message": "Biztosan el akarod hagyni a(z) {{icon}} {{name}} listát?",
+      "confirm_message": "Biztosan el akarod hagyni a(z) {{listLabel}} listát?",
       "warning": "Többé nem fogod tudni megtekinteni vagy elérni a könyvjelzőket ebben a listában. A lista tulajdonosa újra hozzáadhat, ha szükséges.",
       "action": "Lista elhagyása",
-      "success": "Elhagytad a(z) \"{{icon}} {{name}}\" listát"
+      "success": "Elhagytad a(z) \"{{listLabel}}\" listát"
     },
     "invitations": {
       "pending": "Függőben lévő meghívók",

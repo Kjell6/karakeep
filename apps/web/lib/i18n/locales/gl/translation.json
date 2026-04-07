@@ -808,10 +808,10 @@
     },
     "leave_list": {
       "title": "Deixar a lista",
-      "confirm_message": "Seguro que queres deixar {{icon}} {{name}}?",
+      "confirm_message": "Seguro que queres deixar {{listLabel}}?",
       "warning": "Xa non poderás nin ver nin acceder aos marcadores desta lista. O propietario da lista pode volver a engadirte se é necesario.",
       "action": "Deixar a lista",
-      "success": "Deixaches «{{icon}} {{name}}»"
+      "success": "Deixaches «{{listLabel}}»"
     },
     "invitations": {
       "pending": "Invitacións pendentes",

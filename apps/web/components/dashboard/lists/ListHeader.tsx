@@ -18,6 +18,7 @@ import { parseSearchQuery } from "@karakeep/shared/searchQueryParser";
 import { ZBookmarkList } from "@karakeep/shared/types/lists";
 
 import QueryExplainerTooltip from "../search/QueryExplainerTooltip";
+import { ListIcon } from "./ListIcon";
 import { ListOptions } from "./ListOptions";
 
 export default function ListHeader({
@@ -68,8 +69,13 @@ export default function ListHeader({
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <span className="text-2xl">
-          {list.icon} {list.name}
+        <span className="flex items-center gap-2 text-2xl">
+          <ListIcon
+            icon={list.icon}
+            className="size-8 shrink-0"
+            emojiClassName="text-3xl leading-none"
+          />
+          <span>{list.name}</span>
         </span>
         {list.hasCollaborators && collaboratorsData && (
           <div className="group flex">

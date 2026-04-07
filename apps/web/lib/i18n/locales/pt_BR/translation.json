@@ -752,10 +752,10 @@
     },
     "leave_list": {
       "title": "Sair da lista",
-      "confirm_message": "Tem certeza de que deseja sair de {{icon}} {{name}}?",
+      "confirm_message": "Tem certeza de que deseja sair de {{listLabel}}?",
       "warning": "Você não poderá mais visualizar ou acessar os favoritos nesta lista. O proprietário da lista pode readicioná-lo, se necessário.",
       "action": "Sair da lista",
-      "success": "Você saiu de \"{{icon}} {{name}}\""
+      "success": "Você saiu de \"{{listLabel}}\""
     },
     "invitations": {
       "pending": "Convites pendentes",

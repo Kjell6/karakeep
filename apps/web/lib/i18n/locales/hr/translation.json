@@ -752,10 +752,10 @@
     },
     "leave_list": {
       "title": "Napusti popis",
-      "confirm_message": "Jesi li siguran da želiš napustiti {{icon}} {{name}}?",
+      "confirm_message": "Jesi li siguran da želiš napustiti {{listLabel}}?",
       "warning": "Više nećeš moći vidjeti ni pristupati oznakama na ovom popisu. Vlasnik popisa te može ponovno dodati ako treba.",
       "action": "Napusti popis",
-      "success": "Napustio si \"{{icon}} {{name}}\""
+      "success": "Napustio si \"{{listLabel}}\""
     },
     "invitations": {
       "pending": "Pozivnice na čekanju",

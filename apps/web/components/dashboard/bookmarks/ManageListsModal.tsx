@@ -32,7 +32,10 @@ import {
 } from "@karakeep/shared-react/hooks/lists";
 import { useTRPC } from "@karakeep/shared-react/trpc";
 
-import { BookmarkListSelector } from "../lists/BookmarkListSelector";
+import {
+  BookmarkListSelector,
+  ListPathSegments,
+} from "../lists/BookmarkListSelector";
 import ArchiveBookmarkButton from "./action-buttons/ArchiveBookmarkButton";
 
 export default function ManageListsModal({
@@ -145,11 +148,10 @@ export default function ManageListsModal({
                       key={list.id}
                       className="flex items-center justify-between rounded-lg border border-border bg-background px-2 py-1 text-foreground"
                     >
-                      <p>
-                        {allLists
-                          .getPathById(list.id)!
-                          .map((l) => `${l.icon} ${l.name}`)
-                          .join(" / ")}
+                      <p className="min-w-0">
+                        <ListPathSegments
+                          path={allLists.getPathById(list.id)!}
+                        />
                       </p>
                       <ActionButton
                         type="button"

@@ -9,7 +9,7 @@ import {
   CollapsibleTriggerChevron,
 } from "@/components/ui/collapsible";
 import { useTranslation } from "@/lib/i18n/client";
-import { MoreHorizontal } from "lucide-react";
+import { Archive, MoreHorizontal, Star, Users } from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
@@ -18,6 +18,7 @@ import {
 } from "@karakeep/shared-react/hooks/lists";
 
 import { CollapsibleBookmarkLists } from "./CollapsibleBookmarkLists";
+import { ListIcon } from "./ListIcon";
 import { ListOptions } from "./ListOptions";
 
 function ListItem({
@@ -28,14 +29,16 @@ function ListItem({
   list,
   open,
   collapsible,
+  staticLogo,
 }: {
   name: string;
-  icon: string;
+  icon?: string;
   path: string;
   style?: React.CSSProperties;
   list?: ZBookmarkList;
   open?: boolean;
   collapsible: boolean;
+  staticLogo?: React.ReactNode;
 }) {
   return (
     <li
@@ -46,10 +49,21 @@ function ListItem({
         {collapsible && (
           <CollapsibleTriggerChevron className="size-5" open={open ?? false} />
         )}
-        <Link href={path} className="flex flex-1 gap-1">
-          <p className="text-nowrap text-lg">
-            {icon} {name}
-          </p>
+        <Link href={path} className="flex flex-1 items-center gap-2">
+          {staticLogo ? (
+            <span className="flex shrink-0 items-center text-muted-foreground">
+              {staticLogo}
+            </span>
+          ) : (
+            icon && (
+              <ListIcon
+                icon={icon}
+                className="size-5 shrink-0 text-muted-foreground"
+                emojiClassName="text-xl"
+              />
+            )
+          )}
+          <p className="text-nowrap text-lg">{name}</p>
         </Link>
       </span>
       {list && (
@@ -91,14 +105,14 @@ export default function AllListsView({
       <ListItem
         collapsible={false}
         name={t("lists.favourites")}
-        icon="⭐️"
         path={`/dashboard/favourites`}
+        staticLogo={<Star className="size-5 stroke-[1.5]" aria-hidden />}
       />
       <ListItem
         collapsible={false}
         name={t("common.archive")}
-        icon="🗄️"
         path={`/dashboard/archive`}
+        staticLogo={<Archive className="size-5 stroke-[1.5]" aria-hidden />}
       />
 
       {/* Owned Lists */}
@@ -124,9 +138,9 @@ export default function AllListsView({
           <ListItem
             collapsible={true}
             name={t("lists.shared_lists")}
-            icon="👥"
             path="#"
             open={sharedListsOpen}
+            staticLogo={<Users className="size-5 stroke-[1.5]" aria-hidden />}
           />
           <CollapsibleContent>
             <CollapsibleBookmarkLists

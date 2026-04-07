@@ -6,6 +6,7 @@ import { toast } from "@/components/ui/sonner";
 import { useTranslation } from "@/lib/i18n/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import { formatListTitlePlain } from "@karakeep/shared/listIcon";
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import { useTRPC } from "@karakeep/shared-react/trpc";
 
@@ -31,8 +32,7 @@ export default function LeaveListConfirmationDialog({
       onSuccess: () => {
         toast({
           description: t("lists.leave_list.success", {
-            icon: list.icon,
-            name: list.name,
+            listLabel: formatListTitlePlain(list.icon, list.name),
           }),
         });
         setOpen(false);
@@ -61,8 +61,7 @@ export default function LeaveListConfirmationDialog({
         <div className="space-y-3">
           <p className="text-balance">
             {t("lists.leave_list.confirm_message", {
-              icon: list.icon,
-              name: list.name,
+              listLabel: formatListTitlePlain(list.icon, list.name),
             })}
           </p>
           <p className="text-balance text-sm text-muted-foreground">

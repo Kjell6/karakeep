@@ -848,10 +848,10 @@
     },
     "leave_list": {
       "title": "Leave List",
-      "confirm_message": "Are you sure you want to leave {{icon}} {{name}}?",
+      "confirm_message": "Are you sure you want to leave {{listLabel}}?",
       "warning": "You will no longer be able to view or access bookmarks in this list. The list owner can add you back if needed.",
       "action": "Leave List",
-      "success": "You have left \"{{icon}} {{name}}\""
+      "success": "You have left \"{{listLabel}}\""
     },
     "invitations": {
       "pending": "Pending Invitations",
