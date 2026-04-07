@@ -69,12 +69,22 @@ export default function SidebarItem({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
     >
-      <div className="flex-1">
-        {collapseButton}
+      <div
+        className={cn(
+          "flex min-w-0 flex-1 items-center",
+          collapseButton ? "gap-x-1.5" : undefined,
+        )}
+      >
+        {collapseButton ? (
+          <div className="flex w-3 shrink-0 items-center justify-center self-stretch">
+            {collapseButton}
+          </div>
+        ) : null}
         <Link
           href={path}
           className={cn(
-            "flex items-center gap-x-2 rounded-[inherit] px-3 py-2",
+            "flex min-w-0 flex-1 items-center gap-x-2 rounded-[inherit] py-2",
+            collapseButton ? "pl-0 pr-3" : "px-3",
             linkClassName,
           )}
         >

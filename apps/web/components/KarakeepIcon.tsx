@@ -10,9 +10,17 @@ export default function KarakeepLogo({ height }: { height: number }) {
     <span className="flex items-center">
       <img
         alt="Karakeep"
-        className="block max-w-none"
+        className="block max-w-none dark:hidden"
         height={height}
         src="/icons/karakeep-full.svg"
+        width={width}
+      />
+      <img
+        alt=""
+        aria-hidden
+        className="hidden max-w-none dark:block"
+        height={height}
+        src="/icons/karakeep-full-white.svg"
         width={width}
       />
     </span>

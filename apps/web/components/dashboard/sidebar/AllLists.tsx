@@ -14,13 +14,7 @@ import { toast } from "@/components/ui/sonner";
 import { BOOKMARK_DRAG_MIME } from "@/lib/bookmark-drag";
 import { useTranslation } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
-import {
-  ClipboardList,
-  MoreHorizontal,
-  Plus,
-  Star,
-  Users,
-} from "lucide-react";
+import { ClipboardList, MoreHorizontal, Plus, Star, Users } from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
@@ -41,6 +35,11 @@ import { ListOptions } from "../lists/ListOptions";
 import { InvitationNotificationBadge } from "./InvitationNotificationBadge";
 
 const noop = () => undefined;
+
+/** Keeps list icons aligned with rows that show a nested expand control (same width as one `pl-3` step). */
+const listLeadingPlaceholder = (
+  <span className="pointer-events-none invisible size-2 shrink-0" aria-hidden />
+);
 
 function useDropTarget(listId: string, listName: string) {
   const { mutateAsync: addToList } = useAddBookmarkToList();
@@ -133,25 +132,23 @@ function DroppableListSidebarItem({
   return (
     <SidebarItem
       collapseButton={
-        node.children.length > 0 && (
-          <CollapsibleTriggerTriangle
-            className="absolute left-0.5 top-1/2 size-2 -translate-y-1/2"
-            open={open}
-          />
+        node.children.length > 0 ? (
+          <CollapsibleTriggerTriangle className="size-2 shrink-0" open={open} />
+        ) : (
+          listLeadingPlaceholder
         )
       }
       logo={
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:-translate-x-0.5">
-          <ListIcon
-            className="size-5.5"
-            icon={node.item.icon}
-            strokeWidth={2}
-          />
-        </span>
+        <ListIcon
+          className="size-[18px] shrink-0"
+          icon={node.item.icon}
+          strokeWidth={2}
+          style={node.item.color ? { color: node.item.color } : undefined}
+        />
       }
       name={node.item.name}
       path={`/dashboard/lists/${node.item.id}`}
-      className="group px-0.5"
+      className="group"
       right={
         <ListOptions
           onOpenChange={(isOpen) => {
@@ -187,7 +184,6 @@ function DroppableListSidebarItem({
           </Button>
         </ListOptions>
       }
-      linkClassName="py-0.5"
       style={{ marginLeft: `${level * 1}rem` }}
       dropHighlight={canDrop && dropHighlight}
       onDragOver={canDrop ? onDragOver : undefined}
@@ -277,8 +273,8 @@ export default function AllLists({
   }, [isViewingSharedList, sharedListsOpen]);
 
   return (
-    <ul className="sidebar-scrollbar max-h-full gap-y-2 overflow-auto text-sm">
-      <li className="flex justify-between pb-3">
+    <ul className="sidebar-scrollbar flex max-h-full flex-col gap-0 overflow-auto text-sm">
+      <li className="mb-2 flex justify-between">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
           Lists
         </p>
@@ -292,73 +288,61 @@ export default function AllLists({
         </EditListModal>
       </li>
       <SidebarItem
-        logo={
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:shrink-0 [&>svg]:-translate-x-0.5">
-            <ClipboardList className="size-5.5" strokeWidth={2} aria-hidden />
-          </span>
-        }
+        collapseButton={listLeadingPlaceholder}
+        logo={<ClipboardList size={18} strokeWidth={2} aria-hidden />}
         name={t("lists.all_lists")}
         path={`/dashboard/lists`}
-        linkClassName="py-0.5"
-        className="px-0.5"
         right={<InvitationNotificationBadge />}
       />
       <SidebarItem
-        logo={
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:shrink-0 [&>svg]:-translate-x-0.5">
-            <Star className="size-5.5" strokeWidth={2} aria-hidden />
-          </span>
-        }
+        collapseButton={listLeadingPlaceholder}
+        logo={<Star size={18} strokeWidth={2} aria-hidden />}
         name={t("lists.favourites")}
         path={`/dashboard/favourites`}
-        linkClassName="py-0.5"
-        className="px-0.5"
       />
 
-      <CollapsibleBookmarkLists
-        listsData={lists}
-        filter={(node) => node.item.userRole === "owner"}
-        isOpenFunc={isNodeOpen}
-        render={({ node, level, open, numBookmarks }) => {
-          const siblings =
-            ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
-          const index = siblings.findIndex((item) => item.id === node.item.id);
+      <div className="mt-2">
+        <CollapsibleBookmarkLists
+          listsData={lists}
+          filter={(node) => node.item.userRole === "owner"}
+          isOpenFunc={isNodeOpen}
+          render={({ node, level, open, numBookmarks }) => {
+            const siblings =
+              ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
+            const index = siblings.findIndex(
+              (item) => item.id === node.item.id,
+            );
 
-          return (
-            <DroppableListSidebarItem
-              node={node}
-              level={level}
-              open={open}
-              numBookmarks={numBookmarks}
-              selectedListId={selectedListId}
-              setSelectedListId={setSelectedListId}
-              canMoveUp={index > 0}
-              canMoveDown={index >= 0 && index < siblings.length - 1}
-              onMoveUp={() => void moveList(node.item, -1)}
-              onMoveDown={() => void moveList(node.item, 1)}
-            />
-          );
-        }}
-      />
+            return (
+              <DroppableListSidebarItem
+                node={node}
+                level={level}
+                open={open}
+                numBookmarks={numBookmarks}
+                selectedListId={selectedListId}
+                setSelectedListId={setSelectedListId}
+                canMoveUp={index > 0}
+                canMoveDown={index >= 0 && index < siblings.length - 1}
+                onMoveUp={() => void moveList(node.item, -1)}
+                onMoveDown={() => void moveList(node.item, 1)}
+              />
+            );
+          }}
+        />
+      </div>
 
       {hasSharedLists && (
         <Collapsible open={sharedListsOpen} onOpenChange={setSharedListsOpen}>
           <SidebarItem
             collapseButton={
               <CollapsibleTriggerTriangle
-                className="absolute left-0.5 top-1/2 size-2 -translate-y-1/2"
+                className="size-2 shrink-0"
                 open={sharedListsOpen}
               />
             }
-            logo={
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center [&>svg]:shrink-0 [&>svg]:-translate-x-0.5">
-                <Users className="size-5.5" strokeWidth={2} aria-hidden />
-              </span>
-            }
+            logo={<Users size={18} strokeWidth={2} aria-hidden />}
             name={t("lists.shared_lists")}
             path="#"
-            linkClassName="py-0.5"
-            className="px-0.5"
           />
           <CollapsibleContent>
             <CollapsibleBookmarkLists

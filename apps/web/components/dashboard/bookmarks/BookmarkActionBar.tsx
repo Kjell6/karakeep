@@ -8,7 +8,7 @@ import type { ZBookmark } from "@karakeep/shared/types/bookmarks";
 import BookmarkOptions from "./BookmarkOptions";
 import { FavouritedActionIcon } from "./icons";
 
-function overlayGhostClasses(imageRegionDark: boolean | null): string {
+export function overlayGhostClasses(imageRegionDark: boolean | null): string {
   if (imageRegionDark === true) {
     return cn(
       "text-white/90 hover:bg-white/15 hover:!text-white active:bg-white/20",

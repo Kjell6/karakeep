@@ -21,7 +21,7 @@ function CollapsibleTriggerTriangle({
     <CollapsibleTrigger asChild>
       <Triangle
         className={cn(
-          "fill-foreground",
+          "fill-current",
           !open ? "rotate-90" : "rotate-180",
           className,
         )}

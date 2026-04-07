@@ -575,6 +575,13 @@
       "when": 1775558125970,
       "tag": "0081_add_list_sort_order",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "6",
+      "when": 1775587395381,
+      "tag": "0082_add_list_color",
+      "breakpoints": true
     }
   ]
 }

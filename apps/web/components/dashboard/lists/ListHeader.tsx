@@ -74,6 +74,7 @@ export default function ListHeader({
             className="size-6 shrink-0"
             icon={list.icon}
             strokeWidth={2}
+            style={list.color ? { color: list.color } : undefined}
           />
           {list.name}
         </span>

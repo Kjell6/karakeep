@@ -84,6 +84,7 @@ export function BookmarkListSelector({
               className="size-4 shrink-0"
               icon={p.icon}
               strokeWidth={2}
+              style={p.color ? { color: p.color } : undefined}
             />
             <span className="truncate">{p.name}</span>
           </span>
@@ -158,6 +159,7 @@ export function BookmarkListSelector({
                               className="size-4 shrink-0"
                               icon={p.icon}
                               strokeWidth={2}
+                              style={p.color ? { color: p.color } : undefined}
                             />
                             <span className="truncate">{p.name}</span>
                           </span>

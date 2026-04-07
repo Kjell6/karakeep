@@ -473,6 +473,8 @@ export const bookmarkLists = sqliteTable(
     name: text("name").notNull(),
     description: text("description"),
     icon: text("icon").notNull(),
+    /** Optional #RRGGBB accent for sidebar / UI */
+    color: text("color"),
     createdAt: createdAtField(),
     userId: text("userId")
       .notNull()

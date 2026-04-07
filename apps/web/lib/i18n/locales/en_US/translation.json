@@ -794,6 +794,7 @@
     "all_lists": "All Lists",
     "favourites": "Favorites",
     "new_list": "New List",
+    "drag_bookmark_handle": "Drag into a list in the sidebar",
     "edit_list": "Edit List",
     "new_nested_list": "New Nested List",
     "merge_list": "Merge List",

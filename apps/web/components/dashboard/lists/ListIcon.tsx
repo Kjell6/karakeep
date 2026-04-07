@@ -367,6 +367,7 @@ export const LUCIDE_LIST_ICONS: Record<BookmarkListLucideIconName, LucideIcon> =
 export interface ListIconProps {
   icon: string;
   className?: string;
+  style?: React.CSSProperties;
   /** Lucide stroke width; emojis ignore this. */
   strokeWidth?: number;
 }
@@ -374,7 +375,7 @@ export interface ListIconProps {
 /**
  * Renders a list icon: either a Lucide symbol (`lucide:Name`) or legacy emoji text.
  */
-export function ListIcon({ icon, className, strokeWidth = 2 }: ListIconProps) {
+export function ListIcon({ icon, className, style, strokeWidth = 2 }: ListIconProps) {
   if (isLucideListIcon(icon)) {
     const name = lucideListIconName(icon) as BookmarkListLucideIconName | null;
     if (!name) {
@@ -383,7 +384,7 @@ export function ListIcon({ icon, className, strokeWidth = 2 }: ListIconProps) {
     const Icon = LUCIDE_LIST_ICONS[name];
     if (!Icon) {
       return (
-        <span className={cn("text-lg leading-none", className)} title={icon}>
+        <span className={cn("text-lg leading-none", className)} style={style} title={icon}>
           ?
         </span>
       );
@@ -392,6 +393,7 @@ export function ListIcon({ icon, className, strokeWidth = 2 }: ListIconProps) {
       <Icon
         aria-hidden
         className={cn("shrink-0", className)}
+        style={style}
         strokeWidth={strokeWidth}
       />
     );
@@ -403,6 +405,7 @@ export function ListIcon({ icon, className, strokeWidth = 2 }: ListIconProps) {
         "inline-flex items-center justify-center text-xl leading-none",
         className,
       )}
+      style={style}
       aria-hidden
     >
       {icon}

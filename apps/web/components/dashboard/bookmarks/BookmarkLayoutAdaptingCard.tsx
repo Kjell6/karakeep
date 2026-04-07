@@ -17,6 +17,7 @@ import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 import { isBookmarkStillTagging } from "@karakeep/shared/utils/bookmarkUtils";
 
 import BookmarkActionBar from "./BookmarkActionBar";
+import BookmarkDragHandle from "./BookmarkDragHandle";
 import BookmarkFormattedCreatedAt from "./BookmarkFormattedCreatedAt";
 import TagList from "./TagList";
 
@@ -45,11 +46,25 @@ function ImageWithTopRightActions({
   const imageIsDark = useImageTopRightIsDark(ref, [bookmark.id]);
 
   if (bookmark.content.type === BookmarkTypes.TEXT) {
-    return <div className={className}>{children}</div>;
+    return (
+      <div ref={ref} className={className}>
+        <BookmarkDragHandle
+          bookmarkId={bookmark.id}
+          imageRegionDark={imageIsDark}
+          variant="image-overlay"
+        />
+        {children}
+      </div>
+    );
   }
 
   return (
     <div ref={ref} className={className}>
+      <BookmarkDragHandle
+        bookmarkId={bookmark.id}
+        imageRegionDark={imageIsDark}
+        variant="image-overlay"
+      />
       {children}
       <div className="absolute right-2 top-2 z-30">
         <BookmarkActionBar
@@ -226,6 +241,7 @@ function GridView({
       )}
     >
       <MultiBookmarkSelector bookmark={bookmark} />
+      {!img && <BookmarkDragHandle bookmarkId={bookmark.id} />}
       {img && (
         // Image container made relative so overlay (action buttons) can be
         // positioned at the top-right of the image for non-text bookmarks.
@@ -271,6 +287,7 @@ function CompactView({ bookmark, title, footer, className }: Props) {
       )}
     >
       <MultiBookmarkSelector bookmark={bookmark} />
+      <BookmarkDragHandle bookmarkId={bookmark.id} />
       <div className="flex h-full justify-between gap-2 overflow-hidden p-2">
         <div className="flex items-center gap-2">
           {bookmark.content.type === BookmarkTypes.LINK &&

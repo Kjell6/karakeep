@@ -190,7 +190,7 @@ export default function EditorCard({ className }: { className?: string }) {
       <form
         className={cn(
           className,
-          "relative flex flex-col gap-2 rounded-xl bg-card p-4",
+          "relative flex flex-col gap-2 rounded-xl bg-background p-4",
           cardHeight,
         )}
         onSubmit={form.handleSubmit(onSubmit, onError)}

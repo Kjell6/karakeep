@@ -57,6 +57,7 @@ export abstract class List {
       description: this.list.description,
       userId: this.list.userId,
       icon: this.list.icon,
+      color: this.list.color,
       sortOrder: this.list.sortOrder,
       type: this.list.type,
       query: this.list.query,
@@ -271,6 +272,7 @@ export abstract class List {
         name: input.name,
         description: input.description,
         icon: input.icon,
+        color: input.color ?? null,
         userId: ctx.user.id,
         parentId: input.parentId,
         type: input.type,
@@ -544,6 +546,7 @@ export abstract class List {
         parentId: input.parentId,
         query: input.query,
         public: input.public,
+        ...(input.color !== undefined ? { color: input.color } : {}),
       })
       .where(
         and(

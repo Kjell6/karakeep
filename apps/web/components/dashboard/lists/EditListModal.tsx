@@ -64,6 +64,7 @@ import {
 
 import QueryExplainerTooltip from "../search/QueryExplainerTooltip";
 import { BookmarkListSelector } from "./BookmarkListSelector";
+import { ListColorPicker } from "./ListColorPicker";
 import { ListIcon, LUCIDE_LIST_ICONS } from "./ListIcon";
 
 export function EditListModal({
@@ -95,6 +96,7 @@ export function EditListModal({
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
       icon: list?.icon ?? prefill?.icon ?? "🚀",
+      color: list?.color ?? prefill?.color ?? null,
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
@@ -110,6 +112,7 @@ export function EditListModal({
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
       icon: list?.icon ?? prefill?.icon ?? "🚀",
+      color: list?.color ?? prefill?.color ?? null,
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
@@ -203,10 +206,14 @@ export function EditListModal({
     (value: z.infer<typeof zNewBookmarkListSchema>) => {
       value.parentId = value.parentId === "" ? null : value.parentId;
       value.query = value.type === "smart" ? value.query : undefined;
+      const payload = {
+        ...value,
+        color: value.color ?? null,
+      };
       if (isEdit) {
-        editList({ ...value, listId: list.id });
+        editList({ ...payload, listId: list.id });
       } else {
-        createList(value);
+        createList(payload);
       }
     },
   );
@@ -368,6 +375,23 @@ export function EditListModal({
                   </FormItem>
                 );
               }}
+            />
+            <FormField
+              control={form.control}
+              name="color"
+              render={({ field }) => (
+                <FormItem className="pb-4">
+                  <FormLabel>{t("lists.list_color")}</FormLabel>
+                  <FormControl>
+                    <ListColorPicker
+                      value={field.value ?? null}
+                      onChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             <FormField
               control={form.control}

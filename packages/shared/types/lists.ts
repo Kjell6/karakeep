@@ -6,6 +6,11 @@ import { parseSearchQuery } from "../searchQueryParser";
 export const MAX_LIST_NAME_LENGTH = 100;
 export const MAX_LIST_DESCRIPTION_LENGTH = 500;
 
+/** Stored list accent color (e.g. sidebar stripe) */
+export const zListColorHex = z
+  .string()
+  .regex(/^#[0-9A-Fa-f]{6}$/, "Color must be a #RRGGBB hex value");
+
 export const zNewBookmarkListSchema = z
   .object({
     name: z
@@ -26,6 +31,7 @@ export const zNewBookmarkListSchema = z
     icon: z.string().refine(isValidListIconField, {
       message: "Invalid list icon",
     }),
+    color: zListColorHex.nullable().optional(),
     type: z.enum(["manual", "smart"]).optional().default("manual"),
     query: z.string().min(1).optional(),
     parentId: z.string().nullish(),
@@ -56,6 +62,7 @@ export const zBookmarkListSchema = z.object({
   name: z.string(),
   description: z.string().nullish(),
   icon: z.string(),
+  color: zListColorHex.nullable(),
   parentId: z.string().nullable(),
   sortOrder: z.number().int(),
   type: z.enum(["manual", "smart"]).default("manual"),
@@ -96,6 +103,7 @@ export const zEditBookmarkListSchema = z.object({
     .refine((v) => v === undefined || isValidListIconField(v), {
       message: "Invalid list icon",
     }),
+  color: zListColorHex.nullable().optional(),
   parentId: z.string().nullish(),
   query: z.string().min(1).optional(),
   public: z.boolean().optional(),

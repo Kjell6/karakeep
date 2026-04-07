@@ -100,9 +100,7 @@ export default function AllListsView({
       <ListItem
         collapsible={false}
         name={t("common.archive")}
-        icon={
-          <Archive className="size-5.5" strokeWidth={2} aria-hidden />
-        }
+        icon={<Archive className="size-5.5" strokeWidth={2} aria-hidden />}
         path={`/dashboard/archive`}
       />
 
@@ -118,6 +116,7 @@ export default function AllListsView({
                 className="size-5.5"
                 icon={node.item.icon}
                 strokeWidth={2}
+                style={node.item.color ? { color: node.item.color } : undefined}
               />
             }
             list={node.item}
@@ -135,9 +134,7 @@ export default function AllListsView({
           <ListItem
             collapsible={true}
             name={t("lists.shared_lists")}
-            icon={
-              <Users className="size-5.5" strokeWidth={2} aria-hidden />
-            }
+            icon={<Users className="size-5.5" strokeWidth={2} aria-hidden />}
             path="#"
             open={sharedListsOpen}
           />
@@ -154,6 +151,7 @@ export default function AllListsView({
                       className="size-5.5"
                       icon={node.item.icon}
                       strokeWidth={2}
+                      style={node.item.color ? { color: node.item.color } : undefined}
                     />
                   }
                   list={node.item}
