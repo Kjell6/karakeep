@@ -3,7 +3,7 @@
 <div align="center">
     <img
         alt="Kjell6 fork: sidebar with list icons and masonry bookmark grid"
-        src="./screenshots/kjell6-fork-ui.png"
+        src="./screenshots/Karakeep.jpeg"
         width="920"
     />
 </div>
