@@ -13,6 +13,34 @@
     </a>
 </div>
 
+**[Kjell6 fork](https://github.com/Kjell6/karakeep)** — additions vs [upstream Karakeep](https://github.com/karakeep-app/karakeep)
+
+<div align="center">
+    <img
+        alt="Kjell6 fork: sidebar with list icons and masonry bookmark grid"
+        src="./screenshots/kjell6-fork-ui.png"
+        width="920"
+    />
+</div>
+
+**Visual & UI**
+
+- List accent colors, Lucide icons for lists, and refined list / sidebar layout.
+- Collapsible sidebar with a header toggle, wider main layout, and persistent sidebar list ordering.
+- Masonry grid loading tweaks, earlier infinite-scroll prefetch, and bookmark cards with a drag handle plus luminance-based action styling.
+- Card polish (hover image outline, title sizing, cleaner non-text cards), updated crawl loading visuals (GIF / blur asset), and peek-sidebar stacking fixes.
+
+**AI & metadata**
+
+- Link tagging can use the page banner image; image tagging flow and prompts revised (including a higher target tag count).
+- Richer crawling: Twitter/X (via fxtwitter), TikTok oEmbed, Pinterest oEmbed with Meta fallback for boilerplate pages.
+
+**Hosting & CI**
+
+- Container images published to GHCR; Docker Compose supports `KARAKEEP_IMAGE`; `kjell-*` tags (including `latest`).
+
+Full history: `git log upstream/main..main`.
+
 # <img height="50px" src="./screenshots/logo.png" />
 
 Karakeep (previously Hoarder) is a self-hostable bookmark-everything app with a touch of AI for the data hoarders out there.
@@ -92,10 +120,10 @@ I'm a systems engineer in my day job (and have been for the past 7 years). I did
 - [mymind](https://mymind.com/): Mymind is the closest alternative to this project and from where I drew a lot of inspirations. It's a commercial product though.
 - [raindrop](https://raindrop.io): A polished open source bookmark manager that supports links, images and files. It's not self-hostable though.
 - Bookmark managers (mostly focused on bookmarking links):
-    - [Pocket](https://getpocket.com) (Dead): Pocket is what hooked me into the whole idea of read-it-later apps. I used it [a lot](https://blog.mbassem.com/2019/01/27/favorite-articles-2018/). However, I recently got into home-labbing and became obsessed with the idea of running my services in my home server. Karakeep is meant to be a self-hosting first app. Mozilla recently announced that it's shutting down pocket.
-    - [Linkwarden](https://linkwarden.app/): An open-source self-hostable bookmark manager that I ran for a bit in my homelab. It's focused mostly on links and supports collaborative collections.
-    - [Wallabag](https://wallabag.it): Wallabag is a well-established open source read-it-later app written in php.
-    - [Shiori](https://github.com/go-shiori/shiori): Shiori is meant to be an open source pocket clone written in Go.
+  - [Pocket](https://getpocket.com) (Dead): Pocket is what hooked me into the whole idea of read-it-later apps. I used it [a lot](https://blog.mbassem.com/2019/01/27/favorite-articles-2018/). However, I recently got into home-labbing and became obsessed with the idea of running my services in my home server. Karakeep is meant to be a self-hosting first app. Mozilla recently announced that it's shutting down pocket.
+  - [Linkwarden](https://linkwarden.app/): An open-source self-hostable bookmark manager that I ran for a bit in my homelab. It's focused mostly on links and supports collaborative collections.
+  - [Wallabag](https://wallabag.it): Wallabag is a well-established open source read-it-later app written in php.
+  - [Shiori](https://github.com/go-shiori/shiori): Shiori is meant to be an open source pocket clone written in Go.
 
 ## Translations
 
@@ -109,7 +137,7 @@ If you're not comfortable with self-hosting, you can use our managed Karakeep cl
 
 If you're enjoying using Karakeep, drop a ⭐️ on the repo!
 
-<a href="https://www.buymeacoffee.com/mbassem" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
 
 ## Community Channels
 
@@ -122,4 +150,4 @@ Karakeep is licensed under [AGPL-3.0](https://github.com/karakeep-app/karakeep/b
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=karakeep-app/karakeep&type=Date)](https://star-history.com/#karakeep-app/karakeep&Date)
+[Star History Chart](https://star-history.com/#karakeep-app/karakeep&Date)
