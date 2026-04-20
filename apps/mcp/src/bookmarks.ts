@@ -52,7 +52,7 @@ machine learning is:fav`),
         },
       },
     });
-    if (!res.data) {
+    if (res.error || !res.data) {
       return toMcpToolError(res.error);
     }
     return {
@@ -87,7 +87,7 @@ mcpServer.tool(
         },
       },
     });
-    if (res.error) {
+    if (res.error || !res.data) {
       return toMcpToolError(res.error);
     }
     return {
@@ -130,7 +130,7 @@ mcpServer.tool(
         } as const
       )[type],
     });
-    if (res.error) {
+    if (res.error || !res.data) {
       return toMcpToolError(res.error);
     }
     return {
@@ -161,7 +161,7 @@ mcpServer.tool(
         },
       },
     });
-    if (res.error) {
+    if (res.error || !res.data) {
       return toMcpToolError(res.error);
     }
     let content;

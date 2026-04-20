@@ -11,7 +11,7 @@ mcpServer.tool(
     const res = await karakeepClient.GET("/lists", {
       params: {},
     });
-    if (!res.data) {
+    if (res.error || !res.data) {
       return toMcpToolError(res.error);
     }
     return {
@@ -118,7 +118,7 @@ mcpServer.tool(
         parentId,
       },
     });
-    if (res.error) {
+    if (res.error || !res.data) {
       return toMcpToolError(res.error);
     }
     return {

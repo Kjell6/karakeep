@@ -48,6 +48,7 @@ describe("Bookmarks API", () => {
     expect(createResponse.status).toBe(201);
     expect(createdBookmark).toBeDefined();
     expect(createdBookmark?.id).toBeDefined();
+    assert(createdBookmark);
 
     // Get the created bookmark
     const { data: retrievedBookmark, response: getResponse } = await client.GET(
