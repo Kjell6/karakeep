@@ -1,3 +1,26 @@
+**[Kjell6 fork](https://github.com/Kjell6/karakeep)** — additions vs [upstream Karakeep](https://github.com/karakeep-app/karakeep)
+
+<div align="center">
+    <img
+        alt="Kjell6 fork: sidebar with list icons and masonry bookmark grid"
+        src="./screenshots/Karakeep.jpeg"
+        width="920"
+    />
+</div>
+
+**Visual & UI**
+
+- List accent colors, Lucide icons for lists, and refined list / sidebar layout.
+- Collapsible sidebar with a header toggle, wider main layout, and persistent sidebar list ordering.
+- Masonry grid loading tweaks, earlier infinite-scroll prefetch, and bookmark cards with a drag handle plus luminance-based action styling.
+- Card polish (hover image outline, title sizing, cleaner non-text cards), updated crawl loading visuals (GIF / blur asset), and peek-sidebar stacking fixes.
+
+**AI & metadata**
+
+- Link tagging can use the page banner image; image tagging flow and prompts revised (including a higher target tag count).
+- Richer crawling: Twitter/X (via fxtwitter), TikTok oEmbed, Pinterest oEmbed with Meta fallback for boilerplate pages.
+---
+
 <div align="center">
     <a href="https://github.com/karakeep-app/karakeep/actions/workflows/ci.yml">
         <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/karakeep-app/karakeep/ci.yml" />
