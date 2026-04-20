@@ -35,6 +35,7 @@ export const zNewBookmarkListSchema = z
     type: z.enum(["manual", "smart"]).optional().default("manual"),
     query: z.string().min(1).optional(),
     parentId: z.string().nullish(),
+    thisListOnly: z.boolean().optional(),
   })
   .refine((val) => val.type === "smart" || !val.query, {
     message: "Manual lists cannot have a query",
@@ -55,6 +56,10 @@ export const zNewBookmarkListSchema = z
     message:
       "Smart lists cannot have unqualified terms (aka full text search terms) in the query",
     path: ["query"],
+  })
+  .refine((val) => val.type === "manual" || !val.thisListOnly, {
+    message: "This list only mode is only available for manual lists",
+    path: ["thisListOnly"],
   });
 
 export const zBookmarkListSchema = z.object({
@@ -62,12 +67,15 @@ export const zBookmarkListSchema = z.object({
   name: z.string(),
   description: z.string().nullish(),
   icon: z.string(),
+  /** Present when `icon` is a display emoji and the stored value is `lucide:…`. */
+  symbolicIcon: z.string().optional(),
   color: zListColorHex.nullable(),
   parentId: z.string().nullable(),
   sortOrder: z.number().int(),
   type: z.enum(["manual", "smart"]).default("manual"),
   query: z.string().nullish(),
   public: z.boolean(),
+  thisListOnly: z.boolean(),
   hasCollaborators: z.boolean(),
   userRole: z.enum(["owner", "editor", "viewer", "public"]),
 });
@@ -107,6 +115,7 @@ export const zEditBookmarkListSchema = z.object({
   parentId: z.string().nullish(),
   query: z.string().min(1).optional(),
   public: z.boolean().optional(),
+  thisListOnly: z.boolean().optional(),
 });
 
 export const zEditBookmarkListSchemaWithValidation = zEditBookmarkListSchema

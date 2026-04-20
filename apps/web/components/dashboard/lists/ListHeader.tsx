@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -14,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MoreHorizontal, SearchIcon } from "lucide-react";
 
 import { useTRPC } from "@karakeep/shared-react/trpc";
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import { parseSearchQuery } from "@karakeep/shared/searchQueryParser";
 import { ZBookmarkList } from "@karakeep/shared/types/lists";
 
@@ -72,12 +74,17 @@ export default function ListHeader({
         <span className="flex items-center gap-2 text-2xl">
           <ListIcon
             className="size-6 shrink-0"
-            icon={list.icon}
+            icon={bookmarkListIconTokenForUi(list)}
             strokeWidth={2}
             style={list.color ? { color: list.color } : undefined}
           />
           {list.name}
         </span>
+        {list.type === "manual" && list.thisListOnly && (
+          <Badge variant="secondary" className="shrink-0 text-xs font-normal">
+            {t("lists.this_list_only_badge")}
+          </Badge>
+        )}
         {list.hasCollaborators && collaboratorsData && (
           <div className="group flex">
             {collaboratorsData.owner && (

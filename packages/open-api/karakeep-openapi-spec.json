@@ -466,6 +466,9 @@
           "icon": {
             "type": "string"
           },
+          "symbolicIcon": {
+            "type": "string"
+          },
           "color": {
             "type": "string",
             "nullable": true,
@@ -493,6 +496,9 @@
           "public": {
             "type": "boolean"
           },
+          "thisListOnly": {
+            "type": "boolean"
+          },
           "hasCollaborators": {
             "type": "boolean"
           },
@@ -514,6 +520,7 @@
           "parentId",
           "sortOrder",
           "public",
+          "thisListOnly",
           "hasCollaborators",
           "userRole"
         ]
@@ -733,6 +740,16 @@
             "required": false,
             "description": "Filter by favourited status.",
             "name": "favourited",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "description": "When true, exclude bookmarks that only belong to manual lists marked as this list only (home-style feed)."
+            },
+            "required": false,
+            "description": "When true, exclude bookmarks that only belong to manual lists marked as this list only (home-style feed).",
+            "name": "homeGlobalFeed",
             "in": "query"
           },
           {
@@ -2249,6 +2266,9 @@
                   "parentId": {
                     "type": "string",
                     "nullable": true
+                  },
+                  "thisListOnly": {
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -2442,6 +2462,9 @@
                     "minLength": 1
                   },
                   "public": {
+                    "type": "boolean"
+                  },
+                  "thisListOnly": {
                     "type": "boolean"
                   }
                 }

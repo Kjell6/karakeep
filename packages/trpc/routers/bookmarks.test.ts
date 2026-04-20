@@ -283,6 +283,59 @@ describe("Bookmark Routes", () => {
     }
   });
 
+  test<CustomTestContext>("homeGlobalFeed hides bookmarks only in this-list-only lists", async ({
+    apiCallers,
+  }) => {
+    const api = apiCallers[0].bookmarks;
+    const listsApi = apiCallers[0].lists;
+
+    const sandbox = await listsApi.create({
+      name: "Sandbox list",
+      type: "manual",
+      icon: "📚",
+      thisListOnly: true,
+    });
+    const normal = await listsApi.create({
+      name: "Normal list",
+      type: "manual",
+      icon: "📚",
+    });
+
+    const onlySandbox = await api.createBookmark({
+      url: "https://sandbox-only.example.com",
+      type: BookmarkTypes.LINK,
+    });
+    await listsApi.addToList({
+      listId: sandbox.id,
+      bookmarkId: onlySandbox.id,
+    });
+
+    const home = await api.getBookmarks({
+      archived: false,
+      homeGlobalFeed: true,
+    });
+    expect(home.bookmarks.some((b) => b.id === onlySandbox.id)).toEqual(false);
+
+    const flat = await api.getBookmarks({
+      archived: false,
+      homeGlobalFeed: false,
+    });
+    expect(flat.bookmarks.some((b) => b.id === onlySandbox.id)).toEqual(true);
+
+    await listsApi.addToList({
+      listId: normal.id,
+      bookmarkId: onlySandbox.id,
+    });
+
+    const homeAfter = await api.getBookmarks({
+      archived: false,
+      homeGlobalFeed: true,
+    });
+    expect(homeAfter.bookmarks.some((b) => b.id === onlySandbox.id)).toEqual(
+      true,
+    );
+  });
+
   test<CustomTestContext>("update tags", async ({ apiCallers }) => {
     const api = apiCallers[0].bookmarks;
     const createdBookmark = await api.createBookmark({

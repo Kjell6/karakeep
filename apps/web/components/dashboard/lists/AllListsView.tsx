@@ -12,6 +12,7 @@ import {
 import { useTranslation } from "@/lib/i18n/client";
 import { Archive, MoreHorizontal, Star, Users } from "lucide-react";
 
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
   augmentBookmarkListsWithInitialData,
@@ -114,7 +115,7 @@ export default function AllListsView({
             icon={
               <ListIcon
                 className="size-5.5"
-                icon={node.item.icon}
+                icon={bookmarkListIconTokenForUi(node.item)}
                 strokeWidth={2}
                 style={node.item.color ? { color: node.item.color } : undefined}
               />
@@ -149,7 +150,7 @@ export default function AllListsView({
                   icon={
                     <ListIcon
                       className="size-5.5"
-                      icon={node.item.icon}
+                      icon={bookmarkListIconTokenForUi(node.item)}
                       strokeWidth={2}
                       style={
                         node.item.color ? { color: node.item.color } : undefined

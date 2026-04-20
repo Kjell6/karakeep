@@ -1,0 +1,1 @@
+ALTER TABLE `bookmarkLists` ADD `thisListOnly` integer DEFAULT false NOT NULL;

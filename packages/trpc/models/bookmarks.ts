@@ -4,12 +4,15 @@ import {
   asc,
   desc,
   eq,
+  exists,
   getTableColumns,
   gt,
   gte,
   inArray,
   lt,
   lte,
+  not,
+  notExists,
   or,
   SQL,
 } from "drizzle-orm";
@@ -22,6 +25,7 @@ import {
   AssetTypes,
   bookmarkAssets,
   bookmarkLinks,
+  bookmarkLists,
   bookmarks,
   bookmarksInLists,
   bookmarkTags,
@@ -542,6 +546,46 @@ export class Bookmark extends BareBookmark {
     } else {
       // PATH: No list/tag/rssFeed filter - query bookmarks directly
       // Uses composite index: bookmarks_userId_createdAt_id_idx (or archived/favourited variants)
+      const homeGlobalFeedVisibility: SQL | undefined =
+        input.homeGlobalFeed === true
+          ? (() => {
+              const onlySandboxLists = and(
+                exists(
+                  ctx.db
+                    .select({ id: bookmarksInLists.bookmarkId })
+                    .from(bookmarksInLists)
+                    .innerJoin(
+                      bookmarkLists,
+                      eq(bookmarkLists.id, bookmarksInLists.listId),
+                    )
+                    .where(
+                      and(
+                        eq(bookmarksInLists.bookmarkId, bookmarks.id),
+                        eq(bookmarkLists.thisListOnly, true),
+                      ),
+                    ),
+                ),
+                notExists(
+                  ctx.db
+                    .select({ id: bookmarksInLists.bookmarkId })
+                    .from(bookmarksInLists)
+                    .innerJoin(
+                      bookmarkLists,
+                      eq(bookmarkLists.id, bookmarksInLists.listId),
+                    )
+                    .where(
+                      and(
+                        eq(bookmarksInLists.bookmarkId, bookmarks.id),
+                        eq(bookmarkLists.thisListOnly, false),
+                      ),
+                    ),
+                ),
+              );
+              invariant(onlySandboxLists !== undefined);
+              return not(onlySandboxLists);
+            })()
+          : undefined;
+
       sq = ctx.db.$with("bookmarksSq").as(
         ctx.db
           .select()
@@ -550,6 +594,9 @@ export class Bookmark extends BareBookmark {
             and(
               eq(bookmarks.userId, ctx.user.id),
               ...buildCommonFilters(),
+              ...(homeGlobalFeedVisibility
+                ? [homeGlobalFeedVisibility]
+                : []),
               buildCursorCondition(bookmarks.createdAt, bookmarks.id),
             ),
           )

@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { useTranslation } from "@/lib/i18n/client";
 
 import { listIconToPlainLabel } from "@karakeep/shared/listIcons";
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import { useDeleteBookmarkList } from "@karakeep/shared-react/hooks/lists";
 
@@ -59,7 +60,7 @@ export default function DeleteListConfirmationDialog({
               Are you sure you want to delete
               <ListIcon
                 className="size-6 shrink-0"
-                icon={list.icon}
+                icon={bookmarkListIconTokenForUi(list)}
                 strokeWidth={2}
               />
               <span className="font-medium">{list.name}</span>?

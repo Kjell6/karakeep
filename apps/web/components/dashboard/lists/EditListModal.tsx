@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ import Picker from "@emoji-mart/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BOOKMARK_LIST_ICON_GROUPS,
+  bookmarkListIconTokenForUi,
   formatLucideListIcon,
 } from "@karakeep/shared/listIcons";
 import { X } from "lucide-react";
@@ -95,11 +97,15 @@ export function EditListModal({
     defaultValues: {
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
-      icon: list?.icon ?? prefill?.icon ?? "🚀",
+      icon:
+        (list ? bookmarkListIconTokenForUi(list) : undefined) ??
+        prefill?.icon ??
+        "🚀",
       color: list?.color ?? prefill?.color ?? null,
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
+      thisListOnly: list?.thisListOnly ?? prefill?.thisListOnly ?? false,
     },
   });
   const [open, setOpen] = [
@@ -111,11 +117,15 @@ export function EditListModal({
     form.reset({
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
-      icon: list?.icon ?? prefill?.icon ?? "🚀",
+      icon:
+        (list ? bookmarkListIconTokenForUi(list) : undefined) ??
+        prefill?.icon ??
+        "🚀",
       color: list?.color ?? prefill?.color ?? null,
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
+      thisListOnly: list?.thisListOnly ?? prefill?.thisListOnly ?? false,
     });
   }, [open]);
 
@@ -199,6 +209,12 @@ export function EditListModal({
     }
   }, [listType]);
 
+  useEffect(() => {
+    if (listType === "smart") {
+      form.setValue("thisListOnly", false);
+    }
+  }, [listType, form]);
+
   const isEdit = !!list;
   const isPending = isCreating || isEditing;
 
@@ -209,6 +225,7 @@ export function EditListModal({
       const payload = {
         ...value,
         color: value.color ?? null,
+        thisListOnly: value.type === "manual" ? value.thisListOnly : false,
       };
       if (isEdit) {
         editList({ ...payload, listId: list.id });
@@ -462,6 +479,36 @@ export function EditListModal({
                 );
               }}
             />
+            {listType === "manual" && (
+              <FormField
+                control={form.control}
+                name="thisListOnly"
+                render={({ field }) => (
+                  <FormItem
+                    className={
+                      "flex flex-row items-center justify-between gap-4 rounded-lg border p-4"
+                    }
+                  >
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        {t("lists.this_list_only")}
+                      </FormLabel>
+                      <FormDescription>
+                        {t("lists.this_list_only_description")}
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value ?? false}
+                        onCheckedChange={field.onChange}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             {listType === "smart" && (
               <FormField
                 control={form.control}

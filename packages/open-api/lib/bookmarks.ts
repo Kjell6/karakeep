@@ -59,6 +59,12 @@ registry.registerPath({
           .boolean()
           .optional()
           .describe("Filter by favourited status."),
+        homeGlobalFeed: z
+          .boolean()
+          .optional()
+          .describe(
+            "When true, exclude bookmarks that only belong to manual lists marked as this list only (home-style feed).",
+          ),
         sortOrder: zSortOrder
           .exclude(["relevance"])
           .optional()

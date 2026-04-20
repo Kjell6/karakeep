@@ -304,6 +304,66 @@ export function isAllowedLucideListIconName(
   return ALLOWED_LUCIDE_ICON_NAMES.has(name);
 }
 
+/**
+ * Emoji shown for Lucide list icons in API `icon` (e.g. titles like `${icon} ${name}` on
+ * older clients). Icons in the same picker group share one emoji so we avoid leaking
+ * `lucide:Name` into plain-text UIs.
+ */
+const LUCIDE_LIST_ICON_GROUP_FALLBACK_EMOJI: Record<
+  (typeof BOOKMARK_LIST_ICON_GROUPS)[number]["id"],
+  string
+> = {
+  general: "📌",
+  favorites_mood: "⭐",
+  home_living: "🏠",
+  work_study: "📚",
+  communication: "💬",
+  media_tech: "🖥️",
+  nature_weather: "🌿",
+  travel_places: "✈️",
+  food_drink: "🍽️",
+  sports_hobby: "⚽",
+  health_buildings: "🏥",
+};
+
+function lucideListIconDisplayEmoji(name: BookmarkListLucideIconName): string {
+  for (const g of BOOKMARK_LIST_ICON_GROUPS) {
+    if ((g.icons as readonly string[]).includes(name)) {
+      return LUCIDE_LIST_ICON_GROUP_FALLBACK_EMOJI[g.id];
+    }
+  }
+  return "📋";
+}
+
+/**
+ * Maps a stored list `icon` column to API fields: `icon` is always safe to prefix before
+ * a list name (emoji); `symbolicIcon` is set when the list uses a Lucide symbol (`lucide:…`).
+ */
+export function bookmarkListIconToApiFields(storedIcon: string): {
+  icon: string;
+  symbolicIcon?: string;
+} {
+  if (!isLucideListIcon(storedIcon)) {
+    return { icon: storedIcon };
+  }
+  const name = lucideListIconName(storedIcon);
+  if (!name || !isAllowedLucideListIconName(name)) {
+    return { icon: "📋", symbolicIcon: storedIcon };
+  }
+  return {
+    icon: lucideListIconDisplayEmoji(name),
+    symbolicIcon: storedIcon,
+  };
+}
+
+/** Token passed to `ListIcon` / edit forms: Lucide storage string or emoji. */
+export function bookmarkListIconTokenForUi(list: {
+  icon: string;
+  symbolicIcon?: string | null;
+}): string {
+  return list.symbolicIcon ?? list.icon;
+}
+
 const MAX_EMOJI_OR_LEGACY_ICON_LENGTH = 64;
 
 export function isValidListIconField(icon: string): boolean {

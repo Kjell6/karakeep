@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { TRPCError } from "@trpc/server";
-import { and, asc, count, eq, inArray, isNull, or } from "drizzle-orm";
+import { and, asc, count, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import invariant from "tiny-invariant";
 import { z } from "zod";
 
@@ -12,6 +12,7 @@ import {
   listCollaborators,
   users,
 } from "@karakeep/db/schema";
+import { bookmarkListIconToApiFields } from "@karakeep/shared/listIcons";
 import { parseSearchQuery } from "@karakeep/shared/searchQueryParser";
 import { ZSortOrder } from "@karakeep/shared/types/bookmarks";
 import {
@@ -45,29 +46,36 @@ export abstract class List {
   }
 
   asZBookmarkList() {
+    const { icon: storedIcon, ...rest } = this.list;
+    const iconFields = bookmarkListIconToApiFields(storedIcon);
+
     if (this.list.userId === this.ctx.user.id) {
-      return this.list;
+      return {
+        ...rest,
+        ...iconFields,
+      };
     }
 
     // There's some privacy implications here, so we need to think twice
     // about the values that we return.
     return {
-      id: this.list.id,
-      name: this.list.name,
-      description: this.list.description,
-      userId: this.list.userId,
-      icon: this.list.icon,
-      color: this.list.color,
-      sortOrder: this.list.sortOrder,
-      type: this.list.type,
-      query: this.list.query,
-      userRole: this.list.userRole,
-      hasCollaborators: this.list.hasCollaborators,
+      id: rest.id,
+      name: rest.name,
+      description: rest.description,
+      userId: rest.userId,
+      ...iconFields,
+      color: rest.color,
+      sortOrder: rest.sortOrder,
+      type: rest.type,
+      query: rest.query,
+      userRole: rest.userRole,
+      hasCollaborators: rest.hasCollaborators,
 
       // Hide parentId as it is not relevant to the user
       parentId: null,
       // Hide whether the list is public or not.
       public: false,
+      thisListOnly: rest.thisListOnly,
     };
   }
 
@@ -199,7 +207,7 @@ export abstract class List {
       userId: listdb.userId,
       name: listdb.name,
       description: listdb.description,
-      icon: listdb.icon,
+      ...bookmarkListIconToApiFields(listdb.icon),
       ownerName: listdb.user.name,
     };
   }
@@ -243,6 +251,7 @@ export abstract class List {
     return {
       list: {
         icon: list.icon,
+        symbolicIcon: list.symbolicIcon,
         name: list.name,
         description: list.description,
         ownerName: listdb.user.name,
@@ -278,6 +287,7 @@ export abstract class List {
         type: input.type,
         query: input.query,
         sortOrder: siblingCount,
+        thisListOnly: input.type === "smart" ? false : (input.thisListOnly ?? false),
       })
       .returning();
     return this.fromData(
@@ -484,17 +494,34 @@ export abstract class List {
 
   async delete() {
     this.ensureCanManage();
-    const res = await this.ctx.db
-      .delete(bookmarkLists)
-      .where(
-        and(
-          eq(bookmarkLists.id, this.list.id),
-          eq(bookmarkLists.userId, this.ctx.user.id),
-        ),
-      );
-    if (res.changes == 0) {
-      throw new TRPCError({ code: "NOT_FOUND" });
-    }
+    await this.ctx.db.transaction(async (tx) => {
+      if (this.list.type === "manual" && this.list.thisListOnly) {
+        await tx
+          .update(bookmarks)
+          .set({ archived: true })
+          .where(
+            and(
+              eq(bookmarks.userId, this.ctx.user.id),
+              sql`${bookmarks.id} IN (
+                SELECT bil.bookmarkId FROM bookmarksInLists bil
+                WHERE bil.listId = ${this.list.id}
+                AND (SELECT COUNT(*) FROM bookmarksInLists bil2 WHERE bil2.bookmarkId = bil.bookmarkId) = 1
+              )`,
+            ),
+          );
+      }
+      const res = await tx
+        .delete(bookmarkLists)
+        .where(
+          and(
+            eq(bookmarkLists.id, this.list.id),
+            eq(bookmarkLists.userId, this.ctx.user.id),
+          ),
+        );
+      if (res.changes == 0) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+    });
   }
 
   async getChildren(): Promise<(ManualList | SmartList)[]> {
@@ -547,6 +574,9 @@ export abstract class List {
         query: input.query,
         public: input.public,
         ...(input.color !== undefined ? { color: input.color } : {}),
+        ...(this.list.type === "manual" && input.thisListOnly !== undefined
+          ? { thisListOnly: input.thisListOnly }
+          : {}),
       })
       .where(
         and(

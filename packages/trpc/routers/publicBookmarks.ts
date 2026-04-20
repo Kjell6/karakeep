@@ -24,6 +24,7 @@ export const publicBookmarks = router({
           name: true,
           description: true,
           icon: true,
+          symbolicIcon: true,
         })
         .merge(z.object({ ownerName: z.string() })),
     )
@@ -50,6 +51,7 @@ export const publicBookmarks = router({
             name: true,
             description: true,
             icon: true,
+            symbolicIcon: true,
           })
           .merge(z.object({ numItems: z.number(), ownerName: z.string() })),
         bookmarks: z.array(zPublicBookmarkSchema),

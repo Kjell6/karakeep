@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 
 import { listCollaborators, listInvitations } from "@karakeep/db/schema";
+import { bookmarkListIconToApiFields } from "@karakeep/shared/listIcons";
 
 import type { AuthedContext } from "..";
 
@@ -328,7 +329,7 @@ export class ListInvitation {
       list: {
         id: inv.list.id,
         name: inv.list.name,
-        icon: inv.list.icon,
+        ...bookmarkListIconToApiFields(inv.list.icon),
         description: inv.list.description,
         owner: inv.list.user
           ? {

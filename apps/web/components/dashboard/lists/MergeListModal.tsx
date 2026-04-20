@@ -28,6 +28,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { useMergeLists } from "@karakeep/shared-react/hooks/lists";
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import { ZBookmarkList, zMergeListSchema } from "@karakeep/shared/types/lists";
 
 import { BookmarkListSelector } from "./BookmarkListSelector";
@@ -128,7 +129,11 @@ export function MergeListModal({
             </DialogHeader>
             <div className="flex w-full gap-2 py-4">
               <span className="inline-flex aspect-square h-10 items-center justify-center rounded border border-input bg-transparent px-2">
-                <ListIcon className="size-6" icon={list.icon} strokeWidth={2} />
+                <ListIcon
+                  className="size-6"
+                  icon={bookmarkListIconTokenForUi(list)}
+                  strokeWidth={2}
+                />
               </span>
               <Input
                 type="text"

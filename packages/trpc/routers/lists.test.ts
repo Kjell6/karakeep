@@ -46,6 +46,75 @@ describe("Lists Routes", () => {
     expect(listFromList?.name).toEqual(newListInput.name);
   });
 
+  test<CustomTestContext>("this list only manual list", async ({
+    apiCallers,
+  }) => {
+    const api = apiCallers[0].lists;
+
+    const created = await api.create({
+      name: "Sandbox board",
+      type: "manual",
+      icon: "📋",
+      thisListOnly: true,
+    });
+    expect(created.thisListOnly).toEqual(true);
+
+    const edited = await api.edit({
+      listId: created.id,
+      thisListOnly: false,
+    });
+    expect(edited.thisListOnly).toEqual(false);
+  });
+
+  test<CustomTestContext>("delete this list only list archives exclusive bookmarks", async ({
+    apiCallers,
+  }) => {
+    const api = apiCallers[0].lists;
+    const bookmarksApi = apiCallers[0].bookmarks;
+
+    const sandbox = await api.create({
+      name: "Sandbox",
+      type: "manual",
+      icon: "📚",
+      thisListOnly: true,
+    });
+    const normal = await api.create({
+      name: "Normal",
+      type: "manual",
+      icon: "📚",
+    });
+
+    const onlySandbox = await createTestBookmark(apiCallers[0]);
+    const sandboxAndNormal = await createTestBookmark(apiCallers[0]);
+    const twoSandbox = await createTestBookmark(apiCallers[0]);
+
+    await api.addToList({ listId: sandbox.id, bookmarkId: onlySandbox });
+    await api.addToList({ listId: sandbox.id, bookmarkId: sandboxAndNormal });
+    await api.addToList({ listId: normal.id, bookmarkId: sandboxAndNormal });
+    await api.addToList({ listId: sandbox.id, bookmarkId: twoSandbox });
+
+    const sandbox2 = await api.create({
+      name: "Sandbox2",
+      type: "manual",
+      icon: "📚",
+      thisListOnly: true,
+    });
+    await api.addToList({ listId: sandbox2.id, bookmarkId: twoSandbox });
+
+    await api.delete({ listId: sandbox.id });
+
+    expect(
+      (await bookmarksApi.getBookmark({ bookmarkId: onlySandbox })).archived,
+    ).toEqual(true);
+    expect(
+      (await bookmarksApi.getBookmark({ bookmarkId: sandboxAndNormal }))
+        .archived,
+    ).toEqual(false);
+    expect(
+      (await bookmarksApi.getBookmark({ bookmarkId: twoSandbox })).archived,
+    ).toEqual(false);
+  });
+
   test<CustomTestContext>("edit list", async ({ apiCallers }) => {
     const api = apiCallers[0].lists;
 

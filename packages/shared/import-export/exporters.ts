@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { BookmarkTypes, ZBookmark } from "../types/bookmarks";
+import { bookmarkListIconTokenForUi } from "../listIcons";
 import { ZBookmarkList } from "../types/lists";
 
 export const zExportListSchema = z.object({
@@ -83,7 +84,7 @@ export function toExportListFormat(
     id: list.id,
     name: list.name,
     description: list.description ?? null,
-    icon: list.icon,
+    icon: bookmarkListIconTokenForUi(list),
     type: list.type,
     query: list.query ?? null,
     parentId: list.parentId,

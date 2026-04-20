@@ -1,6 +1,7 @@
 import Link from "next/link";
 import KarakeepLogo from "@/components/KarakeepIcon";
 import { ListIcon } from "@/components/dashboard/lists/ListIcon";
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import { buttonVariants } from "@/components/ui/button";
 import { BookmarkIcon, RssIcon } from "lucide-react";
 
@@ -12,6 +13,7 @@ export default function PublicListHeader({
     name: string;
     description: string | null | undefined;
     icon: string;
+    symbolicIcon?: string;
     ownerName: string;
     numItems: number;
   };
@@ -25,7 +27,11 @@ export default function PublicListHeader({
           {/* Header */}
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <span className="inline-flex transition-transform duration-200 hover:scale-110">
-              <ListIcon className="size-6" icon={list.icon} strokeWidth={2} />
+              <ListIcon
+                className="size-6"
+                icon={bookmarkListIconTokenForUi(list)}
+                strokeWidth={2}
+              />
             </span>
             <div className="min-w-0 flex-1">
               <h1 className="text-3xl font-bold leading-tight text-foreground">

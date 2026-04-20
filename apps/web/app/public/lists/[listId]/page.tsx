@@ -54,6 +54,7 @@ export default async function PublicListPage(props: {
             name: list.name,
             description: list.description,
             icon: list.icon,
+            symbolicIcon: list.symbolicIcon,
             numItems: list.numItems,
             ownerName: list.ownerName,
           }}
@@ -65,6 +66,7 @@ export default async function PublicListPage(props: {
               name: list.name,
               description: list.description,
               icon: list.icon,
+              symbolicIcon: list.symbolicIcon,
               numItems: list.numItems,
               ownerName: list.ownerName,
             }}

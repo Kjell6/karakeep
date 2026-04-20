@@ -197,6 +197,7 @@ export default function PublicBookmarkGrid({
     name: string;
     description: string | null | undefined;
     icon: string;
+    symbolicIcon?: string;
     numItems: number;
     ownerName: string;
   };

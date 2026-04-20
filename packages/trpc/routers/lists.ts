@@ -372,6 +372,7 @@ export const listsAppRouter = router({
             id: z.string(),
             name: z.string(),
             icon: z.string(),
+            symbolicIcon: z.string().optional(),
             description: z.string().nullable(),
             owner: z
               .object({

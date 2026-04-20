@@ -211,6 +211,8 @@ export const zGetBookmarksRequestSchema = z.object({
   useCursorV2: z.boolean().optional(),
   sortOrder: zSortOrder.exclude(["relevance"]).optional().default("desc"),
   includeContent: z.boolean().optional().default(false),
+  /** When true (global feed only), hide bookmarks that exist only in manual "this list only" lists */
+  homeGlobalFeed: z.boolean().optional(),
 });
 export type ZGetBookmarksRequest = z.infer<typeof zGetBookmarksRequestSchema>;
 

@@ -30,6 +30,8 @@ import {
 
 import { CollapsibleBookmarkLists } from "../lists/CollapsibleBookmarkLists";
 import { EditListModal } from "../lists/EditListModal";
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
+
 import { ListIcon } from "../lists/ListIcon";
 import { ListOptions } from "../lists/ListOptions";
 import { InvitationNotificationBadge } from "./InvitationNotificationBadge";
@@ -141,7 +143,7 @@ function DroppableListSidebarItem({
       logo={
         <ListIcon
           className="size-[18px] shrink-0"
-          icon={node.item.icon}
+          icon={bookmarkListIconTokenForUi(node.item)}
           strokeWidth={2}
           style={node.item.color ? { color: node.item.color } : undefined}
         />

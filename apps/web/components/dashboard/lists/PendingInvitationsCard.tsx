@@ -14,6 +14,7 @@ import { useTranslation } from "@/lib/i18n/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, Mail, X } from "lucide-react";
 
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import { useTRPC } from "@karakeep/shared-react/trpc";
 
 interface Invitation {
@@ -22,6 +23,7 @@ interface Invitation {
   list: {
     name: string;
     icon?: string;
+    symbolicIcon?: string;
     description?: string | null;
     owner?: {
       name?: string;
@@ -82,7 +84,10 @@ function InvitationRow({ invitation }: { invitation: Invitation }) {
         <div className="flex items-center gap-2">
           <ListIcon
             className="size-6 shrink-0"
-            icon={invitation.list.icon ?? "📋"}
+            icon={bookmarkListIconTokenForUi({
+              icon: invitation.list.icon ?? "📋",
+              symbolicIcon: invitation.list.symbolicIcon,
+            })}
             strokeWidth={2}
           />
           <span className="font-medium">{invitation.list.name}</span>

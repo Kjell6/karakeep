@@ -17,7 +17,10 @@ import LoadingSpinner from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 
-import { listIconToPlainLabel } from "@karakeep/shared/listIcons";
+import {
+  bookmarkListIconTokenForUi,
+  listIconToPlainLabel,
+} from "@karakeep/shared/listIcons";
 import { useBookmarkLists } from "@karakeep/shared-react/hooks/lists";
 import { ZBookmarkList } from "@karakeep/shared/types/lists";
 
@@ -82,7 +85,7 @@ export function BookmarkListSelector({
           <span className="inline-flex min-w-0 items-center gap-1">
             <ListIcon
               className="size-4 shrink-0"
-              icon={p.icon}
+              icon={bookmarkListIconTokenForUi(p)}
               strokeWidth={2}
               style={p.color ? { color: p.color } : undefined}
             />
@@ -128,10 +131,10 @@ export function BookmarkListSelector({
                     keywords={[
                       l.name,
                       l.icon,
-                      listIconToPlainLabel(l.icon),
+                      listIconToPlainLabel(bookmarkListIconTokenForUi(l)),
                       ...path.flatMap((p) => [
                         p.name,
-                        listIconToPlainLabel(p.icon),
+                        listIconToPlainLabel(bookmarkListIconTokenForUi(p)),
                       ]),
                     ]}
                     onSelect={(currentValue) => {
@@ -157,7 +160,7 @@ export function BookmarkListSelector({
                           <span className="inline-flex min-w-0 items-center gap-1">
                             <ListIcon
                               className="size-4 shrink-0"
-                              icon={p.icon}
+                              icon={bookmarkListIconTokenForUi(p)}
                               strokeWidth={2}
                               style={p.color ? { color: p.color } : undefined}
                             />

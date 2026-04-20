@@ -32,6 +32,7 @@ const app = new Hono()
         .object({
           favourited: zStringBool.optional(),
           archived: zStringBool.optional(),
+          homeGlobalFeed: zStringBool.optional(),
         })
         .and(zGetBookmarkQueryParamsSchema)
         .and(zPagination),
