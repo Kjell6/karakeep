@@ -25,6 +25,7 @@ import metascraperAmazonImproved from "../metascraper-plugins/metascraper-amazon
 import metascraperPinterest from "../metascraper-plugins/metascraper-pinterest";
 import metascraperReddit from "../metascraper-plugins/metascraper-reddit";
 import metascraperTiktok from "../metascraper-plugins/metascraper-tiktok";
+import metascraperYoutubeShorts from "../metascraper-plugins/metascraper-youtube-shorts";
 import {
   parseSubprocessErrorSchema,
   parseSubprocessInputSchema,
@@ -42,6 +43,7 @@ const metascraperParser = metascraper([
   }),
   metascraperAmazonImproved(),
   metascraperAmazon(),
+  metascraperYoutubeShorts(),
   metascraperYoutube({
     gotOpts: {
       agent: {

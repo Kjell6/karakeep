@@ -466,6 +466,11 @@
           "icon": {
             "type": "string"
           },
+          "color": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          },
           "parentId": {
             "type": "string",
             "nullable": true
@@ -505,6 +510,7 @@
           "id",
           "name",
           "icon",
+          "color",
           "parentId",
           "sortOrder",
           "public",
@@ -2223,6 +2229,11 @@
                   "icon": {
                     "type": "string"
                   },
+                  "color": {
+                    "type": "string",
+                    "nullable": true,
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
+                  },
                   "type": {
                     "type": "string",
                     "enum": [
@@ -2416,6 +2427,11 @@
                   },
                   "icon": {
                     "type": "string"
+                  },
+                  "color": {
+                    "type": "string",
+                    "nullable": true,
+                    "pattern": "^#[0-9A-Fa-f]{6}$"
                   },
                   "parentId": {
                     "type": "string",
