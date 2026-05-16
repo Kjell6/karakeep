@@ -1,14 +1,11 @@
 name: Publish Docker image to GHCR
 
-# Nur Tag-Pushes (und manuell): Ein Push auf main + Tags im selben `git push` würde sonst
-# zwei Workflow-Läufe auslösen (branch + tag) und das gleiche Image doppelt bauen.
+# Nur main (und manuell): Fork-Releases über kjell-* Tags lösen hier keinen eigenen Lauf aus;
+# kjell-Tags können weiterhin main zeigen, Images kommen von jedem Push auf main.
 on:
   push:
-    tags:
-      - 'v*'
-      - '*.*.*'
-      # Fork: kjell-0.1, kjell-0.2, … — diese Builds erhalten zusätzlich :latest
-      - 'kjell-*'
+    branches:
+      - main
   workflow_dispatch: {}
 
 permissions:
@@ -41,10 +38,10 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/karakeep
           tags: |
-            type=ref,event=tag
+            type=ref,event=branch
             type=sha
             type=semver,pattern={{version}},prefix=
-            type=raw,value=latest,enable=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'kjell-') }}
+            type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
 
       - name: Build and push (AIO)
         uses: docker/build-push-action@v6
