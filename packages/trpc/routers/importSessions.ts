@@ -11,11 +11,13 @@ import {
 } from "@karakeep/shared/types/importSessions";
 
 import type { AuthedContext } from "../index";
-import { authedProcedure, router } from "../index";
+import { createScopedAuthedProcedure, router } from "../index";
 import { actorFromContext } from "../lib/actor";
 import { ImportSessionsService } from "../models/importSessions.service";
 
-const importSessionsProcedure = authedProcedure.use((opts) => {
+const importSessionsProcedure = createScopedAuthedProcedure(
+  "importSessions",
+).use((opts) => {
   return opts.next({
     ctx: {
       ...opts.ctx,
@@ -96,6 +98,7 @@ export const importSessionsRouter = router({
               tags: z.array(z.string()).default([]),
               listIds: z.array(z.string()).default([]),
               sourceAddedAt: z.date().optional(),
+              archived: z.boolean().optional(),
             }),
           )
           .max(50),

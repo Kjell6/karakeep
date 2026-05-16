@@ -26,7 +26,7 @@ export const publicBookmarks = router({
           icon: true,
           symbolicIcon: true,
         })
-        .merge(z.object({ ownerName: z.string() })),
+        .extend({ ownerName: z.string() }),
     )
     .query(async ({ input, ctx }) => {
       return await List.getPublicListMetadata(
@@ -53,7 +53,7 @@ export const publicBookmarks = router({
             icon: true,
             symbolicIcon: true,
           })
-          .merge(z.object({ numItems: z.number(), ownerName: z.string() })),
+          .extend({ numItems: z.number(), ownerName: z.string() }),
         bookmarks: z.array(zPublicBookmarkSchema),
         nextCursor: zCursorV2.nullable(),
       }),

@@ -1,4 +1,5 @@
 import { and, eq, inArray } from "drizzle-orm";
+import { getBookmarkDomain } from "network";
 import { buildImpersonatingTRPCClient } from "trpc";
 import { z } from "zod";
 
@@ -17,7 +18,11 @@ import {
   tagsOnBookmarks,
   users,
 } from "@karakeep/db/schema";
-import { triggerSearchReindex } from "@karakeep/shared-server";
+import {
+  addLogFields,
+  setSpanAttributes,
+  triggerSearchReindex,
+} from "@karakeep/shared-server";
 import { ASSET_TYPES, readAsset } from "@karakeep/shared/assetdb";
 import serverConfig from "@karakeep/shared/config";
 import logger from "@karakeep/shared/logger";
@@ -234,6 +239,9 @@ async function inferTagsFromImage(
   }
 
   const base64 = asset.toString("base64");
+  addLogFields<"inferenceWorker.run">({
+    "inference.model": serverConfig.inference.imageModel,
+  });
   return inferenceClient.inferFromImage(
     buildImagePrompt(
       inferredTagLang,
@@ -258,6 +266,10 @@ async function fetchCustomPrompts(
     columns: {
       text: true,
     },
+  });
+
+  addLogFields<"inferenceWorker.run">({
+    "inference.prompt.custom_count": prompts.length,
   });
 
   let promptTexts = prompts.map((p) => p.text);
@@ -318,6 +330,10 @@ async function inferTagsFromPDF(
     serverConfig.inference.contextLength,
     tagStyle,
   );
+  addLogFields<"inferenceWorker.run">({
+    "inference.model": serverConfig.inference.textModel,
+    "inference.prompt.size": Buffer.byteLength(prompt, "utf8"),
+  });
   return inferenceClient.inferFromText(prompt, {
     schema: openAIResponseSchema,
     abortSignal,
@@ -335,6 +351,10 @@ async function inferTagsFromText(
   if (!prompt) {
     return null;
   }
+  addLogFields<"inferenceWorker.run">({
+    "inference.model": serverConfig.inference.textModel,
+    "inference.prompt.size": Buffer.byteLength(prompt, "utf8"),
+  });
   return await inferenceClient.inferFromText(prompt, {
     schema: openAIResponseSchema,
     abortSignal,
@@ -349,6 +369,21 @@ async function inferTags(
   tagStyle: ZTagStyle,
   inferredTagLang: string,
 ) {
+  setSpanAttributes({
+    "user.id": bookmark.userId,
+    "bookmark.id": bookmark.id,
+    "inference.type": "tagging",
+  });
+  addLogFields<"inferenceWorker.run">({
+    "user.id": bookmark.userId,
+    "bookmark.url": bookmark.link?.url,
+    "bookmark.domain": getBookmarkDomain(bookmark.link?.url),
+    "bookmark.content_type": bookmark.type,
+    "crawler.status_code": bookmark.link?.crawlStatusCode ?? undefined,
+    "inference.tagging.style": tagStyle,
+    "inference.tagging.lang": inferredTagLang,
+  });
+
   let response: InferenceResponse | null = null;
   if (bookmark.link || bookmark.text) {
     const bannerAsset = bookmark.assets?.find(
@@ -425,6 +460,10 @@ async function inferTags(
         tag = t.slice(1);
       }
       return tag.trim();
+    });
+    addLogFields<"inferenceWorker.run">({
+      "inference.tagging.num_generated_tags": tags.length,
+      "inference.total_tokens": response.totalTokens,
     });
 
     return tags;

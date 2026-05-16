@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a590fc3c-7301-4f4c-b05b-ae63dbee60bb",
+  "id": "3c1b2cac-c38f-4220-a76f-77b6b3a4cc90",
   "prevId": "cda8a968-ca40-4ea7-bd65-9a004ca16ae5",
   "tables": {
     "account": {
@@ -697,14 +697,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "sortOrder": {
-          "name": "sortOrder",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
         },
         "rssToken": {
           "name": "rssToken",
@@ -1675,6 +1667,13 @@
         },
         "sourceAddedAt": {
           "name": "sourceAddedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "archived": {
+          "name": "archived",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,

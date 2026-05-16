@@ -672,6 +672,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/feeds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all feeds
+         * @description Retrieve all RSS feed subscriptions for the authenticated user.
+         */
+        get: operations["listFeeds"];
+        put?: never;
+        /**
+         * Create a new feed
+         * @description Create a new RSS feed subscription. The feed will be periodically fetched and matching items will be imported as bookmarks.
+         */
+        post: operations["createFeed"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/feeds/{feedId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a single feed
+         * @description Retrieve a single RSS feed subscription by its ID.
+         */
+        get: operations["getFeed"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete a feed
+         * @description Delete an RSS feed subscription. Previously imported bookmarks are not affected.
+         */
+        delete: operations["deleteFeed"];
+        options?: never;
+        head?: never;
+        /**
+         * Update a feed
+         * @description Update an RSS feed subscription. Only provided fields will be changed.
+         */
+        patch: operations["updateFeed"];
+        trace?: never;
+    };
+    "/feeds/{feedId}/fetch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trigger a feed fetch
+         * @description Trigger an immediate fetch of the RSS feed. The fetch is enqueued and processed asynchronously.
+         */
+        post: operations["fetchFeedNow"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -706,9 +778,21 @@ export interface components {
          * @example ieidlxygmwj87oxz5hxttoc8
          */
         BackupId: string;
+        /**
+         * @description The unique identifier of the feed.
+         * @example ieidlxygmwj87oxz5hxttoc8
+         */
+        FeedId: string;
+        PaginatedBookmarks: {
+            bookmarks: components["schemas"]["Bookmark"][];
+            /** @description Cursor for the next page, or null if no more results. */
+            nextCursor: string | null;
+        };
         Bookmark: {
             id: string;
+            /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
             modifiedAt: string | null;
             title?: string | null;
             archived: boolean;
@@ -744,12 +828,15 @@ export interface components {
                 favicon?: string | null;
                 htmlContent?: string | null;
                 contentAssetId?: string | null;
+                /** Format: date-time */
                 crawledAt?: string | null;
                 /** @enum {string|null} */
                 crawlStatus?: "success" | "failure" | "pending" | null;
                 author?: string | null;
                 publisher?: string | null;
+                /** Format: date-time */
                 datePublished?: string | null;
+                /** Format: date-time */
                 dateModified?: string | null;
             } | {
                 /** @enum {string} */
@@ -776,11 +863,6 @@ export interface components {
                 assetType: "linkHtmlContent" | "screenshot" | "pdf" | "assetScreenshot" | "bannerImage" | "fullPageArchive" | "video" | "bookmarkAsset" | "precrawledArchive" | "userUploaded" | "avatar" | "unknown";
                 fileName?: string | null;
             }[];
-        };
-        PaginatedBookmarks: {
-            bookmarks: components["schemas"]["Bookmark"][];
-            /** @description Cursor for the next page, or null if no more results. */
-            nextCursor: string | null;
         };
         /** @description Cursor from a previous response to fetch the next page. */
         Cursor: string;
@@ -824,6 +906,7 @@ export interface components {
             note: string | null;
             id: string;
             userId: string;
+            /** Format: date-time */
             createdAt: string;
         };
         Tag: {
@@ -850,16 +933,43 @@ export interface components {
             /** @description The original file name of the uploaded file. */
             fileName: string;
         };
-        "File to be uploaded": unknown;
+        Feed: {
+            id: string;
+            name: string;
+            /** Format: uri */
+            url: string;
+            enabled: boolean;
+            importTags: boolean;
+            /** @enum {string|null} */
+            lastFetchedStatus: "success" | "failure" | "pending" | null;
+            /**
+             * @description ISO 8601 timestamp of the last fetch attempt, or null if never fetched.
+             * @example 2025-01-15T12:00:00.000Z
+             */
+            lastFetchedAt: string | null;
+            /**
+             * @description ISO 8601 timestamp of the last successful fetch, or null if the feed has never been fetched successfully.
+             * @example 2025-01-15T12:00:00.000Z
+             */
+            lastSuccessfulFetchAt: string | null;
+        };
     };
     responses: never;
     parameters: {
+        /** @description The unique identifier of the bookmark. */
         BookmarkId: components["schemas"]["BookmarkId"];
+        /** @description The unique identifier of the list. */
         ListId: components["schemas"]["ListId"];
+        /** @description The unique identifier of the tag. */
         TagId: components["schemas"]["TagId"];
+        /** @description The unique identifier of the highlight. */
         HighlightId: components["schemas"]["HighlightId"];
+        /** @description The unique identifier of the asset. */
         AssetId: components["schemas"]["AssetId"];
+        /** @description The unique identifier of the backup. */
         BackupId: components["schemas"]["BackupId"];
+        /** @description The unique identifier of the feed. */
+        FeedId: components["schemas"]["FeedId"];
     };
     requestBodies: never;
     headers: never;
@@ -927,7 +1037,8 @@ export interface operations {
                     favourited?: boolean;
                     note?: string;
                     summary?: string;
-                    createdAt?: string | null;
+                    /** Format: date-time */
+                    createdAt?: string;
                     /** @enum {string} */
                     crawlPriority?: "low" | "normal";
                     importSessionId?: string;
@@ -1077,6 +1188,7 @@ export interface operations {
             };
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1117,6 +1229,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1155,6 +1268,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1168,13 +1282,16 @@ export interface operations {
                     summary?: string | null;
                     note?: string;
                     title?: string | null;
-                    createdAt?: string | null;
+                    /** Format: date-time */
+                    createdAt?: string;
                     /** Format: uri */
                     url?: string;
                     description?: string | null;
                     author?: string | null;
                     publisher?: string | null;
+                    /** Format: date-time */
                     datePublished?: string | null;
+                    /** Format: date-time */
                     dateModified?: string | null;
                     text?: string | null;
                     assetContent?: string | null;
@@ -1190,7 +1307,9 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
+                        /** Format: date-time */
                         createdAt: string;
+                        /** Format: date-time */
                         modifiedAt: string | null;
                         title?: string | null;
                         archived: boolean;
@@ -1232,6 +1351,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1246,7 +1366,9 @@ export interface operations {
                 content: {
                     "application/json": {
                         id: string;
+                        /** Format: date-time */
                         createdAt: string;
+                        /** Format: date-time */
                         modifiedAt: string | null;
                         title?: string | null;
                         archived: boolean;
@@ -1288,6 +1410,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1345,6 +1468,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1402,6 +1526,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1444,6 +1569,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1486,6 +1612,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1544,7 +1671,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
+                /** @description The unique identifier of the asset. */
                 assetId: components["parameters"]["AssetId"];
             };
             cookie?: never;
@@ -1591,7 +1720,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
+                /** @description The unique identifier of the asset. */
                 assetId: components["parameters"]["AssetId"];
             };
             cookie?: never;
@@ -1717,6 +1848,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the list. */
                 listId: components["parameters"]["ListId"];
             };
             cookie?: never;
@@ -1757,6 +1889,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the list. */
                 listId: components["parameters"]["ListId"];
             };
             cookie?: never;
@@ -1795,6 +1928,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the list. */
                 listId: components["parameters"]["ListId"];
             };
             cookie?: never;
@@ -1858,6 +1992,7 @@ export interface operations {
             };
             header?: never;
             path: {
+                /** @description The unique identifier of the list. */
                 listId: components["parameters"]["ListId"];
             };
             cookie?: never;
@@ -1898,7 +2033,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the list. */
                 listId: components["parameters"]["ListId"];
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -1937,7 +2074,9 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the list. */
                 listId: components["parameters"]["ListId"];
+                /** @description The unique identifier of the bookmark. */
                 bookmarkId: components["parameters"]["BookmarkId"];
             };
             cookie?: never;
@@ -2063,6 +2202,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the tag. */
                 tagId: components["parameters"]["TagId"];
             };
             cookie?: never;
@@ -2103,6 +2243,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the tag. */
                 tagId: components["parameters"]["TagId"];
             };
             cookie?: never;
@@ -2141,6 +2282,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the tag. */
                 tagId: components["parameters"]["TagId"];
             };
             cookie?: never;
@@ -2200,6 +2342,7 @@ export interface operations {
             };
             header?: never;
             path: {
+                /** @description The unique identifier of the tag. */
                 tagId: components["parameters"]["TagId"];
             };
             cookie?: never;
@@ -2337,6 +2480,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the highlight. */
                 highlightId: components["parameters"]["HighlightId"];
             };
             cookie?: never;
@@ -2377,6 +2521,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the highlight. */
                 highlightId: components["parameters"]["HighlightId"];
             };
             cookie?: never;
@@ -2417,6 +2562,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the highlight. */
                 highlightId: components["parameters"]["HighlightId"];
             };
             cookie?: never;
@@ -2580,7 +2726,11 @@ export interface operations {
         requestBody?: {
             content: {
                 "multipart/form-data": {
-                    file: components["schemas"]["File to be uploaded"];
+                    /**
+                     * Format: binary
+                     * @description File to be uploaded
+                     */
+                    file: string;
                 };
             };
         };
@@ -2610,6 +2760,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the asset. */
                 assetId: components["parameters"]["AssetId"];
             };
             cookie?: never;
@@ -2639,6 +2790,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The ID of the user to update. */
                 userId: string;
             };
             cookie?: never;
@@ -2901,6 +3053,7 @@ export interface operations {
                             id: string;
                             userId: string;
                             assetId: string | null;
+                            /** Format: date-time */
                             createdAt: string;
                             size: number;
                             bookmarkCount: number;
@@ -2941,6 +3094,7 @@ export interface operations {
                         id: string;
                         userId: string;
                         assetId: string | null;
+                        /** Format: date-time */
                         createdAt: string;
                         size: number;
                         bookmarkCount: number;
@@ -2966,6 +3120,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the backup. */
                 backupId: components["parameters"]["BackupId"];
             };
             cookie?: never;
@@ -2982,6 +3137,7 @@ export interface operations {
                         id: string;
                         userId: string;
                         assetId: string | null;
+                        /** Format: date-time */
                         createdAt: string;
                         size: number;
                         bookmarkCount: number;
@@ -3016,6 +3172,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the backup. */
                 backupId: components["parameters"]["BackupId"];
             };
             cookie?: never;
@@ -3054,6 +3211,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
+                /** @description The unique identifier of the backup. */
                 backupId: components["parameters"]["BackupId"];
             };
             cookie?: never;
@@ -3066,7 +3224,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/zip": unknown;
+                    "application/zip": string;
                 };
             };
             /** @description Unauthorized — the Bearer token is missing, invalid, or expired. */
@@ -3079,6 +3237,258 @@ export interface operations {
                 };
             };
             /** @description Backup not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listFeeds: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description A list of all feeds. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        feeds: components["schemas"]["Feed"][];
+                    };
+                };
+            };
+            /** @description Unauthorized — the Bearer token is missing, invalid, or expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+        };
+    };
+    createFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The feed to create. */
+        requestBody?: {
+            content: {
+                "application/json": {
+                    name: string;
+                    /** Format: uri */
+                    url: string;
+                    enabled: boolean;
+                    /** @default false */
+                    importTags?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The created feed. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feed"];
+                };
+            };
+            /** @description Bad request — e.g. the maximum number of RSS feeds per user has been reached. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unauthorized — the Bearer token is missing, invalid, or expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+        };
+    };
+    getFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique identifier of the feed. */
+                feedId: components["parameters"]["FeedId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The requested feed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feed"];
+                };
+            };
+            /** @description Unauthorized — the Bearer token is missing, invalid, or expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Feed not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique identifier of the feed. */
+                feedId: components["parameters"]["FeedId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content — the feed was deleted successfully. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — the Bearer token is missing, invalid, or expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Feed not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    updateFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique identifier of the feed. */
+                feedId: components["parameters"]["FeedId"];
+            };
+            cookie?: never;
+        };
+        /** @description The fields to update. */
+        requestBody?: {
+            content: {
+                "application/json": {
+                    name?: string;
+                    /** Format: uri */
+                    url?: string;
+                    enabled?: boolean;
+                    importTags?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description The updated feed. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Feed"];
+                };
+            };
+            /** @description Unauthorized — the Bearer token is missing, invalid, or expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Feed not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    fetchFeedNow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique identifier of the feed. */
+                feedId: components["parameters"]["FeedId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content — the fetch has been enqueued. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized — the Bearer token is missing, invalid, or expired. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                };
+            };
+            /** @description Feed not found. */
             404: {
                 headers: {
                     [name: string]: unknown;

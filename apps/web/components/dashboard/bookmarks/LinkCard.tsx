@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useUserSettings } from "@/lib/userSettings";
-import { cn } from "@/lib/utils";
 
 import type { ZBookmarkTypeLink } from "@karakeep/shared/types/bookmarks";
 import {
@@ -50,46 +49,27 @@ function LinkImage({
   const { onClickUrl, urlTarget } = useOnClickUrl(bookmark);
   const link = bookmark.content;
 
-  const imgComponent = (url: string, unoptimized: boolean) => {
-    const hasExplicitHeight =
-      !!className && /(h-|min-h-|size-)/.test(className);
-    if (hasExplicitHeight) {
-      return (
-        <Image
-          unoptimized={unoptimized}
-          className={className}
-          alt="card banner"
-          fill={true}
-          src={url}
-        />
-      );
-    }
-    // For masonry layout we prefer a normal img so the element can determine its
-    // intrinsic height and the card can grow dynamically.
-    return (
-      <img
-        className={cn(className ?? "", "h-auto w-full object-cover")}
-        alt="card banner"
-        src={url}
-      />
-    );
-  };
+  const imgComponent = (url: string, unoptimized: boolean) => (
+    <Image
+      unoptimized={unoptimized}
+      className={className}
+      alt="card banner"
+      fill={true}
+      src={url}
+    />
+  );
 
   const imageDetails = getBookmarkLinkImageUrl(link);
 
   let img: React.ReactNode;
   if (isBookmarkStillCrawling(bookmark)) {
-    // Use the GIF placed in public folder for crawling state
-    img = imgComponent("/blur.gif", false);
+    img = imgComponent("/blur.avif", false);
   } else if (imageDetails) {
-    img = imgComponent(imageDetails.url, !imageDetails.localAsset);
+    img = imgComponent(imageDetails.url, true);
   } else {
-    // No image found
-    // A dummy white pixel for when there's no image.
-    img = imgComponent(
-      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdj+P///38ACfsD/QVDRcoAAAAASUVORK5CYII=",
-      true,
-    );
+    // No preview image yet (or never): use the same blurred placeholder as the crawling state,
+    // not a near-white 1×1 PNG that reads as “broken banner”.
+    img = imgComponent("/blur.avif", false);
   }
 
   return (
@@ -107,9 +87,11 @@ function LinkImage({
 export default function LinkCard({
   bookmark: bookmarkLink,
   className,
+  bookmarkIndex,
 }: {
   bookmark: ZBookmarkTypeLink;
   className?: string;
+  bookmarkIndex?: number;
 }) {
   return (
     <BookmarkLayoutAdaptingCard
@@ -121,6 +103,7 @@ export default function LinkCard({
         <LinkImage className={className} bookmark={bookmarkLink} />
       )}
       className={className}
+      bookmarkIndex={bookmarkIndex}
     />
   );
 }

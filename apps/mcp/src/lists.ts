@@ -118,7 +118,7 @@ mcpServer.tool(
         parentId,
       },
     });
-    if (res.error || !res.data) {
+    if (!res.data) {
       return toMcpToolError(res.error);
     }
     return {

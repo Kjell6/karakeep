@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5846b81d-c96b-400b-8f4a-9112322161b2",
-  "prevId": "a590fc3c-7301-4f4c-b05b-ae63dbee60bb",
+  "id": "7e3724a4-7348-4f8f-afd3-12bfce51e5f3",
+  "prevId": "3c1b2cac-c38f-4220-a76f-77b6b3a4cc90",
   "tables": {
     "account": {
       "name": "account",
@@ -663,13 +663,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "color": {
-          "name": "color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "integer",
@@ -704,14 +697,6 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
-        },
-        "sortOrder": {
-          "name": "sortOrder",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
         },
         "rssToken": {
           "name": "rssToken",
@@ -1687,6 +1672,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "archived": {
+          "name": "archived",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -2354,6 +2346,13 @@
         },
         "lastFetchedAt": {
           "name": "lastFetchedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lastSuccessfulFetchAt": {
+          "name": "lastSuccessfulFetchAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,

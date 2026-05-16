@@ -36,20 +36,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/client";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  BOOKMARK_LIST_ICON_GROUPS,
-  bookmarkListIconTokenForUi,
-  formatLucideListIcon,
-} from "@karakeep/shared/listIcons";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -66,8 +57,6 @@ import {
 
 import QueryExplainerTooltip from "../search/QueryExplainerTooltip";
 import { BookmarkListSelector } from "./BookmarkListSelector";
-import { ListColorPicker } from "./ListColorPicker";
-import { ListIcon, LUCIDE_LIST_ICONS } from "./ListIcon";
 
 export function EditListModal({
   open: userOpen,
@@ -91,21 +80,16 @@ export function EditListModal({
     throw new Error("You must provide both open and setOpen or neither");
   }
   const [customOpen, customSetOpen] = useState(false);
-  const [listIconPickerTab, setListIconPickerTab] = useState("emoji");
-  const form = useForm<z.infer<typeof zNewBookmarkListSchema>>({
+
+  const form = useForm({
     resolver: zodResolver(zNewBookmarkListSchema),
     defaultValues: {
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
-      icon:
-        (list ? bookmarkListIconTokenForUi(list) : undefined) ??
-        prefill?.icon ??
-        "🚀",
-      color: list?.color ?? prefill?.color ?? null,
+      icon: list?.icon ?? prefill?.icon ?? "📁",
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
-      thisListOnly: list?.thisListOnly ?? prefill?.thisListOnly ?? false,
     },
   });
   const [open, setOpen] = [
@@ -117,15 +101,10 @@ export function EditListModal({
     form.reset({
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
-      icon:
-        (list ? bookmarkListIconTokenForUi(list) : undefined) ??
-        prefill?.icon ??
-        "🚀",
-      color: list?.color ?? prefill?.color ?? null,
+      icon: list?.icon ?? prefill?.icon ?? "📁",
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
-      thisListOnly: list?.thisListOnly ?? prefill?.thisListOnly ?? false,
     });
   }, [open]);
 
@@ -209,12 +188,6 @@ export function EditListModal({
     }
   }, [listType]);
 
-  useEffect(() => {
-    if (listType === "smart") {
-      form.setValue("thisListOnly", false);
-    }
-  }, [listType, form]);
-
   const isEdit = !!list;
   const isPending = isCreating || isEditing;
 
@@ -222,15 +195,10 @@ export function EditListModal({
     (value: z.infer<typeof zNewBookmarkListSchema>) => {
       value.parentId = value.parentId === "" ? null : value.parentId;
       value.query = value.type === "smart" ? value.query : undefined;
-      const payload = {
-        ...value,
-        color: value.color ?? null,
-        thisListOnly: value.type === "manual" ? value.thisListOnly : false,
-      };
       if (isEdit) {
-        editList({ ...payload, listId: list.id });
+        editList({ ...value, listId: list.id });
       } else {
-        createList(payload);
+        createList(value);
       }
     },
   );
@@ -261,95 +229,16 @@ export function EditListModal({
                     <FormItem>
                       <FormControl>
                         <Popover>
-                          <PopoverTrigger
-                            type="button"
-                            className="flex h-11 min-w-11 shrink-0 items-center justify-center rounded border border-input px-2"
-                          >
-                            <ListIcon
-                              className="size-6"
-                              icon={field.value}
-                              strokeWidth={2}
-                            />
+                          <PopoverTrigger className="h-full rounded border border-input px-2 text-2xl">
+                            {field.value}
                           </PopoverTrigger>
-                          <PopoverContent
-                            className={cn(
-                              "p-2",
-                              listIconPickerTab === "emoji"
-                                ? "w-fit max-w-[min(100vw-2rem,26rem)]"
-                                : "w-[min(100vw-2rem,22rem)]",
-                            )}
-                          >
-                            <Tabs
-                              value={listIconPickerTab}
-                              onValueChange={setListIconPickerTab}
-                              className={
-                                listIconPickerTab === "emoji"
-                                  ? "w-fit"
-                                  : "w-full"
+                          <PopoverContent className="w-auto">
+                            <Picker
+                              data={data}
+                              onEmojiSelect={(e: { native: string }) =>
+                                field.onChange(e.native)
                               }
-                            >
-                              <TabsList className="mb-2 grid w-full grid-cols-2">
-                                <TabsTrigger value="emoji">
-                                  {t("lists.icon_tab_emoji")}
-                                </TabsTrigger>
-                                <TabsTrigger value="icons">
-                                  {t("lists.icon_tab_icons")}
-                                </TabsTrigger>
-                              </TabsList>
-                              <TabsContent value="emoji" className="mt-0 w-fit">
-                                <div className="w-fit [&_em-emoji-picker]:!w-auto">
-                                  <Picker
-                                    data={data}
-                                    onEmojiSelect={(e: { native: string }) =>
-                                      field.onChange(e.native)
-                                    }
-                                  />
-                                </div>
-                              </TabsContent>
-                              <TabsContent value="icons" className="mt-0">
-                                <ScrollArea className="h-[min(52vh,420px)] pr-2">
-                                  <div className="flex flex-col gap-4">
-                                    {BOOKMARK_LIST_ICON_GROUPS.map((group) => (
-                                      <div key={group.id}>
-                                        <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-                                          {t(`lists.${group.i18nKey}`)}
-                                        </p>
-                                        <div className="grid w-full grid-cols-8 gap-1">
-                                          {group.icons.map((name) => {
-                                            const Icon =
-                                              LUCIDE_LIST_ICONS[name];
-                                            const value =
-                                              formatLucideListIcon(name);
-                                            const selected =
-                                              field.value === value;
-                                            return (
-                                              <button
-                                                key={name}
-                                                type="button"
-                                                title={name}
-                                                onClick={() =>
-                                                  field.onChange(value)
-                                                }
-                                                className={
-                                                  selected
-                                                    ? "flex aspect-square w-full min-w-0 items-center justify-center rounded-md border-2 border-primary bg-accent p-0.5"
-                                                    : "flex aspect-square w-full min-w-0 items-center justify-center rounded-md border border-transparent p-0.5 hover:bg-accent"
-                                                }
-                                              >
-                                                <Icon
-                                                  className="size-4 shrink-0"
-                                                  strokeWidth={2}
-                                                />
-                                              </button>
-                                            );
-                                          })}
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </ScrollArea>
-                              </TabsContent>
-                            </Tabs>
+                            />
                           </PopoverContent>
                         </Popover>
                       </FormControl>
@@ -398,23 +287,6 @@ export function EditListModal({
                   </FormItem>
                 );
               }}
-            />
-            <FormField
-              control={form.control}
-              name="color"
-              render={({ field }) => (
-                <FormItem className="pb-4">
-                  <FormLabel>{t("lists.list_color")}</FormLabel>
-                  <FormControl>
-                    <ListColorPicker
-                      value={field.value ?? null}
-                      onChange={field.onChange}
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
             <FormField
               control={form.control}
@@ -479,36 +351,6 @@ export function EditListModal({
                 );
               }}
             />
-            {listType === "manual" && (
-              <FormField
-                control={form.control}
-                name="thisListOnly"
-                render={({ field }) => (
-                  <FormItem
-                    className={
-                      "flex flex-row items-center justify-between gap-4 rounded-lg border p-4"
-                    }
-                  >
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        {t("lists.this_list_only")}
-                      </FormLabel>
-                      <FormDescription>
-                        {t("lists.this_list_only_description")}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value ?? false}
-                        onCheckedChange={field.onChange}
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
             {listType === "smart" && (
               <FormField
                 control={form.control}

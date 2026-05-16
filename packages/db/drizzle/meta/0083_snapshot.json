@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "7333e2a0-3862-437d-88d1-72a32a3bb193",
-  "prevId": "5846b81d-c96b-400b-8f4a-9112322161b2",
+  "id": "324628ba-d45a-40f9-8b5b-87fdfaa61837",
+  "prevId": "7e3724a4-7348-4f8f-afd3-12bfce51e5f3",
   "tables": {
     "account": {
       "name": "account",
@@ -153,6 +153,13 @@
         },
         "keyHash": {
           "name": "keyHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "scopes": {
+          "name": "scopes",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -663,13 +670,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "color": {
-          "name": "color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "integer",
@@ -705,14 +705,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "sortOrder": {
-          "name": "sortOrder",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
         "rssToken": {
           "name": "rssToken",
           "type": "text",
@@ -722,14 +714,6 @@
         },
         "public": {
           "name": "public",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "thisListOnly": {
-          "name": "thisListOnly",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -1695,6 +1679,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "archived": {
+          "name": "archived",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "status": {
           "name": "status",
           "type": "text",
@@ -2362,6 +2353,13 @@
         },
         "lastFetchedAt": {
           "name": "lastFetchedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "lastSuccessfulFetchAt": {
+          "name": "lastSuccessfulFetchAt",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,

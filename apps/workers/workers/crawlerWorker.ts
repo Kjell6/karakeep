@@ -101,6 +101,21 @@ function truncateUrl(url: string): string {
   return url.length > 100 ? url.slice(0, 100) + "..." : url;
 }
 
+/** Minimal escaping for synthetic crawl HTML (<title>/<description> text nodes). */
+function escapeHtmlTextForSyntheticDocument(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function escapeHtmlAttributeValue(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /**
  * Redact sensitive query parameters (e.g., tokens) from a URL for safe logging.
  */
@@ -246,17 +261,44 @@ async function twitterCrawlPage(
       }
 
       const { tweet } = data;
-      const authorName = tweet.author?.name ?? tweet.author?.screen_name ?? "";
-      const tweetText = tweet.text ?? "";
+      const authorName = tweet.author?.name?.trim() ?? "";
+      const screenName = tweet.author?.screen_name?.trim() ?? "";
+      const authorLine =
+        authorName && screenName
+          ? `${authorName} (@${screenName})`
+          : authorName || (screenName ? `@${screenName}` : "");
+
+      const tweetText = (tweet.text ?? "").trim();
       // Prefer photos, fall back to video thumbnail
       const firstMedia =
         tweet.media?.photos?.[0]?.url ??
         tweet.media?.videos?.[0]?.thumbnail_url;
+      // Text-only tweets: use author avatar so the link pipeline still has a banner
+      // (avoids empty cards in clients that reserve banner space).
+      const ogImageUrl =
+        firstMedia ?? tweet.author?.avatar_url?.trim() ?? undefined;
+
+      // Title = tweet body (what users expect in bookmark lists); description = author when it adds context.
+      const titlePlain = tweetText || authorLine || "Tweet";
+      const safeTitle = escapeHtmlTextForSyntheticDocument(titlePlain);
+
+      const descPlain =
+        authorLine.length > 0 && authorLine !== titlePlain ? authorLine : "";
+      const safeDescription = descPlain
+        ? escapeHtmlTextForSyntheticDocument(descPlain)
+        : "";
+      const descriptionBlock = safeDescription
+        ? `\n<description>${safeDescription}</description>`
+        : "";
+
+      const ogImageTag = ogImageUrl
+        ? `\n<meta property="og:image" content="${escapeHtmlAttributeValue(ogImageUrl)}">`
+        : "";
 
       // Build HTML content similar to what browserlessCrawlPage returns
       // This format works well with the metadata extraction pipeline
       // Include stats as they may be useful for AI tagging
-      const htmlContent = `<title>${authorName}</title>\n<description>${tweetText}</description>${firstMedia ? `\n<meta property="og:image" content="${firstMedia}">` : ""}${tweet.likes !== undefined || tweet.retweets !== undefined ? `\n<meta name="twitter:data" content="likes:${tweet.likes ?? 0}, retweets:${tweet.retweets ?? 0}, replies:${tweet.replies ?? 0}">` : ""}`;
+      const htmlContent = `<title>${safeTitle}</title>${descriptionBlock}${ogImageTag}${tweet.likes !== undefined || tweet.retweets !== undefined ? `\n<meta name="twitter:data" content="likes:${tweet.likes ?? 0}, retweets:${tweet.retweets ?? 0}, replies:${tweet.replies ?? 0}">` : ""}`;
 
       logger.info(
         `[Crawler][${jobId}] Successfully fetched tweet via fxtwitter: @${tweet.author?.screen_name} (${tweet.likes ?? 0} likes)`,

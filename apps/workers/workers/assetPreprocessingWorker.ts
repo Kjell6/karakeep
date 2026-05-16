@@ -361,6 +361,8 @@ async function run(req: DequeuedJob<AssetPreprocessingRequest>) {
     );
   }
 
+  enqueueOpts.groupId = bookmark.userId;
+
   const { asset, metadata } = await readAsset({
     userId: bookmark.userId,
     assetId: bookmark.asset.assetId,
@@ -418,8 +420,6 @@ async function run(req: DequeuedJob<AssetPreprocessingRequest>) {
   addLogFields<"assetPreprocessingWorker.run">({
     "preprocessing.changed": anythingChanged,
   });
-
-  enqueueOpts.groupId = bookmark.userId;
 
   if (!isFixMode || anythingChanged) {
     await OpenAIQueue.enqueue(
