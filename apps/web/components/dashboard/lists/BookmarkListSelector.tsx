@@ -57,6 +57,8 @@ interface SelectionProps {
   hideBookmarkIds?: string[];
   listTypes?: ZBookmarkList["type"][];
   disabled?: boolean;
+  /** Load full tree so folders can be chosen as parents (web list editor). */
+  forParentListAssignment?: boolean;
 }
 
 type BookmarkListSelectorProps = SelectionProps &
@@ -273,13 +275,16 @@ function BookmarkListMultiSelector({
   );
 }
 export function BookmarkListSelector(props: BookmarkListSelectorProps) {
-  const { data, isPending } = useBookmarkLists();
   const {
     hideSubtreeOf,
     hideBookmarkIds = [],
     listTypes = ["manual", "smart"],
+    forParentListAssignment = false,
     ...selectorProps
   } = props;
+  const { data, isPending } = useBookmarkLists(
+    forParentListAssignment ? { flattenListFolders: false } : undefined,
+  );
   let { allPaths } = data ?? {};
   allPaths = allPaths?.filter((path) => {
     const lastItem = path[path.length - 1];
@@ -287,6 +292,9 @@ export function BookmarkListSelector(props: BookmarkListSelectorProps) {
       return false;
     }
     if (!listTypes.includes(lastItem.type)) {
+      return false;
+    }
+    if (!forParentListAssignment && lastItem.isFolder) {
       return false;
     }
     // Hide lists where user is a viewer (can't add/remove bookmarks)

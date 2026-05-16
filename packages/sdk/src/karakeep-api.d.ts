@@ -892,6 +892,8 @@ export interface components {
             hasCollaborators: boolean;
             /** @enum {string} */
             userRole: "owner" | "editor" | "viewer" | "public";
+            /** @default false */
+            isFolder: boolean;
         };
         Highlight: {
             bookmarkId: string;
@@ -1810,6 +1812,7 @@ export interface operations {
                     query?: string;
                     parentId?: string | null;
                     thisListOnly?: boolean;
+                    isFolder?: boolean;
                 };
             };
         };

@@ -35,7 +35,7 @@ export default async function Dashboard({
   }
 
   const [lists, userSettings] = await Promise.all([
-    tryCatch(api.lists.list()),
+    tryCatch(api.lists.list({ flattenListFolders: false })),
     tryCatch(api.users.settings()),
   ]);
 

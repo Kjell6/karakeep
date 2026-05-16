@@ -610,6 +610,13 @@
       "when": 1777464072037,
       "tag": "0086_add_link_banner_extracted_text",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "6",
+      "when": 1777464072038,
+      "tag": "0087_add_list_sidebar_folder",
+      "breakpoints": true
     }
   ]
 }

@@ -78,9 +78,12 @@ export default function AllListsView({
   const { t } = useTranslation();
 
   // Fetch live lists data
-  const { data: listsData } = useBookmarkLists(undefined, {
-    initialData: { lists: initialData },
-  });
+  const { data: listsData } = useBookmarkLists(
+    { flattenListFolders: false },
+    {
+      initialData: { lists: initialData },
+    },
+  );
   const lists = augmentBookmarkListsWithInitialData(listsData, initialData);
 
   // Check if there are any shared lists

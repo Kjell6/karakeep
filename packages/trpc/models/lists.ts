@@ -47,6 +47,10 @@ export abstract class List {
     return this.list.id;
   }
 
+  get isFolder() {
+    return this.list.isFolder;
+  }
+
   asZBookmarkList() {
     const { icon: storedIcon, ...rest } = this.list;
     const iconFields = bookmarkListIconToApiFields(storedIcon);
@@ -72,6 +76,7 @@ export abstract class List {
       query: rest.query,
       userRole: rest.userRole,
       hasCollaborators: rest.hasCollaborators,
+      isFolder: rest.isFolder,
 
       // Hide parentId as it is not relevant to the user
       parentId: null,
@@ -277,6 +282,7 @@ export abstract class List {
           : isNull(bookmarkLists.parentId),
       ),
     );
+    const isFolder = input.type === "manual" ? Boolean(input.isFolder) : false;
     const [result] = await ctx.db
       .insert(bookmarkLists)
       .values({
@@ -290,6 +296,7 @@ export abstract class List {
         query: input.query,
         sortOrder: siblingCount,
         thisListOnly: input.type === "smart" ? false : (input.thisListOnly ?? false),
+        isFolder,
       })
       .returning();
     return this.fromData(
@@ -1123,6 +1130,12 @@ export class ManualList extends List {
 
   async addBookmark(bookmarkId: string): Promise<void> {
     this.ensureCanEdit();
+    if (this.list.isFolder) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Bookmarks cannot be added to a folder",
+      });
+    }
 
     try {
       await this.ctx.db.insert(bookmarksInLists).values({
@@ -1220,6 +1233,13 @@ export class ManualList extends List {
       throw new TRPCError({
         code: "BAD_REQUEST",
         message: "You can only merge into a manual list",
+      });
+    }
+
+    if (this.list.isFolder || targetList.isFolder) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Folders cannot be merged",
       });
     }
 

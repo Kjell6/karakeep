@@ -502,6 +502,8 @@ export const bookmarkLists = sqliteTable(
     thisListOnly: integer("thisListOnly", { mode: "boolean" })
       .notNull()
       .default(false),
+    /** Sidebar-only grouping: folders cannot hold bookmarks (manual lists only). */
+    isFolder: integer("isFolder", { mode: "boolean" }).notNull().default(false),
   },
   (bl) => [
     index("bookmarkLists_userId_idx").on(bl.userId),

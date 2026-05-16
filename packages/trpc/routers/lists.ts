@@ -1,6 +1,7 @@
 import { experimental_trpcMiddleware } from "@trpc/server";
 import { z } from "zod";
 
+import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
   zBookmarkListSchema,
   zEditBookmarkListSchemaWithValidation,
@@ -10,6 +11,8 @@ import {
 } from "@karakeep/shared/types/lists";
 
 import { addLogFields, logEvent } from "@karakeep/shared-server";
+
+import { flattenBookmarkListFoldersForBookmarkPickers } from "@karakeep/shared/utils/listFolders";
 
 import type { AuthedContext } from "../index";
 import {
@@ -173,14 +176,30 @@ export const listsAppRouter = router({
       return ctx.list.asZBookmarkList();
     }),
   list: listsProcedure
+    .input(
+      z
+        .object({
+          /**
+           * When true (default), folder rows used for web sidebar grouping are
+           * omitted and lists under folders are lifted for bookmark-target pickers.
+           */
+          flattenListFolders: z.boolean().optional(),
+        })
+        .optional(),
+    )
     .output(
       z.object({
         lists: z.array(zBookmarkListSchema),
       }),
     )
-    .query(async ({ ctx }) => {
+    .query(async ({ ctx, input }) => {
       const results = await List.getAll(ctx);
-      return { lists: results.map((l) => l.asZBookmarkList()) };
+      let lists: ZBookmarkList[] = results.map((l) => l.asZBookmarkList());
+      const flatten = input?.flattenListFolders !== false;
+      if (flatten) {
+        lists = flattenBookmarkListFoldersForBookmarkPickers(lists);
+      }
+      return { lists };
     }),
   getListsOfBookmark: listsProcedure
     .input(z.object({ bookmarkId: z.string() }))

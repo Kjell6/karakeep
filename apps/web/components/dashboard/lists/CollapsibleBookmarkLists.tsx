@@ -85,6 +85,7 @@ export function CollapsibleBookmarkLists({
   isOpenFunc,
   filter,
   indentOffset = 0,
+  flattenListFolders,
 }: {
   initialData?: ZBookmarkList[];
   listsData?: {
@@ -98,13 +99,20 @@ export function CollapsibleBookmarkLists({
   className?: string;
   filter?: (node: ZBookmarkListTreeNode) => boolean;
   indentOffset?: number;
+  /** When false, loads full hierarchy including sidebar folders (web only). Default matches Extension/iOS (flattened). */
+  flattenListFolders?: boolean;
 }) {
   const api = useTRPC();
   // If listsData is provided, use it directly. Otherwise, fetch it.
-  let { data: fetchedData } = useBookmarkLists(undefined, {
-    initialData: initialData ? { lists: initialData } : undefined,
-    enabled: !listsData, // Only fetch if listsData is not provided
-  });
+  let { data: fetchedData } = useBookmarkLists(
+    flattenListFolders === false
+      ? { flattenListFolders: false }
+      : undefined,
+    {
+      initialData: initialData ? { lists: initialData } : undefined,
+      enabled: !listsData, // Only fetch if listsData is not provided
+    },
+  );
   const data = listsData || fetchedData;
 
   const { data: listStats } = useQuery(

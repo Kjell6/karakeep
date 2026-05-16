@@ -1,8 +1,9 @@
 name: Publish Docker image to GHCR
 
+# Nur Tag-Pushes (und manuell): Ein Push auf main + Tags im selben `git push` würde sonst
+# zwei Workflow-Läufe auslösen (branch + tag) und das gleiche Image doppelt bauen.
 on:
   push:
-    branches: [ main ]
     tags:
       - 'v*'
       - '*.*.*'
@@ -40,7 +41,6 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/karakeep
           tags: |
-            type=ref,event=branch,branch=main
             type=ref,event=tag
             type=sha
             type=semver,pattern={{version}},prefix=

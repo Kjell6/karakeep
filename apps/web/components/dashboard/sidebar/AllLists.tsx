@@ -14,7 +14,7 @@ import { toast } from "@/components/ui/sonner";
 import { BOOKMARK_DRAG_MIME } from "@/lib/bookmark-drag";
 import { useTranslation } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
-import { ClipboardList, MoreHorizontal, Plus, Star, Users } from "lucide-react";
+import { ClipboardList, FolderPlus, MoreHorizontal, Plus, Star, Users } from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {
@@ -35,8 +35,7 @@ import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import { ListIcon } from "../lists/ListIcon";
 import { ListOptions } from "../lists/ListOptions";
 import { InvitationNotificationBadge } from "./InvitationNotificationBadge";
-
-const noop = () => undefined;
+import { OwnedSidebarListsTree } from "./OwnedSidebarListsTree";
 
 /** Keeps list icons aligned with rows that show a nested expand control (same width as one `pl-3` step). */
 const listLeadingPlaceholder = (
@@ -109,10 +108,6 @@ function DroppableListSidebarItem({
   numBookmarks,
   selectedListId,
   setSelectedListId,
-  canMoveUp,
-  canMoveDown,
-  onMoveUp,
-  onMoveDown,
 }: {
   node: ZBookmarkListTreeNode;
   level: number;
@@ -120,13 +115,10 @@ function DroppableListSidebarItem({
   numBookmarks?: number;
   selectedListId: string | null;
   setSelectedListId: (id: string | null) => void;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
-  onMoveUp: () => void;
-  onMoveDown: () => void;
 }) {
   const canDrop =
     node.item.type === "manual" &&
+    !node.item.isFolder &&
     (node.item.userRole === "owner" || node.item.userRole === "editor");
   const { dropHighlight, onDragOver, onDragEnter, onDragLeave, onDrop } =
     useDropTarget(node.item.id, node.item.name);
@@ -161,10 +153,6 @@ function DroppableListSidebarItem({
             }
           }}
           list={node.item}
-          canMoveUp={canMoveUp}
-          canMoveDown={canMoveDown}
-          onMoveUp={onMoveUp}
-          onMoveDown={onMoveDown}
         >
           <Button size="none" variant="ghost" className="relative">
             <MoreHorizontal
@@ -176,7 +164,9 @@ function DroppableListSidebarItem({
             <span
               className={cn(
                 "px-2.5 text-xs font-light text-muted-foreground opacity-100 transition-opacity duration-100 group-hover:opacity-0",
-                selectedListId == node.item.id || numBookmarks === undefined
+                selectedListId == node.item.id ||
+                  numBookmarks === undefined ||
+                  node.item.isFolder
                   ? "opacity-0"
                   : "opacity-100",
               )}
@@ -211,13 +201,22 @@ export default function AllLists({
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const { mutateAsync: reorderLists } = useReorderBookmarkLists();
 
-  const { data: listsData } = useBookmarkLists(undefined, {
-    initialData: { lists: initialData.lists },
-  });
+  const { data: listsData } = useBookmarkLists(
+    { flattenListFolders: false },
+    {
+      initialData: { lists: initialData.lists },
+    },
+  );
   const lists = augmentBookmarkListsWithInitialData(
     listsData,
     initialData.lists,
   );
+
+  const ownedRootNodes = useMemo(() => {
+    return Object.values(lists.root).filter(
+      (node) => node.item.userRole === "owner",
+    );
+  }, [lists.root]);
 
   const ownedSiblingsByParent = useMemo(() => {
     const siblings = new Map<string | null, ZBookmarkList[]>();
@@ -232,29 +231,6 @@ export default function AllLists({
       });
     return siblings;
   }, [lists.data]);
-
-  const moveList = useCallback(
-    async (list: ZBookmarkList, direction: -1 | 1) => {
-      const siblings = ownedSiblingsByParent.get(list.parentId ?? null);
-      if (!siblings) return;
-
-      const currentIndex = siblings.findIndex((item) => item.id === list.id);
-      if (currentIndex === -1) return;
-
-      const targetIndex = currentIndex + direction;
-      if (targetIndex < 0 || targetIndex >= siblings.length) return;
-
-      const orderedIds = siblings.map((item) => item.id);
-      const [movedId] = orderedIds.splice(currentIndex, 1);
-      orderedIds.splice(targetIndex, 0, movedId);
-
-      await reorderLists({
-        parentId: list.parentId,
-        orderedIds,
-      });
-    },
-    [ownedSiblingsByParent, reorderLists],
-  );
 
   const isViewingSharedList = useMemo(() => {
     return lists.data.some(
@@ -275,13 +251,21 @@ export default function AllLists({
   }, [isViewingSharedList, sharedListsOpen]);
 
   return (
-    <ul className="sidebar-scrollbar flex max-h-full flex-col gap-0 overflow-auto text-sm">
-      <li className="mb-2 flex justify-between">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">
+    <ul className="sidebar-scrollbar flex max-h-full flex-col gap-0 overflow-y-auto overflow-x-hidden text-sm">
+      <li className="mb-2 flex justify-end gap-1">
+        <p className="mr-auto text-xs uppercase tracking-wider text-muted-foreground">
           Lists
         </p>
+        <EditListModal prefill={{ isFolder: true }}>
+          <Link href="#" aria-label={t("lists.new_folder")}>
+            <FolderPlus
+              className="mr-1 size-4 text-muted-foreground"
+              strokeWidth={2}
+            />
+          </Link>
+        </EditListModal>
         <EditListModal>
-          <Link href="#">
+          <Link href="#" aria-label={t("lists.new_list")}>
             <Plus
               className="mr-2 size-4 text-muted-foreground"
               strokeWidth={2}
@@ -304,32 +288,13 @@ export default function AllLists({
       />
 
       <div className="mt-2">
-        <CollapsibleBookmarkLists
-          listsData={lists}
-          filter={(node) => node.item.userRole === "owner"}
-          isOpenFunc={isNodeOpen}
-          render={({ node, level, open, numBookmarks }) => {
-            const siblings =
-              ownedSiblingsByParent.get(node.item.parentId ?? null) ?? [];
-            const index = siblings.findIndex(
-              (item) => item.id === node.item.id,
-            );
-
-            return (
-              <DroppableListSidebarItem
-                node={node}
-                level={level}
-                open={open}
-                numBookmarks={numBookmarks}
-                selectedListId={selectedListId}
-                setSelectedListId={setSelectedListId}
-                canMoveUp={index > 0}
-                canMoveDown={index >= 0 && index < siblings.length - 1}
-                onMoveUp={() => void moveList(node.item, -1)}
-                onMoveDown={() => void moveList(node.item, 1)}
-              />
-            );
-          }}
+        <OwnedSidebarListsTree
+          rootNodes={ownedRootNodes}
+          ownedSiblingsByParent={ownedSiblingsByParent}
+          isNodeOpen={isNodeOpen}
+          selectedListId={selectedListId}
+          setSelectedListId={setSelectedListId}
+          reorderLists={reorderLists}
         />
       </div>
 
@@ -360,10 +325,6 @@ export default function AllLists({
                   numBookmarks={numBookmarks}
                   selectedListId={selectedListId}
                   setSelectedListId={setSelectedListId}
-                  canMoveUp={false}
-                  canMoveDown={false}
-                  onMoveUp={noop}
-                  onMoveDown={noop}
                 />
               )}
             />

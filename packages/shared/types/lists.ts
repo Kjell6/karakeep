@@ -36,6 +36,7 @@ export const zNewBookmarkListSchema = z
     query: z.string().min(1).optional(),
     parentId: z.string().nullish(),
     thisListOnly: z.boolean().optional(),
+    isFolder: z.boolean().optional(),
   })
   .refine((val) => val.type === "smart" || !val.query, {
     message: "Manual lists cannot have a query",
@@ -60,6 +61,14 @@ export const zNewBookmarkListSchema = z
   .refine((val) => val.type === "manual" || !val.thisListOnly, {
     message: "This list only mode is only available for manual lists",
     path: ["thisListOnly"],
+  })
+  .refine((val) => !val.isFolder || val.type === "manual", {
+    message: "Folders must be manual lists",
+    path: ["isFolder"],
+  })
+  .refine((val) => !val.isFolder || !val.query, {
+    message: "Folders cannot have a search query",
+    path: ["isFolder"],
   });
 
 export const zBookmarkListSchema = z.object({
@@ -78,6 +87,8 @@ export const zBookmarkListSchema = z.object({
   thisListOnly: z.boolean(),
   hasCollaborators: z.boolean(),
   userRole: z.enum(["owner", "editor", "viewer", "public"]),
+  /** Organizational sidebar folder — bookmarks cannot be stored here. */
+  isFolder: z.boolean().default(false),
 });
 
 export type ZBookmarkList = z.infer<typeof zBookmarkListSchema>;

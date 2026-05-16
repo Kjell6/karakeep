@@ -10,8 +10,6 @@ import { useTranslation } from "@/lib/i18n/client";
 import {
   DoorOpen,
   FolderInput,
-  MoveDown,
-  MoveUp,
   Pencil,
   Plus,
   Share,
@@ -35,19 +33,11 @@ export function ListOptions({
   isOpen,
   onOpenChange,
   children,
-  canMoveUp = false,
-  canMoveDown = false,
-  onMoveUp,
-  onMoveDown,
 }: {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   list: ZBookmarkList;
   children?: React.ReactNode;
-  canMoveUp?: boolean;
-  canMoveDown?: boolean;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
 }) {
   const { t } = useTranslation();
   const { showArchived, onClickShowArchived } = useShowArchived();
@@ -68,22 +58,6 @@ export function ListOptions({
 
   // Define action items array
   const actionItems = [
-    {
-      id: "move-up",
-      title: t("lists.move_up", { defaultValue: "Move up" }),
-      icon: <MoveUp className="size-4" />,
-      visible: isOwner,
-      disabled: !canMoveUp,
-      onClick: () => onMoveUp?.(),
-    },
-    {
-      id: "move-down",
-      title: t("lists.move_down", { defaultValue: "Move down" }),
-      icon: <MoveDown className="size-4" />,
-      visible: isOwner,
-      disabled: !canMoveDown,
-      onClick: () => onMoveDown?.(),
-    },
     {
       id: "edit",
       title: t("actions.edit"),
@@ -122,7 +96,7 @@ export function ListOptions({
       id: "merge-list",
       title: t("lists.merge_list"),
       icon: <FolderInput className="size-4" />,
-      visible: isOwner,
+      visible: isOwner && !list.isFolder,
       disabled: false,
       onClick: () => setMergeListModalOpen(true),
     },
@@ -134,7 +108,7 @@ export function ListOptions({
       ) : (
         <Square className="size-4" />
       ),
-      visible: isOwner,
+      visible: isOwner && !list.isFolder,
       disabled: false,
       onClick: onClickShowArchived,
     },

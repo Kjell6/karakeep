@@ -5,51 +5,57 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-export default function SidebarItem({
-  name,
-  logo,
-  path,
-  className,
-  linkClassName,
-  style,
-  collapseButton,
-  right = null,
-  dropHighlight = false,
-  onDrop,
-  onDragOver,
-  onDragEnter,
-  onDragLeave,
-  onDragStart,
-  onDragEnd,
-  draggable,
-  reorderDropEdge = null,
-  isDragging = false,
-  listAccentColor = null,
-}: {
-  name: string;
-  logo: React.ReactNode;
-  path: string;
-  style?: React.CSSProperties;
-  /** Optional #RRGGBB — left stripe in the sidebar row */
-  listAccentColor?: string | null;
-  className?: string;
-  linkClassName?: string;
-  right?: React.ReactNode;
-  collapseButton?: React.ReactNode;
-  dropHighlight?: boolean;
-  onDrop?: React.DragEventHandler;
-  onDragOver?: React.DragEventHandler;
-  onDragEnter?: React.DragEventHandler;
-  onDragLeave?: React.DragEventHandler;
-  onDragStart?: React.DragEventHandler;
-  onDragEnd?: React.DragEventHandler;
-  draggable?: boolean;
-  reorderDropEdge?: "top" | "bottom" | null;
-  isDragging?: boolean;
-}) {
+const SidebarItem = React.forwardRef<
+  HTMLLIElement,
+  {
+    name: string;
+    logo: React.ReactNode;
+    path: string;
+    className?: string;
+    linkClassName?: string;
+    style?: React.CSSProperties;
+    collapseButton?: React.ReactNode;
+    right?: React.ReactNode | null;
+    dropHighlight?: boolean;
+    onDrop?: React.DragEventHandler;
+    onDragOver?: React.DragEventHandler;
+    onDragEnter?: React.DragEventHandler;
+    onDragLeave?: React.DragEventHandler;
+    onDragStart?: React.DragEventHandler;
+    onDragEnd?: React.DragEventHandler;
+    draggable?: boolean;
+    reorderDropEdge?: "top" | "bottom" | null;
+    isDragging?: boolean;
+    listAccentColor?: string | null;
+  }
+>(function SidebarItem(
+  {
+    name,
+    logo,
+    path,
+    className,
+    linkClassName,
+    style,
+    collapseButton,
+    right = null,
+    dropHighlight = false,
+    onDrop,
+    onDragOver,
+    onDragEnter,
+    onDragLeave,
+    onDragStart,
+    onDragEnd,
+    draggable,
+    reorderDropEdge = null,
+    isDragging = false,
+    listAccentColor = null,
+  },
+  ref,
+) {
   const currentPath = usePathname();
   return (
     <li
+      ref={ref}
       className={cn(
         "relative flex justify-between rounded-lg text-sm transition-colors hover:bg-accent",
         path == currentPath
@@ -109,4 +115,6 @@ export default function SidebarItem({
       {right}
     </li>
   );
-}
+});
+
+export default SidebarItem;

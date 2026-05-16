@@ -528,6 +528,10 @@
               "viewer",
               "public"
             ]
+          },
+          "isFolder": {
+            "type": "boolean",
+            "default": false
           }
         },
         "required": [
@@ -2368,6 +2372,9 @@
                     "nullable": true
                   },
                   "thisListOnly": {
+                    "type": "boolean"
+                  },
+                  "isFolder": {
                     "type": "boolean"
                   }
                 },

@@ -24,11 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -38,8 +34,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/sonner";
 import { useTranslation } from "@/lib/i18n/client";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -50,6 +44,7 @@ import {
   useEditBookmarkList,
 } from "@karakeep/shared-react/hooks/lists";
 import { parseSearchQuery } from "@karakeep/shared/searchQueryParser";
+import { bookmarkListIconTokenForUi } from "@karakeep/shared/listIcons";
 import {
   ZBookmarkList,
   zNewBookmarkListSchema,
@@ -57,6 +52,8 @@ import {
 
 import QueryExplainerTooltip from "../search/QueryExplainerTooltip";
 import { BookmarkListSelector } from "./BookmarkListSelector";
+import { ListColorPicker } from "./ListColorPicker";
+import { ListIconPicker } from "./ListIconPicker";
 
 export function EditListModal({
   open: userOpen,
@@ -81,15 +78,26 @@ export function EditListModal({
   }
   const [customOpen, customSetOpen] = useState(false);
 
+  const creatingFolder = Boolean(prefill?.isFolder) && !list;
+  const editingFolder = Boolean(list?.isFolder);
+
+  const defaultIcon =
+    (list ? bookmarkListIconTokenForUi(list) : undefined) ??
+    prefill?.icon ??
+    "📁";
+
   const form = useForm({
     resolver: zodResolver(zNewBookmarkListSchema),
     defaultValues: {
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
-      icon: list?.icon ?? prefill?.icon ?? "📁",
+      icon: defaultIcon,
+      color: list?.color ?? prefill?.color ?? null,
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
+      thisListOnly: list?.thisListOnly ?? prefill?.thisListOnly ?? false,
+      isFolder: list?.isFolder ?? Boolean(prefill?.isFolder),
     },
   });
   const [open, setOpen] = [
@@ -101,10 +109,16 @@ export function EditListModal({
     form.reset({
       name: list?.name ?? prefill?.name ?? "",
       description: list?.description ?? prefill?.description ?? "",
-      icon: list?.icon ?? prefill?.icon ?? "📁",
+      icon:
+        (list ? bookmarkListIconTokenForUi(list) : undefined) ??
+        prefill?.icon ??
+        "📁",
+      color: list?.color ?? prefill?.color ?? null,
       parentId: list?.parentId ?? prefill?.parentId,
       type: list?.type ?? prefill?.type ?? "manual",
       query: list?.query ?? prefill?.query ?? undefined,
+      thisListOnly: list?.thisListOnly ?? prefill?.thisListOnly ?? false,
+      isFolder: list?.isFolder ?? Boolean(prefill?.isFolder),
     });
   }, [open]);
 
@@ -188,17 +202,49 @@ export function EditListModal({
     }
   }, [listType]);
 
+  useEffect(() => {
+    if (listType === "smart") {
+      form.setValue("thisListOnly", false);
+    }
+  }, [listType, form]);
+
   const isEdit = !!list;
   const isPending = isCreating || isEditing;
 
   const onSubmit = form.handleSubmit(
     (value: z.infer<typeof zNewBookmarkListSchema>) => {
       value.parentId = value.parentId === "" ? null : value.parentId;
+      if (creatingFolder && !isEdit) {
+        createList({
+          ...value,
+          type: "manual",
+          query: undefined,
+          isFolder: true,
+          color: value.color ?? null,
+          thisListOnly: false,
+        });
+        return;
+      }
       value.query = value.type === "smart" ? value.query : undefined;
+      value.isFolder = false;
+      const payload = {
+        ...value,
+        color: value.color ?? null,
+        thisListOnly: value.type === "manual" ? value.thisListOnly : false,
+      };
       if (isEdit) {
-        editList({ ...value, listId: list.id });
+        editList({
+          listId: list!.id,
+          name: payload.name,
+          description: payload.description,
+          icon: payload.icon,
+          color: payload.color,
+          parentId: payload.parentId,
+          query: payload.type === "smart" ? payload.query : undefined,
+          thisListOnly: payload.thisListOnly,
+        });
       } else {
-        createList(value);
+        createList(payload);
       }
     },
   );
@@ -217,7 +263,11 @@ export function EditListModal({
           <form onSubmit={onSubmit}>
             <DialogHeader>
               <DialogTitle>
-                {isEdit ? t("lists.edit_list") : t("lists.new_list")}
+                {isEdit
+                  ? t("lists.edit_list")
+                  : creatingFolder
+                    ? t("lists.new_folder")
+                    : t("lists.new_list")}
               </DialogTitle>
             </DialogHeader>
             <div className="flex w-full gap-2 py-4">
@@ -228,19 +278,11 @@ export function EditListModal({
                   return (
                     <FormItem>
                       <FormControl>
-                        <Popover>
-                          <PopoverTrigger className="h-full rounded border border-input px-2 text-2xl">
-                            {field.value}
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto">
-                            <Picker
-                              data={data}
-                              onEmojiSelect={(e: { native: string }) =>
-                                field.onChange(e.native)
-                              }
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <ListIconPicker
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -258,7 +300,11 @@ export function EditListModal({
                         <Input
                           type="text"
                           className="w-full"
-                          placeholder="List Name"
+                          placeholder={
+                            creatingFolder
+                              ? t("lists.folder_name_placeholder")
+                              : t("lists.list_name_placeholder")
+                          }
                           {...field}
                         />
                       </FormControl>
@@ -290,16 +336,37 @@ export function EditListModal({
             />
             <FormField
               control={form.control}
+              name="color"
+              render={({ field }) => (
+                <FormItem className="grow pb-4">
+                  <FormLabel>{t("lists.list_color")}</FormLabel>
+                  <FormControl>
+                    <ListColorPicker
+                      value={field.value ?? null}
+                      onChange={field.onChange}
+                      disabled={isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="parentId"
               render={({ field }) => {
                 return (
                   <FormItem className="grow pb-4">
                     <FormLabel>{t("lists.parent_list")}</FormLabel>
+                    <FormDescription>
+                      {t("lists.parent_list_hint")}
+                    </FormDescription>
                     <div className="flex items-center gap-1">
                       <FormControl>
                         <BookmarkListSelector
                           // Hide the current list from the list of parents
                           hideSubtreeOf={list ? list.id : undefined}
+                          forParentListAssignment
                           value={field.value}
                           onChange={field.onChange}
                           placeholder={t("lists.no_parent")}
@@ -320,38 +387,40 @@ export function EditListModal({
                 );
               }}
             />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => {
-                return (
-                  <FormItem className="grow pb-4">
-                    <FormLabel>{t("lists.list_type")}</FormLabel>
-                    <FormControl>
-                      <Select
-                        disabled={isEdit}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="manual">
-                            {t("lists.manual_list")}
-                          </SelectItem>
-                          <SelectItem value="smart">
-                            {t("lists.smart_list")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-            {listType === "smart" && (
+            {!creatingFolder && !editingFolder ? (
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => {
+                  return (
+                    <FormItem className="grow pb-4">
+                      <FormLabel>{t("lists.list_type")}</FormLabel>
+                      <FormControl>
+                        <Select
+                          disabled={isEdit}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manual">
+                              {t("lists.manual_list")}
+                            </SelectItem>
+                            <SelectItem value="smart">
+                              {t("lists.smart_list")}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+            ) : null}
+            {!creatingFolder && !editingFolder && listType === "smart" ? (
               <FormField
                 control={form.control}
                 name="query"
@@ -390,7 +459,31 @@ export function EditListModal({
                   );
                 }}
               />
-            )}
+            ) : null}
+            {!creatingFolder && !editingFolder && listType === "manual" ? (
+              <FormField
+                control={form.control}
+                name="thisListOnly"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start justify-between gap-4 space-y-0 pb-4">
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>{t("lists.this_list_only")}</FormLabel>
+                      <FormDescription>
+                        {t("lists.this_list_only_description")}
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value ?? false}
+                        onCheckedChange={field.onChange}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : null}
             <DialogFooter className="sm:justify-end">
               <DialogClose asChild>
                 <Button type="button" variant="secondary">

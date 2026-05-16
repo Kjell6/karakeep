@@ -179,12 +179,17 @@ export function useDeleteBookmarkList(
 }
 
 export function useBookmarkLists(
-  input?: Parameters<TRPCApi["lists"]["list"]["queryOptions"]>[0],
+  input?: { flattenListFolders?: boolean },
   opts?: Parameters<TRPCApi["lists"]["list"]["queryOptions"]>[1],
 ) {
   const api = useTRPC();
+  /** Default (omit input): flatten folders so Extension/iOS pickers stay unchanged. */
+  const queryInput =
+    input?.flattenListFolders === false
+      ? { flattenListFolders: false }
+      : undefined;
   return useQuery(
-    api.lists.list.queryOptions(input, {
+    api.lists.list.queryOptions(queryInput, {
       ...opts,
       select: (data) => {
         return { data: data.lists, ...listsToTree(data.lists) };

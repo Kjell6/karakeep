@@ -9,7 +9,7 @@ import { ClipboardList, Plus } from "lucide-react";
 export default async function ListsPage() {
   // oxlint-disable-next-line rules-of-hooks
   const { t } = await useTranslation();
-  const lists = await api.lists.list();
+  const lists = await api.lists.list({ flattenListFolders: false });
 
   return (
     <div className="flex flex-col gap-4">
