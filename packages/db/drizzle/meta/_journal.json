@@ -572,22 +572,36 @@
     {
       "idx": 81,
       "version": "6",
-      "when": 1775558125970,
-      "tag": "0081_add_list_sort_order",
+      "when": 1775542878403,
+      "tag": "0081_add_archived_to_import_staging_bookmarks",
       "breakpoints": true
     },
     {
       "idx": 82,
       "version": "6",
-      "when": 1775587395381,
-      "tag": "0082_add_list_color",
+      "when": 1775816137345,
+      "tag": "0082_add_feed_last_successful_fetch",
       "breakpoints": true
     },
     {
       "idx": 83,
       "version": "6",
-      "when": 1776715706355,
-      "tag": "0083_add_this_list_only",
+      "when": 1776948580025,
+      "tag": "0083_add_api_key_scopes",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "6",
+      "when": 1777464072035,
+      "tag": "0084_rule_engine_multi_list_support",
+      "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "6",
+      "when": 1777464072036,
+      "tag": "0085_add_fork_list_customizations",
       "breakpoints": true
     }
   ]

@@ -1,10 +1,8 @@
-import os from "os";
 import { and, eq } from "drizzle-orm";
 import { workerStatsCounter } from "metrics";
 import PDFParser from "pdf2json";
 import { fromBuffer } from "pdf2pic";
-import { createWorker } from "tesseract.js";
-import { withWorkerTracing } from "workerTracing";
+import { withWorkerEventLog, withWorkerTracing } from "workerTracing";
 
 import type { AssetPreprocessingRequest } from "@karakeep/shared-server";
 import { db } from "@karakeep/db";
@@ -15,6 +13,7 @@ import {
   bookmarks,
 } from "@karakeep/db/schema";
 import {
+  addLogFields,
   AssetPreprocessingQueue,
   OpenAIQueue,
   QuotaService,
@@ -23,14 +22,15 @@ import {
 } from "@karakeep/shared-server";
 import { newAssetId, readAsset, saveAsset } from "@karakeep/shared/assetdb";
 import serverConfig from "@karakeep/shared/config";
-import { InferenceClientFactory } from "@karakeep/shared/inference";
 import logger from "@karakeep/shared/logger";
-import { buildOCRPrompt } from "@karakeep/shared/prompts";
 import {
   DequeuedJob,
   EnqueueOptions,
   getQueueClient,
 } from "@karakeep/shared/queueing";
+
+import { extractTextFromImageBuffer } from "../lib/imageOcr";
+import { extractAndPersistLinkBannerOcr } from "../lib/linkBannerImageOcr";
 
 export class AssetPreprocessingWorker {
   static async build() {
@@ -39,7 +39,10 @@ export class AssetPreprocessingWorker {
       (await getQueueClient())!.createRunner<AssetPreprocessingRequest>(
         AssetPreprocessingQueue,
         {
-          run: withWorkerTracing("assetPreprocessingWorker.run", run),
+          run: withWorkerTracing(
+            "assetPreprocessingWorker.run",
+            withWorkerEventLog("assetPreprocessingWorker.run", run),
+          ),
           onComplete: async (job) => {
             workerStatsCounter.labels("assetPreprocessing", "completed").inc();
             const jobId = job.id;
@@ -99,56 +102,6 @@ export class AssetPreprocessingWorker {
 
     return worker;
   }
-}
-
-async function readImageText(buffer: Buffer) {
-  if (serverConfig.ocr.langs.length == 1 && serverConfig.ocr.langs[0] == "") {
-    return null;
-  }
-  const worker = await createWorker(serverConfig.ocr.langs, undefined, {
-    cachePath: serverConfig.ocr.cacheDir ?? os.tmpdir(),
-  });
-  try {
-    const ret = await worker.recognize(buffer);
-    if (ret.data.confidence <= serverConfig.ocr.confidenceThreshold) {
-      return null;
-    }
-    return ret.data.text;
-  } finally {
-    await worker.terminate();
-  }
-}
-
-async function readImageTextWithLLM(
-  buffer: Buffer,
-  contentType: string,
-): Promise<string | null> {
-  const inferenceClient = InferenceClientFactory.build();
-  if (!inferenceClient) {
-    logger.warn(
-      "[assetPreprocessing] LLM OCR is enabled but no inference client is configured. Falling back to Tesseract.",
-    );
-    return readImageText(buffer);
-  }
-
-  const base64 = buffer.toString("base64");
-  const prompt = buildOCRPrompt();
-
-  const response = await inferenceClient.inferFromImage(
-    prompt,
-    contentType,
-    base64,
-    {
-      schema: null,
-    },
-  );
-
-  const extractedText = response.response.trim();
-  if (!extractedText) {
-    return null;
-  }
-
-  return extractedText;
 }
 
 async function readPDFText(buffer: Buffer): Promise<{
@@ -281,25 +234,12 @@ async function extractAndSaveImageText(
     logger.info(
       `[assetPreprocessing][${jobId}] Attempting to extract text from image using LLM OCR.`,
     );
-    try {
-      imageText = await readImageTextWithLLM(asset, contentType);
-    } catch (e) {
-      logger.error(
-        `[assetPreprocessing][${jobId}] Failed to read image text with LLM: ${e}`,
-      );
-    }
   } else {
     logger.info(
       `[assetPreprocessing][${jobId}] Attempting to extract text from image using Tesseract.`,
     );
-    try {
-      imageText = await readImageText(asset);
-    } catch (e) {
-      logger.error(
-        `[assetPreprocessing][${jobId}] Failed to read image text: ${e}`,
-      );
-    }
   }
+  imageText = await extractTextFromImageBuffer(asset, contentType);
 
   if (!imageText) {
     return false;
@@ -369,6 +309,35 @@ async function run(req: DequeuedJob<AssetPreprocessingRequest>) {
   const isFixMode = req.data.fixMode;
   const jobId = req.id;
   const bookmarkId = req.data.bookmarkId;
+  const linkBannerAssetId = req.data.linkBannerAssetId;
+  addLogFields<"assetPreprocessingWorker.run">({ "bookmark.id": bookmarkId });
+
+  const enqueueOpts: EnqueueOptions = {
+    priority: req.priority,
+    groupId: "",
+  };
+
+  if (linkBannerAssetId) {
+    logger.info(
+      `[assetPreprocessing][${jobId}] Link banner OCR job for bookmark "${bookmarkId}", asset "${linkBannerAssetId}"`,
+    );
+    const bm = await db.query.bookmarks.findFirst({
+      where: eq(bookmarks.id, bookmarkId),
+    });
+    if (!bm) {
+      throw new Error(`[assetPreprocessing][${jobId}] Bookmark not found`);
+    }
+    enqueueOpts.groupId = bm.userId;
+    addLogFields<"assetPreprocessingWorker.run">({ "user.id": bm.userId });
+    await extractAndPersistLinkBannerOcr(
+      jobId,
+      bookmarkId,
+      bm.userId,
+      linkBannerAssetId,
+      { triggerReindex: enqueueOpts },
+    );
+    return;
+  }
 
   const bookmark = await db.query.bookmarks.findFirst({
     where: eq(bookmarks.id, bookmarkId),
@@ -403,13 +372,21 @@ async function run(req: DequeuedJob<AssetPreprocessingRequest>) {
     );
   }
 
+  addLogFields<"assetPreprocessingWorker.run">({
+    "user.id": bookmark.userId,
+    "asset.type": bookmark.asset.assetType,
+    "asset.size": asset.length,
+    "asset.content_type": metadata.contentType,
+    "preprocessing.fix_mode": isFixMode,
+  });
+
   let anythingChanged = false;
   switch (bookmark.asset.assetType) {
     case "image": {
       const extractedText = await extractAndSaveImageText(
         jobId,
         asset,
-        metadata.contentType,
+        metadata.contentType ?? "application/octet-stream",
         bookmark,
         isFixMode,
       );
@@ -438,11 +415,12 @@ async function run(req: DequeuedJob<AssetPreprocessingRequest>) {
       );
   }
 
-  // Propagate priority to child jobs
-  const enqueueOpts: EnqueueOptions = {
-    priority: req.priority,
-    groupId: bookmark.userId,
-  };
+  addLogFields<"assetPreprocessingWorker.run">({
+    "preprocessing.changed": anythingChanged,
+  });
+
+  enqueueOpts.groupId = bookmark.userId;
+
   if (!isFixMode || anythingChanged) {
     await OpenAIQueue.enqueue(
       {

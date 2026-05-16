@@ -895,9 +895,11 @@ export class Bookmark extends BareBookmark {
     {
       contentAssetId,
       htmlContent,
+      bannerImageExtractedText,
     }: {
       contentAssetId: string | null;
       htmlContent: string | null;
+      bannerImageExtractedText?: string | null;
     },
     userId: string,
   ): Promise<string | null> {
@@ -908,10 +910,13 @@ export class Bookmark extends BareBookmark {
       },
       userId,
     );
-    if (!content) {
-      return null;
+    const fromHtml = content ? htmlToPlainText(content) : null;
+    const fromBanner = bannerImageExtractedText?.trim() || null;
+
+    if (fromHtml && fromBanner) {
+      return `${fromHtml}\n\n${fromBanner}`;
     }
-    return htmlToPlainText(content);
+    return fromHtml ?? fromBanner;
   }
 
   private async cleanupAssets() {

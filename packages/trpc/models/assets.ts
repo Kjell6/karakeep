@@ -2,9 +2,13 @@ import { TRPCError } from "@trpc/server";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { assets } from "@karakeep/db/schema";
+import { assets, AssetTypes, bookmarkLinks } from "@karakeep/db/schema";
 import { deleteAsset } from "@karakeep/shared/assetdb";
 import serverConfig from "@karakeep/shared/config";
+import {
+  AssetPreprocessingQueue,
+  triggerSearchReindex,
+} from "@karakeep/shared-server";
 import { createSignedToken } from "@karakeep/shared/signedTokens";
 import { zAssetSignedTokenSchema } from "@karakeep/shared/types/assets";
 import { zAssetTypesSchema } from "@karakeep/shared/types/bookmarks";
@@ -113,6 +117,17 @@ export class Asset {
       .where(and(eq(assets.id, input.asset.id), eq(assets.userId, ctx.user.id)))
       .returning();
 
+    if (input.asset.assetType === "bannerImage") {
+      await AssetPreprocessingQueue.enqueue(
+        {
+          bookmarkId: input.bookmarkId,
+          fixMode: false,
+          linkBannerAssetId: updatedAsset.id,
+        },
+        { groupId: ctx.user.id },
+      );
+    }
+
     return {
       id: updatedAsset.id,
       assetType: mapDBAssetTypeToUserType(updatedAsset.assetType),
@@ -162,6 +177,17 @@ export class Asset {
       userId: ctx.user.id,
       assetId: input.oldAssetId,
     }).catch(() => ({}));
+
+    if (oldAsset.asset.assetType === AssetTypes.LINK_BANNER_IMAGE) {
+      await AssetPreprocessingQueue.enqueue(
+        {
+          bookmarkId: input.bookmarkId,
+          fixMode: false,
+          linkBannerAssetId: input.newAssetId,
+        },
+        { groupId: ctx.user.id },
+      );
+    }
   }
 
   static async detachAsset(
@@ -196,6 +222,17 @@ export class Asset {
     if (result.changes == 0) {
       throw new TRPCError({ code: "NOT_FOUND" });
     }
+
+    if (asset.asset.assetType === AssetTypes.LINK_BANNER_IMAGE) {
+      await ctx.db
+        .update(bookmarkLinks)
+        .set({ bannerImageExtractedText: null })
+        .where(eq(bookmarkLinks.id, input.bookmarkId));
+      await triggerSearchReindex(input.bookmarkId, {
+        groupId: ctx.user.id,
+      });
+    }
+
     await deleteAsset({ userId: ctx.user.id, assetId: input.assetId }).catch(
       () => ({}),
     );
