@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo } from "react";
 import KeyboardShortcutsDialog from "@/components/dashboard/KeyboardShortcutsDialog";
 import NoBookmarksBanner from "@/components/dashboard/bookmarks/NoBookmarksBanner";
 import { ActionButton } from "@/components/ui/action-button";
@@ -6,10 +6,16 @@ import ActionConfirmingDialog from "@/components/ui/action-confirming-dialog";
 import useBulkActionsStore from "@/lib/bulkActions";
 import { useBookmarkKeyboardNavigation } from "@/lib/hooks/useBookmarkKeyboardNavigation";
 import { useTranslation } from "@/lib/i18n/client";
+import {
+  EDITOR_CARD_ESTIMATE_HEIGHT_PX,
+  estimateDashboardBookmarkHeight,
+} from "@/lib/masonry/balancedMasonry";
+import { useAnyColumnSentinelInView } from "@/lib/masonry/useAnyColumnSentinelInView";
+import { useBalancedMasonry } from "@/lib/masonry/useBalancedMasonry";
+import { useMasonryColumnCount } from "@/lib/masonry/useMasonryColumnCount";
 import { useInBookmarkGridStore } from "@/lib/store/useInBookmarkGridStore";
 import { useKeyboardNavigationStore } from "@/lib/store/useKeyboardNavigationStore";
 import {
-  bookmarkLayoutSwitch,
   useBookmarkLayout,
   useGridColumns,
 } from "@/lib/userLocalSettings/bookmarksLayout";
@@ -17,32 +23,34 @@ import { cn } from "@/lib/utils";
 import tailwindConfig from "@/tailwind.config";
 import { Slot } from "@radix-ui/react-slot";
 import { ErrorBoundary } from "react-error-boundary";
-import { useInView } from "react-intersection-observer";
-import Masonry from "react-masonry-css";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 import type { ZBookmark } from "@karakeep/shared/types/bookmarks";
+import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 import { useBookmarkListContext } from "@karakeep/shared-react/hooks/bookmark-list-context";
 
 import BookmarkCard from "./BookmarkCard";
 import EditorCard from "./EditorCard";
 import UnknownCard from "./UnknownCard";
 
+// Wrapper for each bookmark tile. Callers pass `bg-card` on text/note tiles only;
+// link/asset cards stay chrome-less so hover borders on images read cleanly.
 function StyledBookmarkCard({
   children,
   className,
-  ...props
 }: {
   children: React.ReactNode;
   className?: string;
-} & React.HTMLAttributes<HTMLElement>) {
+}) {
+  const includeBorder = !!className && className.includes("bg-card");
+
   return (
     <Slot
       className={cn(
-        "mb-4 border border-border bg-card hover:shadow-lg hover:transition-shadow",
+        "group mb-4 transition-all duration-300 ease-in",
+        includeBorder ? "border border-border" : undefined,
         className,
       )}
-      {...props}
     >
       {children}
     </Slot>
@@ -51,24 +59,26 @@ function StyledBookmarkCard({
 
 const BookmarkGridItem = memo(function BookmarkGridItem({
   bookmark,
-  index,
+  bookmarkIndex,
 }: {
   bookmark: ZBookmark;
-  index: number;
+  bookmarkIndex: number;
 }) {
   const isFocused = useKeyboardNavigationStore(
-    (state) => state.isNavigating && state.focusedIndex === index,
+    (state) => state.isNavigating && state.focusedIndex === bookmarkIndex,
   );
+  const textCard = bookmark.content.type === BookmarkTypes.TEXT;
 
   return (
     <ErrorBoundary fallback={<UnknownCard bookmark={bookmark} />}>
       <StyledBookmarkCard
         className={cn(
+          textCard ? "bg-card" : undefined,
           isFocused &&
             "ring-2 ring-primary ring-offset-2 ring-offset-background",
         )}
       >
-        <BookmarkCard bookmark={bookmark} bookmarkIndex={index} />
+        <BookmarkCard bookmark={bookmark} bookmarkIndex={bookmarkIndex} />
       </StyledBookmarkCard>
     </ErrorBoundary>
   );
@@ -81,66 +91,17 @@ function getBreakpointConfig(userColumns: number) {
     default: userColumns,
   };
 
-  // Responsive behavior: reduce columns on smaller screens
   const lgColumns = Math.max(1, Math.min(userColumns, userColumns - 1));
   const mdColumns = Math.max(1, Math.min(userColumns, 2));
   const smColumns = 1;
 
-  breakpointColumnsObj[parseInt(fullConfig.theme.screens.lg)] = lgColumns;
-  breakpointColumnsObj[parseInt(fullConfig.theme.screens.md)] = mdColumns;
-  breakpointColumnsObj[parseInt(fullConfig.theme.screens.sm)] = smColumns;
+  breakpointColumnsObj[Number.parseInt(fullConfig.theme.screens.lg, 10)] =
+    lgColumns;
+  breakpointColumnsObj[Number.parseInt(fullConfig.theme.screens.md, 10)] =
+    mdColumns;
+  breakpointColumnsObj[Number.parseInt(fullConfig.theme.screens.sm, 10)] =
+    smColumns;
   return breakpointColumnsObj;
-}
-
-function getColumnsForViewport(userColumns: number, viewportWidth: number) {
-  const fullConfig = resolveConfig(tailwindConfig);
-  const screens = fullConfig.theme.screens;
-  const lg = parseInt(screens.lg);
-  const md = parseInt(screens.md);
-  const sm = parseInt(screens.sm);
-
-  if (viewportWidth <= sm) {
-    return 1;
-  }
-  if (viewportWidth <= md) {
-    return Math.max(1, Math.min(userColumns, 2));
-  }
-  if (viewportWidth <= lg) {
-    return Math.max(1, userColumns - 1);
-  }
-  return userColumns;
-}
-
-function useActiveGridColumns(userColumns: number) {
-  const [activeColumns, setActiveColumns] = useState(userColumns);
-
-  useEffect(() => {
-    let animationFrame: number | null = null;
-    const updateActiveColumns = () => {
-      if (animationFrame !== null) {
-        return;
-      }
-      animationFrame = window.requestAnimationFrame(() => {
-        animationFrame = null;
-        setActiveColumns(getColumnsForViewport(userColumns, window.innerWidth));
-      });
-    };
-
-    const updateActiveColumnsImmediately = () => {
-      setActiveColumns(getColumnsForViewport(userColumns, window.innerWidth));
-    };
-
-    updateActiveColumnsImmediately();
-    window.addEventListener("resize", updateActiveColumns);
-    return () => {
-      window.removeEventListener("resize", updateActiveColumns);
-      if (animationFrame !== null) {
-        window.cancelAnimationFrame(animationFrame);
-      }
-    };
-  }, [userColumns]);
-
-  return activeColumns;
 }
 
 export default function BookmarksGrid({
@@ -159,7 +120,6 @@ export default function BookmarksGrid({
   const { t } = useTranslation();
   const layout = useBookmarkLayout();
   const gridColumns = useGridColumns();
-  const activeGridColumns = useActiveGridColumns(gridColumns);
   const setVisibleBookmarks = useBulkActionsStore(
     (state) => state.setVisibleBookmarks,
   );
@@ -168,15 +128,26 @@ export default function BookmarksGrid({
     (state) => state.setInBookmarkGrid,
   );
   const withinListContext = useBookmarkListContext();
+
   const breakpointConfig = useMemo(
     () => getBreakpointConfig(gridColumns),
     [gridColumns],
   );
-  const { ref: loadMoreRef, inView: loadMoreButtonInView } = useInView();
+  const masonryColumnCount = useMasonryColumnCount(breakpointConfig);
+  const { inView: loadMoreButtonInView, getSentinelRef } =
+    useAnyColumnSentinelInView("1500px");
 
-  // For list/compact layouts, navigation is single-column
   const isListLayout = layout === "list" || layout === "compact";
-  const navColumns = isListLayout ? 1 : activeGridColumns;
+  const columnCountForMasonry = isListLayout ? 1 : masonryColumnCount;
+  const navColumns = isListLayout ? 1 : masonryColumnCount;
+
+  const bookmarkIndexById = useMemo(() => {
+    const m = new Map<string, number>();
+    bookmarks.forEach((b, i) => {
+      m.set(b.id, i);
+    });
+    return m;
+  }, [bookmarks]);
 
   const {
     helpDialogOpen,
@@ -193,6 +164,16 @@ export default function BookmarksGrid({
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
+  });
+
+  const { columns: bookmarkColumns, getItemRef } = useBalancedMasonry({
+    items: bookmarks,
+    columnCount: columnCountForMasonry,
+    estimateHeight: estimateDashboardBookmarkHeight,
+    itemGapPx: 16,
+    leadFirstColumnHeightPx: showEditorCard
+      ? EDITOR_CARD_ESTIMATE_HEIGHT_PX
+      : 0,
   });
 
   useEffect(() => {
@@ -218,7 +199,7 @@ export default function BookmarksGrid({
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage, loadMoreButtonInView]);
 
-  if (bookmarks.length == 0 && !showEditorCard) {
+  if (bookmarks.length === 0 && !showEditorCard) {
     return (
       <>
         <NoBookmarksBanner />
@@ -230,44 +211,41 @@ export default function BookmarksGrid({
     );
   }
 
-  const children = [
-    showEditorCard && (
-      <StyledBookmarkCard key={"editor"}>
-        <EditorCard />
-      </StyledBookmarkCard>
-    ),
-    ...bookmarks.map((bookmark, index) => (
-      <BookmarkGridItem key={bookmark.id} bookmark={bookmark} index={index} />
-    )),
-  ];
   return (
     <>
-      {bookmarkLayoutSwitch(layout, {
-        masonry: (
-          <Masonry
-            className="-ml-4 flex w-auto"
-            columnClassName="pl-4"
-            breakpointCols={breakpointConfig}
+      <div className="-ml-8 flex w-auto">
+        {bookmarkColumns.map((columnBookmarks, colIdx) => (
+          <div
+            key={colIdx}
+            className="pl-8"
+            style={{ width: `${100 / bookmarkColumns.length}%` }}
           >
-            {children}
-          </Masonry>
-        ),
-        grid: (
-          <Masonry
-            className="-ml-4 flex w-auto"
-            columnClassName="pl-4"
-            breakpointCols={breakpointConfig}
-          >
-            {children}
-          </Masonry>
-        ),
-        list: <div className="grid grid-cols-1">{children}</div>,
-        compact: <div className="grid grid-cols-1">{children}</div>,
-      })}
+            {colIdx === 0 && showEditorCard && (
+              <StyledBookmarkCard key="editor">
+                <EditorCard />
+              </StyledBookmarkCard>
+            )}
+            {columnBookmarks.map((b) => (
+              <div key={b.id} ref={getItemRef(b.id)}>
+                <BookmarkGridItem
+                  bookmark={b}
+                  bookmarkIndex={bookmarkIndexById.get(b.id) ?? 0}
+                />
+              </div>
+            ))}
+            {hasNextPage && (
+              <div
+                ref={getSentinelRef(colIdx)}
+                className="pointer-events-none h-px w-full"
+                aria-hidden
+              />
+            )}
+          </div>
+        ))}
+      </div>
       {hasNextPage && (
         <div className="flex justify-center">
           <ActionButton
-            ref={loadMoreRef}
             ignoreDemoMode={true}
             loading={isFetchingNextPage}
             onClick={() => fetchNextPage()}

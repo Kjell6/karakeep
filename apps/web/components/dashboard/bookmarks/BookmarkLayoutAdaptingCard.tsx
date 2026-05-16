@@ -1,119 +1,113 @@
-"use client";
-
 import type { BookmarksLayoutTypes } from "@/lib/userLocalSettings/types";
-import type { ReactNode } from "react";
-import { useCallback } from "react";
+import { useSession } from "@/lib/auth/client";
+import { useImageTopRightIsDark } from "@/lib/hooks/useImageTopRightIsDark";
+import React, { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSession } from "@/lib/auth/client";
-import { BOOKMARK_DRAG_MIME } from "@/lib/bookmark-drag";
 import useBulkActionsStore from "@/lib/bulkActions";
-import { useClientConfig } from "@/lib/clientConfig";
-import { useTranslation } from "@/lib/i18n/client";
 import {
   bookmarkLayoutSwitch,
-  useBookmarkDisplaySettings,
   useBookmarkLayout,
 } from "@/lib/userLocalSettings/bookmarksLayout";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Check,
-  GripVertical,
-  Image as ImageIcon,
-  NotebookPen,
-} from "lucide-react";
+import { Check, Image as ImageIcon, NotebookPen } from "lucide-react";
 import { useTheme } from "next-themes";
-import { toast } from "sonner";
 
 import type { ZBookmark } from "@karakeep/shared/types/bookmarks";
-import { useBookmarkListContext } from "@karakeep/shared-react/hooks/bookmark-list-context";
-import { useUpdateBookmark } from "@karakeep/shared-react/hooks/bookmarks";
-import { useTRPC } from "@karakeep/shared-react/trpc";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
-import {
-  getBookmarkTitle,
-  isBookmarkStillTagging,
-} from "@karakeep/shared/utils/bookmarkUtils";
-import { switchCase } from "@karakeep/shared/utils/switch";
+import { isBookmarkStillTagging } from "@karakeep/shared/utils/bookmarkUtils";
 
 import BookmarkActionBar from "./BookmarkActionBar";
+import BookmarkDragHandle from "./BookmarkDragHandle";
 import BookmarkFormattedCreatedAt from "./BookmarkFormattedCreatedAt";
-import BookmarkOwnerIcon from "./BookmarkOwnerIcon";
-import { ArchivedActionIcon, FavouritedActionIcon } from "./icons";
-import { NotePreview } from "./NotePreview";
 import TagList from "./TagList";
 
 interface Props {
   bookmark: ZBookmark;
-  image: (layout: BookmarksLayoutTypes, className: string) => ReactNode;
-  title?: ReactNode;
-  content?: ReactNode;
-  footer?: ReactNode;
+  image: (layout: BookmarksLayoutTypes, className: string) => React.ReactNode;
+  title?: React.ReactNode;
+  content?: React.ReactNode;
+  footer?: React.ReactNode;
   className?: string;
   fitHeight?: boolean;
   wrapTags: boolean;
   bookmarkIndex?: number;
 }
 
-function BottomRow({
-  footer,
+/** Wraps the card image and places action buttons; icon colors follow top-right luminance. */
+function ImageWithTopRightActions({
   bookmark,
+  className,
+  children,
 }: {
-  footer?: ReactNode;
   bookmark: ZBookmark;
+  className?: string;
+  children: React.ReactNode;
 }) {
-  return (
-    <div className="justify flex w-full shrink-0 justify-between text-gray-500">
-      <div className="flex items-center gap-2 overflow-hidden text-nowrap font-light">
-        {footer && <>{footer}•</>}
-        <Link
-          href={`/dashboard/preview/${bookmark.id}`}
-          suppressHydrationWarning
-        >
-          <BookmarkFormattedCreatedAt createdAt={bookmark.createdAt} />
-        </Link>
+  const ref = useRef<HTMLDivElement>(null);
+  const imageIsDark = useImageTopRightIsDark(ref, [bookmark.id]);
+
+  if (bookmark.content.type === BookmarkTypes.TEXT) {
+    return (
+      <div ref={ref} className={className}>
+        <BookmarkDragHandle
+          bookmarkId={bookmark.id}
+          imageRegionDark={imageIsDark}
+          variant="image-overlay"
+        />
+        {children}
       </div>
-      <BookmarkActionBar bookmark={bookmark} />
+    );
+  }
+
+  return (
+    <div ref={ref} className={className}>
+      <BookmarkDragHandle
+        bookmarkId={bookmark.id}
+        imageRegionDark={imageIsDark}
+        variant="image-overlay"
+      />
+      {children}
+      <div className="absolute right-2 top-2 z-30">
+        <BookmarkActionBar
+          bookmark={bookmark}
+          variant="image-overlay"
+          imageRegionDark={imageIsDark}
+        />
+      </div>
     </div>
   );
 }
 
-function OwnerIndicator({ bookmark }: { bookmark: ZBookmark }) {
-  const api = useTRPC();
-  const listContext = useBookmarkListContext();
-  const collaborators = useQuery(
-    api.lists.getCollaborators.queryOptions(
-      {
-        listId: listContext?.id ?? "",
-      },
-      {
-        refetchOnWindowFocus: false,
-        enabled: !!listContext?.hasCollaborators,
-      },
-    ),
-  );
-
-  if (!listContext || listContext.userRole === "owner" || !collaborators.data) {
-    return null;
+function BottomRow({
+  footer,
+  bookmark,
+}: {
+  footer?: React.ReactNode;
+  bookmark: ZBookmark;
+}) {
+  // Only render bottom action bar for text (notes) cards. For image cards
+  // (LINK / ASSET) the action buttons are shown over the image (top-right).
+  if (bookmark.content.type === BookmarkTypes.TEXT) {
+    return (
+      <div className="justify flex w-full shrink-0 justify-between text-gray-500">
+        <div className="flex items-center gap-2 overflow-hidden text-nowrap font-light">
+          {footer && <>{footer}•</>}
+          <Link
+            href={`/dashboard/preview/${bookmark.id}`}
+            suppressHydrationWarning
+          >
+            <BookmarkFormattedCreatedAt createdAt={bookmark.createdAt} />
+          </Link>
+        </div>
+        <BookmarkActionBar bookmark={bookmark} />
+      </div>
+    );
   }
 
-  let owner = undefined;
-  if (bookmark.userId === collaborators.data.owner?.id) {
-    owner = collaborators.data.owner;
-  } else {
-    owner = collaborators.data.collaborators.find(
-      (c) => c.userId === bookmark.userId,
-    )?.user;
-  }
-
-  if (!owner) return null;
-
-  return (
-    <div className="absolute right-2 top-2 z-40 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-      <BookmarkOwnerIcon ownerName={owner.name} ownerAvatar={owner.image} />
-    </div>
-  );
+  // For other types (images/links) render an empty bottom row — actions live
+  // on top of the image instead.
+  return <div className="h-0 w-full shrink-0" />;
 }
 
 function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
@@ -122,12 +116,13 @@ function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
   );
   const isBulkEditEnabled = useBulkActionsStore((s) => s.isBulkEditEnabled);
   const toggleBookmark = useBulkActionsStore((state) => state.toggleBookmark);
-  const { theme } = useTheme();
   const { data: session } = useSession();
+  const { theme } = useTheme();
 
-  // Don't show selector for non-owned bookmarks or when bulk edit is disabled
   const isOwner = session?.user?.id === bookmark.userId;
-  if (!isBulkEditEnabled || !isOwner) return null;
+  if (!isBulkEditEnabled || !isOwner) {
+    return null;
+  }
 
   const getIconColor = () => {
     if (theme === "dark") {
@@ -146,7 +141,7 @@ function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
   return (
     <button
       className={cn(
-        "absolute left-0 top-0 z-50 h-full w-full bg-opacity-0",
+        "absolute left-0 top-0 z-30 h-full w-full bg-opacity-0",
         {
           "bg-opacity-10": isSelected,
         },
@@ -154,7 +149,7 @@ function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
       )}
       onClick={() => toggleBookmark(bookmark.id)}
     >
-      <div className="absolute right-2 top-2 z-50 opacity-100">
+      <div className="absolute right-2 top-2 z-30 opacity-100">
         <div
           className={cn(
             "flex h-4 w-4 items-center justify-center rounded-full border border-gray-600",
@@ -168,120 +163,6 @@ function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
   );
 }
 
-function DragHandle({
-  bookmark,
-  className,
-}: {
-  bookmark: ZBookmark;
-  className?: string;
-}) {
-  const { isBulkEditEnabled } = useBulkActionsStore();
-  const handleDragStart = useCallback(
-    (e: React.DragEvent) => {
-      e.stopPropagation();
-      e.dataTransfer.setData(BOOKMARK_DRAG_MIME, bookmark.id);
-      e.dataTransfer.effectAllowed = "copy";
-
-      // Create a small pill element as the drag preview
-      const pill = document.createElement("div");
-      const title = getBookmarkTitle(bookmark) ?? "Untitled";
-      pill.textContent =
-        title.length > 40 ? title.substring(0, 40) + "\u2026" : title;
-      Object.assign(pill.style, {
-        position: "fixed",
-        left: "-9999px",
-        top: "-9999px",
-        padding: "6px 12px",
-        borderRadius: "8px",
-        backgroundColor: "hsl(var(--card))",
-        border: "1px solid hsl(var(--border))",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        fontSize: "13px",
-        fontFamily: "inherit",
-        color: "hsl(var(--foreground))",
-        maxWidth: "240px",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      });
-      document.body.appendChild(pill);
-      e.dataTransfer.setDragImage(pill, 0, 0);
-      requestAnimationFrame(() => pill.remove());
-    },
-    [bookmark],
-  );
-
-  if (isBulkEditEnabled) return null;
-
-  return (
-    <div
-      draggable
-      onDragStart={handleDragStart}
-      className={cn(
-        "absolute z-40 hidden cursor-grab rounded bg-background/70 p-0.5 opacity-0 shadow-sm transition-opacity duration-200 group-hover:opacity-100 [@media(pointer:fine)]:block",
-        className,
-      )}
-    >
-      <GripVertical className="size-4 text-muted-foreground" />
-    </div>
-  );
-}
-
-function HoverActionBar({ bookmark }: { bookmark: ZBookmark }) {
-  const { t } = useTranslation();
-  const { isBulkEditEnabled } = useBulkActionsStore();
-  const { data: session } = useSession();
-  const demoMode = !!useClientConfig().demoMode;
-  const updateBookmarkMutator = useUpdateBookmark({
-    onSuccess: () => {
-      toast.success(t("toasts.bookmarks.updated"));
-    },
-    onError: () => {
-      toast.error(t("common.something_went_wrong"));
-    },
-  });
-
-  const isOwner = session?.user?.id === bookmark.userId;
-  if (!isOwner || isBulkEditEnabled || demoMode) return null;
-
-  return (
-    <div className="pointer-events-none absolute right-2 top-2 z-30 hidden gap-1 rounded bg-white/50 p-1 opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 dark:bg-black/50 [@media(pointer:fine)]:pointer-events-auto [@media(pointer:fine)]:flex">
-      <button
-        title={
-          bookmark.favourited ? t("actions.unfavorite") : t("actions.favorite")
-        }
-        className="rounded p-0.5 hover:bg-background/50"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          updateBookmarkMutator.mutate({
-            bookmarkId: bookmark.id,
-            favourited: !bookmark.favourited,
-          });
-        }}
-      >
-        <FavouritedActionIcon favourited={bookmark.favourited} size={16} />
-      </button>
-      <button
-        title={
-          bookmark.archived ? t("actions.unarchive") : t("actions.archive")
-        }
-        className="rounded p-0.5 hover:bg-background/50"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          updateBookmarkMutator.mutate({
-            bookmarkId: bookmark.id,
-            archived: !bookmark.archived,
-          });
-        }}
-      >
-        <ArchivedActionIcon archived={bookmark.archived} size={16} />
-      </button>
-    </div>
-  );
-}
-
 function ListView({
   bookmark,
   image,
@@ -291,49 +172,40 @@ function ListView({
   className,
   bookmarkIndex,
 }: Props) {
-  const { showNotes, showTags, showTitle, imageFit } =
-    useBookmarkDisplaySettings();
-  const imgFitClass = switchCase(imageFit, {
-    cover: "object-cover",
-    contain: "object-contain",
-  });
-  const note = showNotes ? bookmark.note?.trim() : undefined;
-
   return (
     <div
       className={cn(
-        "group relative flex max-h-96 gap-4 overflow-hidden rounded-lg p-2",
+        "relative flex max-h-96 gap-4 overflow-hidden rounded-lg p-2",
         className,
       )}
       data-bookmark-index={bookmarkIndex}
     >
       <MultiBookmarkSelector bookmark={bookmark} />
-      <OwnerIndicator bookmark={bookmark} />
-      <DragHandle
+      {/* Image wrapper — make relative so we can position action buttons over the image
+          and show a border (via ring) around the image when the parent card is hovered.
+       */}
+      <ImageWithTopRightActions
         bookmark={bookmark}
-        className="left-1 top-1/2 -translate-y-1/2"
-      />
-      <HoverActionBar bookmark={bookmark} />
-      <div className="flex size-32 items-center justify-center overflow-hidden">
-        {image("list", cn("size-32 rounded-lg", imgFitClass))}
-      </div>
-      <div className="flex h-full flex-1 flex-col justify-between gap-2 overflow-hidden">
+        className="relative flex size-32 items-center justify-center overflow-hidden transition-all group-hover:ring-1 group-hover:ring-border"
+      >
+        {image("list", "object-cover rounded-lg size-32")}
+      </ImageWithTopRightActions>
+      {/* Reduce vertical gap between content and action buttons */}
+      <div className="flex h-full flex-1 flex-col justify-between gap-1 overflow-hidden">
         <div className="flex flex-col gap-2 overflow-hidden">
-          {showTitle && title && (
-            <div className="line-clamp-2 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-lg">
+          {title && (
+            // Title: limit to a single line to avoid multi-row titles
+            <div className="line-clamp-1 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-center text-sm">
               {title}
             </div>
           )}
           {content && <div className="shrink-1 overflow-hidden">{content}</div>}
-          {note && <NotePreview note={note} bookmarkId={bookmark.id} />}
-          {showTags && (
-            <div className="flex shrink-0 flex-wrap gap-1 overflow-hidden">
-              <TagList
-                bookmark={bookmark}
-                loading={isBookmarkStillTagging(bookmark)}
-              />
-            </div>
-          )}
+          <div className="flex shrink-0 flex-wrap gap-1 overflow-hidden">
+            <TagList
+              bookmark={bookmark}
+              loading={isBookmarkStillTagging(bookmark)}
+            />
+          </div>
         </div>
         <BottomRow footer={footer} bookmark={bookmark} />
       </div>
@@ -348,55 +220,64 @@ function GridView({
   content,
   footer,
   className,
-  wrapTags,
+  wrapTags: _wrapTags,
   layout,
   fitHeight = false,
   bookmarkIndex,
 }: Props & { layout: BookmarksLayoutTypes }) {
-  const { showNotes, showTags, showTitle, imageFit } =
-    useBookmarkDisplaySettings();
-  const imgFitClass = switchCase(imageFit, {
-    cover: "object-cover",
-    contain: "object-contain",
-  });
-  const note = showNotes ? bookmark.note?.trim() : undefined;
-  const img = image(
-    "grid",
-    cn("h-56 min-h-56 w-full rounded-t-lg", imgFitClass),
-  );
+  const imgClass =
+    layout === "masonry"
+      ? "w-full object-cover rounded-b-lg"
+      : "h-56 min-h-56 w-full object-cover rounded-b-lg";
+
+  const img = image(layout, imgClass);
+
+  const containerHeightClass =
+    layout === "masonry"
+      ? ""
+      : fitHeight && layout != "grid"
+        ? "max-h-96"
+        : "h-96";
 
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg",
+        "relative flex flex-col overflow-hidden rounded-lg",
         className,
-        fitHeight && layout != "grid" ? "max-h-96" : "h-96",
+        containerHeightClass,
       )}
       data-bookmark-index={bookmarkIndex}
     >
       <MultiBookmarkSelector bookmark={bookmark} />
-      <OwnerIndicator bookmark={bookmark} />
-      <DragHandle bookmark={bookmark} className="left-2 top-2" />
-      <HoverActionBar bookmark={bookmark} />
-      {img && <div className="h-56 w-full shrink-0 overflow-hidden">{img}</div>}
-      <div className="flex h-full flex-col justify-between gap-2 overflow-hidden p-2">
+      {!img && <BookmarkDragHandle bookmarkId={bookmark.id} />}
+      {img && (
+        // Image container made relative so overlay (action buttons) can be
+        // positioned at the top-right of the image for non-text bookmarks.
+        // Also add `group-hover:ring` so hovering the parent card highlights
+        // only the image area (no card-level hover effects).
+        <ImageWithTopRightActions
+          bookmark={bookmark}
+          className={cn(
+            layout === "masonry"
+              ? "relative w-full shrink-0 overflow-hidden rounded-b-lg transition-all group-hover:ring-1 group-hover:ring-border"
+              : "relative h-56 w-full shrink-0 overflow-hidden rounded-b-lg transition-all group-hover:ring-1 group-hover:ring-border",
+          )}
+        >
+          {img}
+        </ImageWithTopRightActions>
+      )}
+      {/* Reduce vertical gap between content and action buttons */}
+      <div className="flex h-full flex-col justify-between gap-1 overflow-hidden p-2">
         <div className="grow-1 flex flex-col gap-2 overflow-hidden">
-          {showTitle && title && (
-            <div className="line-clamp-2 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-lg">
+          {title && (
+            // Title: limit to a single line to avoid multi-row titles
+            <div className="line-clamp-1 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-center text-sm">
               {title}
             </div>
           )}
           {content && <div className="shrink-1 overflow-hidden">{content}</div>}
-          {note && <NotePreview note={note} bookmarkId={bookmark.id} />}
-          {showTags && (
-            <div className="flex shrink-0 flex-wrap gap-1 overflow-hidden">
-              <TagList
-                className={wrapTags ? undefined : "h-full"}
-                bookmark={bookmark}
-                loading={isBookmarkStillTagging(bookmark)}
-              />
-            </div>
-          )}
+          {/* Tags hidden for masonry/grid cards as requested */}
+          {/* TagList intentionally removed to keep card footer minimal */}
         </div>
         <BottomRow footer={footer} bookmark={bookmark} />
       </div>
@@ -411,18 +292,17 @@ function CompactView({
   className,
   bookmarkIndex,
 }: Props) {
-  const { showTitle } = useBookmarkDisplaySettings();
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg",
+        "relative flex flex-col overflow-hidden rounded-lg",
         className,
         "max-h-96",
       )}
       data-bookmark-index={bookmarkIndex}
     >
       <MultiBookmarkSelector bookmark={bookmark} />
-      <OwnerIndicator bookmark={bookmark} />
+      <BookmarkDragHandle bookmarkId={bookmark.id} />
       <div className="flex h-full justify-between gap-2 overflow-hidden p-2">
         <div className="flex items-center gap-2">
           {bookmark.content.type === BookmarkTypes.LINK &&
@@ -442,11 +322,11 @@ function CompactView({
           {bookmark.content.type === BookmarkTypes.ASSET && (
             <ImageIcon className="size-5" />
           )}
-          {showTitle && (
-            <div className="shrink-1 text-md line-clamp-1 overflow-hidden text-ellipsis break-words">
+          {
+            <div className="shrink-1 text-md line-clamp-1 overflow-hidden text-ellipsis break-words text-center">
               {title ?? "Untitled"}
             </div>
-          )}
+          }
           {footer && (
             <p className="flex shrink-0 gap-2 text-gray-500">•{footer}</p>
           )}

@@ -1,10 +1,12 @@
-// TODO: Refactor the bookmark layout grid to be generic and allow to pass the bookmark component generically.
-// This removes the need for handling the layout in this component.
+"use client";
+
+// Gleiche Spaltenbreite wie das echte Dashboard-Raster (balanced masonry), damit
+// Skeleton und geladene Karten dieselbe Aufteilung haben — nicht react-masonry-css.
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMasonryColumnCount } from "@/lib/masonry/useMasonryColumnCount";
 import { useGridColumns } from "@/lib/userLocalSettings/bookmarksLayout";
 import tailwindConfig from "@/tailwind.config";
-import Masonry from "react-masonry-css";
 import resolveConfig from "tailwindcss/resolveConfig";
 
 function getBreakpointConfig(userColumns: number) {
@@ -18,9 +20,12 @@ function getBreakpointConfig(userColumns: number) {
   const mdColumns = Math.max(1, Math.min(userColumns, 2));
   const smColumns = 1;
 
-  breakpointColumnsObj[parseInt(fullConfig.theme.screens.lg)] = lgColumns;
-  breakpointColumnsObj[parseInt(fullConfig.theme.screens.md)] = mdColumns;
-  breakpointColumnsObj[parseInt(fullConfig.theme.screens.sm)] = smColumns;
+  breakpointColumnsObj[Number.parseInt(fullConfig.theme.screens.lg, 10)] =
+    lgColumns;
+  breakpointColumnsObj[Number.parseInt(fullConfig.theme.screens.md, 10)] =
+    mdColumns;
+  breakpointColumnsObj[Number.parseInt(fullConfig.theme.screens.sm, 10)] =
+    smColumns;
   return breakpointColumnsObj;
 }
 
@@ -49,18 +54,29 @@ export default function BookmarksGridSkeleton({
     () => getBreakpointConfig(gridColumns),
     [gridColumns],
   );
+  const columnCount = useMasonryColumnCount(breakpointConfig);
 
-  const children = Array.from({ length: count }, (_, i) => (
-    <BookmarkCardSkeleton key={i} height="h-48" />
-  ));
+  const columns = useMemo(() => {
+    const cols: number[][] = Array.from({ length: columnCount }, () => []);
+    for (let i = 0; i < count; i++) {
+      cols[i % columnCount].push(i);
+    }
+    return cols;
+  }, [count, columnCount]);
 
   return (
-    <Masonry
-      className="-ml-8 flex w-auto"
-      columnClassName="pl-8"
-      breakpointCols={breakpointConfig}
-    >
-      {children}
-    </Masonry>
+    <div className="-ml-8 flex w-auto">
+      {columns.map((indices, colIdx) => (
+        <div
+          key={colIdx}
+          className="pl-8"
+          style={{ width: `${100 / columnCount}%` }}
+        >
+          {indices.map((i) => (
+            <BookmarkCardSkeleton key={i} height="h-48" />
+          ))}
+        </div>
+      ))}
+    </div>
   );
 }

@@ -22,14 +22,28 @@ function AssetImage({
   const bookmarkedAsset = bookmark.content;
   switch (bookmarkedAsset.assetType) {
     case "image": {
+      // For masonry layout prefer a regular img so the natural height dictates
+      // the card height. If a height class is provided use next/image with fill.
+      const hasExplicitHeight =
+        !!className && /(h-|min-h-|size-)/.test(className);
+      if (hasExplicitHeight) {
+        return (
+          <Link href={`/dashboard/preview/${bookmark.id}`}>
+            <Image
+              alt="asset"
+              src={getAssetUrl(bookmarkedAsset.assetId)}
+              fill={true}
+              className={className}
+            />
+          </Link>
+        );
+      }
       return (
         <Link href={`/dashboard/preview/${bookmark.id}`}>
-          <Image
+          <img
             alt="asset"
             src={getAssetUrl(bookmarkedAsset.assetId)}
-            fill={true}
-            unoptimized
-            className={className}
+            className={cn(className ?? "", "h-auto w-full object-cover")}
           />
         </Link>
       );
@@ -48,14 +62,26 @@ function AssetImage({
           </div>
         );
       }
+      const hasExplicitHeight =
+        !!className && /(h-|min-h-|size-)/.test(className);
+      if (hasExplicitHeight) {
+        return (
+          <Link href={`/dashboard/preview/${bookmark.id}`}>
+            <Image
+              alt="asset"
+              src={getAssetUrl(screenshotAssetId)}
+              fill={true}
+              className={className}
+            />
+          </Link>
+        );
+      }
       return (
         <Link href={`/dashboard/preview/${bookmark.id}`}>
-          <Image
+          <img
             alt="asset"
             src={getAssetUrl(screenshotAssetId)}
-            fill={true}
-            unoptimized
-            className={className}
+            className={cn(className ?? "", "h-auto w-full object-cover")}
           />
         </Link>
       );
@@ -86,8 +112,8 @@ export default function AssetCard({
       }
       bookmark={bookmarkedAsset}
       className={className}
-      bookmarkIndex={bookmarkIndex}
       wrapTags={true}
+      bookmarkIndex={bookmarkIndex}
       image={(_layout, className) => (
         <div className="relative size-full flex-1">
           <AssetImage bookmark={bookmarkedAsset} className={className} />

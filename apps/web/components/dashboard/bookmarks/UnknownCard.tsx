@@ -22,8 +22,8 @@ export default function UnknownCard({
       title={bookmark.title}
       bookmark={bookmark}
       className={className}
-      bookmarkIndex={bookmarkIndex}
       wrapTags={false}
+      bookmarkIndex={bookmarkIndex}
       image={(_layout) => (
         <div className="flex size-full flex-1 flex-col items-center justify-center bg-red-50 dark:bg-red-950/10">
           <AlertCircle className="mb-3 h-10 w-10 text-red-500" />
