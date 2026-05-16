@@ -79,7 +79,12 @@ export function ListsSelector({ bookmarkId }: { bookmarkId: string }) {
             <CommandEmpty>You don&apos;t have any lists.</CommandEmpty>
             <CommandGroup>
               {allLists?.allPaths
-                .filter((path) => path[path.length - 1].userRole !== "viewer")
+                .filter((path) => {
+                  const last = path[path.length - 1];
+                  return (
+                    last.type === "manual" && last.userRole !== "viewer"
+                  );
+                })
                 .map((path) => {
                   const lastItem = path[path.length - 1];
 

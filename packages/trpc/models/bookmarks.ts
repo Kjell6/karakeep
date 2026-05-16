@@ -4,15 +4,12 @@ import {
   asc,
   desc,
   eq,
-  exists,
   getTableColumns,
   gt,
   gte,
   inArray,
   lt,
   lte,
-  not,
-  notExists,
   or,
   SQL,
 } from "drizzle-orm";
@@ -25,7 +22,6 @@ import {
   AssetTypes,
   bookmarkAssets,
   bookmarkLinks,
-  bookmarkLists,
   bookmarks,
   bookmarksInLists,
   bookmarkTags,
@@ -35,6 +31,7 @@ import {
 } from "@karakeep/db/schema";
 import { SearchIndexingQueue } from "@karakeep/shared-server";
 
+import { bookmarkVisibleOutsideThisListOnlySilos } from "../lib/bookmarkGlobalListVisibility";
 import { WebhooksService } from "./webhooks.service";
 import { deleteAsset, readAsset } from "@karakeep/shared/assetdb";
 import { getAlignedExpiry } from "@karakeep/shared/signedTokens";
@@ -548,42 +545,7 @@ export class Bookmark extends BareBookmark {
       // Uses composite index: bookmarks_userId_createdAt_id_idx (or archived/favourited variants)
       const homeGlobalFeedVisibility: SQL | undefined =
         input.homeGlobalFeed === true
-          ? (() => {
-              const onlySandboxLists = and(
-                exists(
-                  ctx.db
-                    .select({ id: bookmarksInLists.bookmarkId })
-                    .from(bookmarksInLists)
-                    .innerJoin(
-                      bookmarkLists,
-                      eq(bookmarkLists.id, bookmarksInLists.listId),
-                    )
-                    .where(
-                      and(
-                        eq(bookmarksInLists.bookmarkId, bookmarks.id),
-                        eq(bookmarkLists.thisListOnly, true),
-                      ),
-                    ),
-                ),
-                notExists(
-                  ctx.db
-                    .select({ id: bookmarksInLists.bookmarkId })
-                    .from(bookmarksInLists)
-                    .innerJoin(
-                      bookmarkLists,
-                      eq(bookmarkLists.id, bookmarksInLists.listId),
-                    )
-                    .where(
-                      and(
-                        eq(bookmarksInLists.bookmarkId, bookmarks.id),
-                        eq(bookmarkLists.thisListOnly, false),
-                      ),
-                    ),
-                ),
-              );
-              invariant(onlySandboxLists !== undefined);
-              return not(onlySandboxLists);
-            })()
+          ? bookmarkVisibleOutsideThisListOnlySilos(ctx.db, bookmarks.id)
           : undefined;
 
       sq = ctx.db.$with("bookmarksSq").as(

@@ -220,6 +220,128 @@ describe("getBookmarkIdsFromMatcher", () => {
     expect(result.sort()).toEqual(["b2", "b3", "b4", "b5", "b6"]);
   });
 
+  it("should omit bookmarks only assigned to manual this-list-only lists from positive tagName matches", async () => {
+    await mockCtx.db.insert(bookmarkLists).values({
+      id: "l_sandbox",
+      userId: testUserId,
+      name: "Sandbox only list",
+      icon: "🔒",
+      type: "manual",
+      thisListOnly: true,
+    });
+    await mockCtx.db.insert(bookmarkLists).values({
+      id: "l_public",
+      userId: testUserId,
+      name: "Public manual list",
+      icon: "📌",
+      type: "manual",
+    });
+    await mockCtx.db.insert(bookmarks).values({
+      id: "b_exclusive",
+      userId: testUserId,
+      type: BookmarkTypes.TEXT,
+      archived: false,
+      favourited: false,
+      createdAt: new Date("2026-05-01"),
+    });
+    await mockCtx.db.insert(bookmarkTexts).values({
+      id: "b_exclusive",
+      text: "exclusive sandbox pin",
+      sourceUrl: null,
+    });
+    await mockCtx.db.insert(bookmarkTags).values({
+      id: "tag_exclusive_only",
+      userId: testUserId,
+      name: "exclusivePinnedTag",
+    });
+    await mockCtx.db.insert(tagsOnBookmarks).values({
+      bookmarkId: "b_exclusive",
+      tagId: "tag_exclusive_only",
+      attachedBy: "human",
+    });
+    await mockCtx.db.insert(bookmarksInLists).values({
+      bookmarkId: "b_exclusive",
+      listId: "l_sandbox",
+    });
+
+    await mockCtx.db.insert(bookmarks).values({
+      id: "b_mix",
+      userId: testUserId,
+      type: BookmarkTypes.TEXT,
+      archived: false,
+      favourited: false,
+      createdAt: new Date("2026-05-02"),
+    });
+    await mockCtx.db.insert(bookmarkTexts).values({
+      id: "b_mix",
+      text: "sandbox + normal list",
+      sourceUrl: null,
+    });
+    await mockCtx.db.insert(tagsOnBookmarks).values({
+      bookmarkId: "b_mix",
+      tagId: "tag_exclusive_only",
+      attachedBy: "human",
+    });
+    await mockCtx.db.insert(bookmarksInLists).values([
+      { bookmarkId: "b_mix", listId: "l_sandbox" },
+      { bookmarkId: "b_mix", listId: "l_public" },
+    ]);
+
+    const matcher: Matcher = {
+      type: "tagName",
+      tagName: "exclusivePinnedTag",
+      inverse: false,
+    };
+    const result = await getBookmarkIdsFromMatcher(mockCtx, matcher);
+    expect(result).toContain("b_mix");
+    expect(result).not.toContain("b_exclusive");
+  });
+
+  it("should omit this-list-only-exclusive bookmarks from is:tagged when tagged=true", async () => {
+    await mockCtx.db.insert(bookmarkLists).values({
+      id: "l_iso",
+      userId: testUserId,
+      name: "Another sandbox",
+      icon: "📦",
+      type: "manual",
+      thisListOnly: true,
+    });
+    await mockCtx.db.insert(bookmarks).values({
+      id: "b_iso",
+      userId: testUserId,
+      type: BookmarkTypes.TEXT,
+      archived: false,
+      favourited: false,
+      createdAt: new Date("2026-05-03"),
+    });
+    await mockCtx.db.insert(bookmarkTexts).values({
+      id: "b_iso",
+      text: "tagged sandbox only",
+      sourceUrl: null,
+    });
+    await mockCtx.db.insert(bookmarkTags).values({
+      id: "tag_iso",
+      userId: testUserId,
+      name: "isoTagName",
+    });
+    await mockCtx.db.insert(tagsOnBookmarks).values({
+      bookmarkId: "b_iso",
+      tagId: "tag_iso",
+      attachedBy: "human",
+    });
+    await mockCtx.db.insert(bookmarksInLists).values({
+      bookmarkId: "b_iso",
+      listId: "l_iso",
+    });
+
+    const matcher: Matcher = {
+      type: "tagged",
+      tagged: true,
+    };
+    const result = await getBookmarkIdsFromMatcher(mockCtx, matcher);
+    expect(result).not.toContain("b_iso");
+  });
+
   it("should handle listName matcher", async () => {
     const matcher: Matcher = {
       type: "listName",

@@ -31,6 +31,7 @@ import {
 import { Matcher } from "@karakeep/shared/types/search";
 import { toAbsoluteDate } from "@karakeep/shared/utils/relativeDateUtils";
 
+import { bookmarkVisibleOutsideThisListOnlySilos } from "./bookmarkGlobalListVisibility";
 import { AuthedContext } from "..";
 
 interface BookmarkQueryReturnType {
@@ -107,6 +108,9 @@ async function getIds(
         .where(
           and(
             eq(bookmarks.userId, userId),
+            ...(matcher.inverse === false
+              ? [bookmarkVisibleOutsideThisListOnlySilos(db, bookmarks.id)]
+              : []),
             comp(
               db
                 .select()
@@ -134,6 +138,9 @@ async function getIds(
         .where(
           and(
             eq(bookmarks.userId, userId),
+            ...(matcher.tagged === true
+              ? [bookmarkVisibleOutsideThisListOnlySilos(db, bookmarks.id)]
+              : []),
             comp(
               db
                 .select()
