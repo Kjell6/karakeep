@@ -8,7 +8,9 @@ import useBulkActionsStore from "@/lib/bulkActions";
 import {
   bookmarkLayoutSwitch,
   useBookmarkLayout,
+  useShowFullTitles,
 } from "@/lib/userLocalSettings/bookmarksLayout";
+import { useListShowFullTitles } from "@/lib/userLocalSettings/listViewOptions";
 import { cn } from "@/lib/utils";
 import { Check, Image as ImageIcon, NotebookPen } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -172,6 +174,8 @@ function ListView({
   className,
   bookmarkIndex,
 }: Props) {
+  const globalShowFullTitles = useShowFullTitles();
+  const showFullTitles = useListShowFullTitles(globalShowFullTitles);
   return (
     <div
       className={cn(
@@ -195,7 +199,14 @@ function ListView({
         <div className="flex flex-col gap-2 overflow-hidden">
           {title && (
             // Title: limit to a single line to avoid multi-row titles
-            <div className="line-clamp-1 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-center text-sm">
+            <div
+              className={cn(
+                "flex-none shrink-0 break-words text-center text-sm",
+                showFullTitles
+                  ? "overflow-visible"
+                  : "line-clamp-1 overflow-hidden text-ellipsis",
+              )}
+            >
               {title}
             </div>
           )}
@@ -225,6 +236,8 @@ function GridView({
   fitHeight = false,
   bookmarkIndex,
 }: Props & { layout: BookmarksLayoutTypes }) {
+  const globalShowFullTitles = useShowFullTitles();
+  const showFullTitles = useListShowFullTitles(globalShowFullTitles);
   const imgClass =
     layout === "masonry"
       ? "w-full object-cover rounded-b-lg"
@@ -271,7 +284,14 @@ function GridView({
         <div className="grow-1 flex flex-col gap-2 overflow-hidden">
           {title && (
             // Title: limit to a single line to avoid multi-row titles
-            <div className="line-clamp-1 flex-none shrink-0 overflow-hidden text-ellipsis break-words text-center text-sm">
+            <div
+              className={cn(
+                "flex-none shrink-0 break-words text-center text-sm",
+                showFullTitles
+                  ? "overflow-visible"
+                  : "line-clamp-1 overflow-hidden text-ellipsis",
+              )}
+            >
               {title}
             </div>
           )}
@@ -292,6 +312,8 @@ function CompactView({
   className,
   bookmarkIndex,
 }: Props) {
+  const globalShowFullTitles = useShowFullTitles();
+  const showFullTitles = useListShowFullTitles(globalShowFullTitles);
   return (
     <div
       className={cn(
@@ -323,7 +345,14 @@ function CompactView({
             <ImageIcon className="size-5" />
           )}
           {
-            <div className="shrink-1 text-md line-clamp-1 overflow-hidden text-ellipsis break-words text-center">
+            <div
+              className={cn(
+                "shrink-1 text-md break-words text-center",
+                showFullTitles
+                  ? ""
+                  : "line-clamp-1 overflow-hidden text-ellipsis",
+              )}
+            >
               {title ?? "Untitled"}
             </div>
           }

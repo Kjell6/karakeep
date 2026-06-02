@@ -17,6 +17,7 @@ export const UserLocalSettingsCtx = createContext<
   showNotes: false,
   showTags: true,
   showTitle: true,
+  showFullTitles: false,
   imageFit: "cover",
 });
 
@@ -30,8 +31,14 @@ export function useBookmarkDisplaySettings() {
     showNotes: settings.showNotes,
     showTags: settings.showTags,
     showTitle: settings.showTitle,
+    showFullTitles: settings.showFullTitles,
     imageFit: settings.imageFit,
   };
+}
+
+export function useShowFullTitles() {
+  const settings = useUserLocalSettings();
+  return settings.showFullTitles;
 }
 
 export function useBookmarkLayout(): BookmarksLayoutTypes {

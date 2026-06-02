@@ -55,6 +55,10 @@ export async function updateShowTitle(showTitle: boolean) {
   await readModifyWrite(() => ({ showTitle }));
 }
 
+export async function updateShowFullTitles(showFullTitles: boolean) {
+  await readModifyWrite(() => ({ showFullTitles }));
+}
+
 export async function updateImageFit(imageFit: "cover" | "contain") {
   await readModifyWrite(() => ({ imageFit }));
 }

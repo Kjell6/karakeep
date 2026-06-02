@@ -11,11 +11,20 @@ import { Slider } from "@/components/ui/slider";
 import { useTranslation } from "@/lib/i18n/client";
 import { useGridColumns } from "@/lib/userLocalSettings/bookmarksLayout";
 import { updateGridColumns } from "@/lib/userLocalSettings/userLocalSettings";
+import {
+  useListShowFullTitles,
+  useUpdateListShowFullTitles,
+} from "@/lib/userLocalSettings/listViewOptions";
+import { useShowFullTitles } from "@/lib/userLocalSettings/bookmarksLayout";
 import { Settings } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 export default function ViewOptions() {
   const { t } = useTranslation();
   const gridColumns = useGridColumns();
+  const globalShowFullTitles = useShowFullTitles();
+  const showFullTitles = useListShowFullTitles(globalShowFullTitles);
+  const updateShowFullTitles = useUpdateListShowFullTitles();
   const [tempColumns, setTempColumns] = useState(gridColumns);
 
   useEffect(() => {
@@ -53,6 +62,17 @@ export default function ViewOptions() {
           <div className="mt-1 flex justify-between text-xs text-muted-foreground">
             <span>1</span>
             <span>6</span>
+          </div>
+        </div>
+        <div className="border-t px-2 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold">
+              {t("view_options.show_full_titles")}
+            </span>
+            <Switch
+              checked={showFullTitles}
+              onCheckedChange={(checked) => updateShowFullTitles(checked)}
+            />
           </div>
         </div>
       </DropdownMenuContent>
