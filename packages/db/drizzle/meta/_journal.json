@@ -617,6 +617,13 @@
       "when": 1777464072038,
       "tag": "0087_add_list_sidebar_folder",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "6",
+      "when": 1780649141105,
+      "tag": "0088_merge_upstream_and_fork_changes",
+      "breakpoints": true
     }
   ]
 }
