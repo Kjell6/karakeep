@@ -122,6 +122,9 @@ function OwnedSortableRow({
   setSelectedListId: (id: string | null) => void;
 }) {
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   const {
     attributes,
     listeners,
@@ -176,22 +179,24 @@ function OwnedSortableRow({
       isDragging={isDragging}
       right={
         <div className="flex shrink-0 items-center">
-          <Button
-            type="button"
-            size="none"
-            variant="ghost"
-            className={cn(
-              "relative mr-0.5 cursor-grab touch-none rounded-md p-1 active:cursor-grabbing",
-              "text-muted-foreground opacity-0 transition-opacity duration-100 group-hover:opacity-100",
-            )}
-            aria-label={t("lists.reorder_handle", {
-              defaultValue: "Reorder list",
-            })}
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical className="size-4" strokeWidth={2} aria-hidden />
-          </Button>
+          {isMounted && (
+            <Button
+              type="button"
+              size="none"
+              variant="ghost"
+              className={cn(
+                "relative mr-0.5 cursor-grab touch-none rounded-md p-1 active:cursor-grabbing",
+                "text-muted-foreground opacity-0 transition-opacity duration-100 group-hover:opacity-100",
+              )}
+              aria-label={t("lists.reorder_handle", {
+                defaultValue: "Reorder list",
+              })}
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical className="size-4" strokeWidth={2} aria-hidden />
+            </Button>
+          )}
           <ListOptions
             onOpenChange={(isOpen) => {
               if (isOpen) {
