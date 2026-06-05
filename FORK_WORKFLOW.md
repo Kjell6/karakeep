@@ -29,19 +29,17 @@ git commit -m "feat: ..." && git push origin kjell/custom
 
 ## Docker Image
 
-Dein Image wird bei jedem Push auf `kjell/custom` automatisch gebaut:
+Dein Image wird bei jedem Push auf `kjell/custom` automatisch vom Workflow **"Publish Docker image to GHCR"** gebaut:
 
 ```
-ghcr.io/kjell6/karakeep-aio:latest
-ghcr.io/kjell6/karakeep-web:latest
-ghcr.io/kjell6/karakeep-workers:latest
+ghcr.io/kjell6/karakeep:latest
 ```
 
 In `docker-compose.yml`:
 ```yaml
 services:
   karakeep:
-    image: ghcr.io/kjell6/karakeep-aio:latest
+    image: ghcr.io/kjell6/karakeep:latest
 ```
 
 ## Tips
