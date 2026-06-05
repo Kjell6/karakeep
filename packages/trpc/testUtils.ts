@@ -114,6 +114,9 @@ export function defaultBeforeEach(seedDB = true) {
         OpenAIQueue: {
           enqueue: vi.fn(),
         },
+        EmbeddingsQueue: {
+          enqueue: vi.fn(),
+        },
         SearchIndexingQueue: {
           enqueue: vi.fn(),
         },

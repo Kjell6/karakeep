@@ -29,7 +29,7 @@ import {
   rssFeedImportsTable,
   tagsOnBookmarks,
 } from "@karakeep/db/schema";
-import { SearchIndexingQueue } from "@karakeep/shared-server";
+import { EmbeddingsQueue, SearchIndexingQueue } from "@karakeep/shared-server";
 
 import { bookmarkVisibleOutsideThisListOnlySilos } from "../lib/bookmarkGlobalListVisibility";
 import { WebhooksService } from "./webhooks.service";
@@ -389,6 +389,7 @@ export class Bookmark extends BareBookmark {
       summary: bookmark.summary,
       taggingStatus: bookmark.taggingStatus,
       summarizationStatus: bookmark.summarizationStatus,
+      embeddingStatus: bookmark.embeddingStatus,
       userId: bookmark.userId,
       linkInfo,
       textInfo,
@@ -946,6 +947,15 @@ export class Bookmark extends BareBookmark {
       );
 
     await SearchIndexingQueue.enqueue(
+      {
+        bookmarkId: this.bookmark.id,
+        type: "delete",
+      },
+      {
+        groupId: this.ctx.user.id,
+      },
+    );
+    await EmbeddingsQueue.enqueue(
       {
         bookmarkId: this.bookmark.id,
         type: "delete",

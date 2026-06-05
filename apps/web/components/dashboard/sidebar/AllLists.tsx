@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTriggerTriangle,
+  CollapsibleTriggerChevron,
 } from "@/components/ui/collapsible";
 import { toast } from "@/components/ui/sonner";
 import { BOOKMARK_DRAG_MIME } from "@/lib/bookmark-drag";
@@ -176,6 +176,7 @@ function DroppableListSidebarItem({
           </Button>
         </ListOptions>
       }
+      linkClassName="py-0.5 px-1"
       style={{ marginLeft: `${level * 1}rem` }}
       dropHighlight={canDrop && dropHighlight}
       onDragOver={canDrop ? onDragOver : undefined}
@@ -278,6 +279,7 @@ export default function AllLists({
         logo={<ClipboardList size={18} strokeWidth={2} aria-hidden />}
         name={t("lists.all_lists")}
         path={`/dashboard/lists`}
+        linkClassName="py-0.5 px-1"
         right={<InvitationNotificationBadge />}
       />
       <SidebarItem
@@ -285,6 +287,7 @@ export default function AllLists({
         logo={<Star size={18} strokeWidth={2} aria-hidden />}
         name={t("lists.favourites")}
         path={`/dashboard/favourites`}
+        linkClassName="py-0.5 px-1"
       />
 
       <div className="mt-2">
@@ -310,6 +313,7 @@ export default function AllLists({
             logo={<Users size={18} strokeWidth={2} aria-hidden />}
             name={t("lists.shared_lists")}
             path="#"
+            linkClassName="py-0.5 px-1"
           />
           <CollapsibleContent>
             <CollapsibleBookmarkLists

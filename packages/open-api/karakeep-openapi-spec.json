@@ -163,6 +163,16 @@
               null
             ]
           },
+          "embeddingStatus": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "success",
+              "failure",
+              "pending",
+              null
+            ]
+          },
           "note": {
             "type": "string",
             "nullable": true
@@ -441,6 +451,7 @@
           "favourited",
           "taggingStatus",
           "summarizationStatus",
+          "embeddingStatus",
           "userId",
           "tags",
           "content",
@@ -1508,6 +1519,16 @@
                         null
                       ]
                     },
+                    "embeddingStatus": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "success",
+                        "failure",
+                        "pending",
+                        null
+                      ]
+                    },
                     "note": {
                       "type": "string",
                       "nullable": true
@@ -1543,6 +1564,7 @@
                     "favourited",
                     "taggingStatus",
                     "summarizationStatus",
+                    "embeddingStatus",
                     "userId"
                   ]
                 }
@@ -1641,6 +1663,16 @@
                         null
                       ]
                     },
+                    "embeddingStatus": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "success",
+                        "failure",
+                        "pending",
+                        null
+                      ]
+                    },
                     "note": {
                       "type": "string",
                       "nullable": true
@@ -1676,6 +1708,7 @@
                     "favourited",
                     "taggingStatus",
                     "summarizationStatus",
+                    "embeddingStatus",
                     "userId"
                   ]
                 }
