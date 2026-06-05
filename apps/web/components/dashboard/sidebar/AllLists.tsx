@@ -282,6 +282,7 @@ export default function AllLists({
         linkClassName="py-0.5 px-1"
         right={<InvitationNotificationBadge />}
       />
+      <div className="h-2" />
       <SidebarItem
         collapseButton={listLeadingPlaceholder}
         logo={<Star size={18} strokeWidth={2} aria-hidden />}
