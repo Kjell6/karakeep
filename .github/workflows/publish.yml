@@ -1,11 +1,9 @@
 name: Publish Docker image to GHCR
 
-# Nur main (und manuell): Fork-Releases über kjell-* Tags lösen hier keinen eigenen Lauf aus;
-# kjell-Tags können weiterhin main zeigen, Images kommen von jedem Push auf main.
 on:
   push:
     branches:
-      - main
+      - kjell/custom
   workflow_dispatch: {}
 
 permissions:
