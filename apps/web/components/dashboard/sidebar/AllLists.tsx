@@ -176,7 +176,6 @@ function DroppableListSidebarItem({
           </Button>
         </ListOptions>
       }
-      linkClassName="py-0.5 px-1"
       style={{ marginLeft: `${level * 1}rem` }}
       dropHighlight={canDrop && dropHighlight}
       onDragOver={canDrop ? onDragOver : undefined}
@@ -279,16 +278,13 @@ export default function AllLists({
         logo={<ClipboardList size={18} strokeWidth={2} aria-hidden />}
         name={t("lists.all_lists")}
         path={`/dashboard/lists`}
-        linkClassName="py-0.5 px-1"
         right={<InvitationNotificationBadge />}
       />
-      <div className="h-2" />
       <SidebarItem
         collapseButton={listLeadingPlaceholder}
         logo={<Star size={18} strokeWidth={2} aria-hidden />}
         name={t("lists.favourites")}
         path={`/dashboard/favourites`}
-        linkClassName="py-0.5 px-1"
       />
 
       <div className="mt-2">
@@ -314,7 +310,6 @@ export default function AllLists({
             logo={<Users size={18} strokeWidth={2} aria-hidden />}
             name={t("lists.shared_lists")}
             path="#"
-            linkClassName="py-0.5 px-1"
           />
           <CollapsibleContent>
             <CollapsibleBookmarkLists
