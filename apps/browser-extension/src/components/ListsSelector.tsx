@@ -81,9 +81,7 @@ export function ListsSelector({ bookmarkId }: { bookmarkId: string }) {
               {allLists?.allPaths
                 .filter((path) => {
                   const last = path[path.length - 1];
-                  return (
-                    last.type === "manual" && last.userRole !== "viewer"
-                  );
+                  return last.type === "manual" && last.userRole !== "viewer";
                 })
                 .map((path) => {
                   const lastItem = path[path.length - 1];

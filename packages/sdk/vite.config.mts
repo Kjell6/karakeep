@@ -17,8 +17,5 @@ export default defineConfig({
     ssr: true,
     sourcemap: true,
   },
-  plugins: [
-    tsconfigPaths(),
-    dts({ rollupTypes: true, copyDtsFiles: true }),
-  ],
+  plugins: [tsconfigPaths(), dts({ rollupTypes: true, copyDtsFiles: true })],
 });

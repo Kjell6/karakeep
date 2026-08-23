@@ -105,9 +105,7 @@ export function CollapsibleBookmarkLists({
   const api = useTRPC();
   // If listsData is provided, use it directly. Otherwise, fetch it.
   let { data: fetchedData } = useBookmarkLists(
-    flattenListFolders === false
-      ? { flattenListFolders: false }
-      : undefined,
+    flattenListFolders === false ? { flattenListFolders: false } : undefined,
     {
       initialData: initialData ? { lists: initialData } : undefined,
       enabled: !listsData, // Only fetch if listsData is not provided

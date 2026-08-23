@@ -28,6 +28,7 @@ export default function BookmarkActionBar({
   bookmark,
   variant = "default",
   imageRegionDark = null,
+  favouritedClassName,
 }: {
   bookmark: ZBookmark;
   variant?: "default" | "image-overlay";
@@ -36,6 +37,7 @@ export default function BookmarkActionBar({
    * (use light controls). `false` if light. `null` if unknown — uses blend fallback.
    */
   imageRegionDark?: boolean | null;
+  favouritedClassName?: string;
 }) {
   const overlayGhost =
     variant === "image-overlay"
@@ -51,7 +53,10 @@ export default function BookmarkActionBar({
       )}
     >
       {bookmark.favourited && (
-        <FavouritedActionIcon className="m-1 size-8 rounded p-1" favourited />
+        <FavouritedActionIcon
+          className={cn("m-1 size-8 rounded p-1", favouritedClassName)}
+          favourited
+        />
       )}
       <Link
         href={`/dashboard/preview/${bookmark.id}`}

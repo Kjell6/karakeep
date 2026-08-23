@@ -42,23 +42,19 @@ export default function NavBar() {
           </a>
           <a
             href="https://cloud.karakeep.app"
-            target="_blank"
             className={cn(
               "text flex h-full w-20 gap-2",
               buttonVariants({ variant: "outline" }),
             )}
-            rel="noreferrer"
           >
             Login
           </a>
           <a
             href={CLOUD_SIGNUP_LINK}
-            target="_blank"
             className={cn(
               "text flex h-full w-32 gap-2",
               buttonVariants({ variant: "default" }),
             )}
-            rel="noreferrer"
           >
             Get Started
           </a>
@@ -108,23 +104,19 @@ export default function NavBar() {
             <div className="mt-2 flex gap-3">
               <a
                 href="https://cloud.karakeep.app"
-                target="_blank"
                 className={cn(
                   "flex-1",
                   buttonVariants({ variant: "outline", size: "sm" }),
                 )}
-                rel="noreferrer"
               >
                 Login
               </a>
               <a
                 href={CLOUD_SIGNUP_LINK}
-                target="_blank"
                 className={cn(
                   "flex-1",
                   buttonVariants({ variant: "default", size: "sm" }),
                 )}
-                rel="noreferrer"
               >
                 Get Started
               </a>

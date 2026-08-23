@@ -272,7 +272,8 @@ function OwnedTreeNode({
   }, [node, isOpenFunc]);
 
   const sortedChildren = useMemo(
-    () => [...node.children].sort((a, b) => compareBookmarkLists(a.item, b.item)),
+    () =>
+      [...node.children].sort((a, b) => compareBookmarkLists(a.item, b.item)),
     [node.children],
   );
 
@@ -290,7 +291,10 @@ function OwnedTreeNode({
       />
       <CollapsibleContent>
         {childIds.length > 0 ? (
-          <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={childIds}
+            strategy={verticalListSortingStrategy}
+          >
             {sortedChildren.map((child) => (
               <OwnedTreeNode
                 key={child.item.id}

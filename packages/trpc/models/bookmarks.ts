@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -6,7 +8,6 @@ import {
   eq,
   getTableColumns,
   gt,
-  gte,
   inArray,
   lt,
   lte,
@@ -14,6 +15,7 @@ import {
   SQL,
 } from "drizzle-orm";
 import invariant from "tiny-invariant";
+import TurndownService from "turndown";
 import { z } from "zod";
 
 import { db as DONT_USE_db } from "@karakeep/db";
@@ -38,13 +40,17 @@ import { getAlignedExpiry } from "@karakeep/shared/signedTokens";
 import {
   BookmarkTypes,
   DEFAULT_NUM_BOOKMARKS_PER_PAGE,
+  zGetBookmarksRequestSchema,
+} from "@karakeep/shared/types/bookmarks";
+import type {
   ZBareBookmark,
   ZBookmark,
   ZBookmarkContent,
-  zGetBookmarksRequestSchema,
+  ZBookmarkReadableContent,
+  ZBookmarkReadableContentFormat,
   ZPublicBookmark,
 } from "@karakeep/shared/types/bookmarks";
-import { ZCursor } from "@karakeep/shared/types/pagination";
+import type { ZCursor } from "@karakeep/shared/types/pagination";
 import {
   getBookmarkLinkAssetIdOrUrl,
   getBookmarkTitle,
@@ -53,6 +59,7 @@ import { htmlToPlainText } from "@karakeep/shared/utils/htmlUtils";
 
 import { AuthedContext } from "..";
 import { mapDBAssetTypeToUserType } from "../lib/attachments";
+import { getPreferredLinkPreview } from "../lib/linkPreview";
 import { Asset } from "./assets";
 import { List } from "./lists";
 
@@ -79,6 +86,11 @@ async function dummyDrizzleReturnType() {
 type BookmarkQueryReturnType = Awaited<
   ReturnType<typeof dummyDrizzleReturnType>
 >;
+
+const turndownService = new TurndownService({
+  bulletListMarker: "-",
+  headingStyle: "atx",
+});
 
 export class BareBookmark {
   protected constructor(
@@ -184,6 +196,16 @@ export class Bookmark extends BareBookmark {
         htmlContent: includeContent
           ? await Bookmark.getBookmarkHtmlContent(link, bookmark.userId)
           : null,
+        readerViewStatus: link.readerViewStatus,
+        readerViewScore: link.readerViewScore,
+        preferredPreview: getPreferredLinkPreview({
+          readerViewStatus: link.readerViewStatus,
+          readerViewReasons: link.readerViewReasons,
+          crawlStatusCode: link.crawlStatusCode,
+          hasScreenshot: assets.some(
+            (asset) => asset.assetType === AssetTypes.LINK_SCREENSHOT,
+          ),
+        }),
         crawledAt: link.crawledAt,
         crawlStatus: link.crawlStatus,
         author: link.author,
@@ -227,6 +249,7 @@ export class Bookmark extends BareBookmark {
         assetType: mapDBAssetTypeToUserType(a.assetType),
         fileName: a.fileName,
       })),
+      firstCreatedAt: bookmark.dbCreatedAt,
       ...rest,
     };
   }
@@ -383,6 +406,7 @@ export class Bookmark extends BareBookmark {
       id: bookmark.id,
       type: bookmark.type,
       source: bookmark.source,
+      firstCreatedAt: bookmark.dbCreatedAt,
       createdAt: bookmark.createdAt,
       modifiedAt: bookmark.modifiedAt,
       title: bookmark.title,
@@ -401,7 +425,9 @@ export class Bookmark extends BareBookmark {
 
   static async loadMulti(
     ctx: AuthedContext,
-    input: z.infer<typeof zGetBookmarksRequestSchema>,
+    // `ids` is intentionally not part of the public getBookmarks API; it's
+    // only settable by server-side callers (search, smart lists, public lists).
+    input: z.infer<typeof zGetBookmarksRequestSchema> & { ids?: string[] },
   ): Promise<{
     bookmarks: Bookmark[];
     nextCursor: ZCursor | null;
@@ -410,7 +436,11 @@ export class Bookmark extends BareBookmark {
       return { bookmarks: [], nextCursor: null };
     }
     if (!input.limit) {
-      input.limit = DEFAULT_NUM_BOOKMARKS_PER_PAGE;
+      // When loading by ids, callers expect all requested bookmarks back,
+      // not a single default-sized page.
+      input.limit = input.ids
+        ? input.ids.length
+        : DEFAULT_NUM_BOOKMARKS_PER_PAGE;
     }
 
     // Validate that only one of listId, tagId, or rssFeedId is specified
@@ -447,7 +477,7 @@ export class Bookmark extends BareBookmark {
           gt(createdAtCol, input.cursor.createdAt),
           and(
             eq(createdAtCol, input.cursor.createdAt),
-            gte(idCol, input.cursor.id),
+            lte(idCol, input.cursor.id),
           ),
         );
       }
@@ -543,7 +573,7 @@ export class Bookmark extends BareBookmark {
       );
     } else {
       // PATH: No list/tag/rssFeed filter - query bookmarks directly
-      // Uses composite index: bookmarks_userId_createdAt_id_idx (or archived/favourited variants)
+      // Uses composite index: bookmarks_userId_lastSavedAt_id_idx (or archived/favourited variants)
       const homeGlobalFeedVisibility: SQL | undefined =
         input.homeGlobalFeed === true
           ? bookmarkVisibleOutsideThisListOnlySilos(ctx.db, bookmarks.id)
@@ -557,9 +587,7 @@ export class Bookmark extends BareBookmark {
             and(
               eq(bookmarks.userId, ctx.user.id),
               ...buildCommonFilters(),
-              ...(homeGlobalFeedVisibility
-                ? [homeGlobalFeedVisibility]
-                : []),
+              ...(homeGlobalFeedVisibility ? [homeGlobalFeedVisibility] : []),
               buildCursorCondition(bookmarks.createdAt, bookmarks.id),
             ),
           )
@@ -601,6 +629,15 @@ export class Bookmark extends BareBookmark {
                   : row.bookmarkLinks.htmlContent
                 : null,
               contentAssetId: row.bookmarkLinks.contentAssetId,
+              readerViewStatus: row.bookmarkLinks.readerViewStatus,
+              readerViewScore: row.bookmarkLinks.readerViewScore,
+              preferredPreview: getPreferredLinkPreview({
+                readerViewStatus: row.bookmarkLinks.readerViewStatus,
+                readerViewReasons: row.bookmarkLinks.readerViewReasons,
+                crawlStatusCode: row.bookmarkLinks.crawlStatusCode,
+                hasScreenshot:
+                  row.assets?.assetType === AssetTypes.LINK_SCREENSHOT,
+              }),
               crawlStatus: row.bookmarkLinks.crawlStatus,
               crawledAt: row.bookmarkLinks.crawledAt,
               author: row.bookmarkLinks.author,
@@ -633,6 +670,7 @@ export class Bookmark extends BareBookmark {
           }
           acc[bookmarkId] = {
             ...row.bookmarksSq,
+            firstCreatedAt: row.bookmarksSq.dbCreatedAt,
             content,
             tags: [],
             assets: [],
@@ -661,8 +699,18 @@ export class Bookmark extends BareBookmark {
           if (acc[bookmarkId].content.type == BookmarkTypes.LINK) {
             const content = acc[bookmarkId].content;
             invariant(content.type == BookmarkTypes.LINK);
+            invariant(
+              row.bookmarkLinks,
+              "a link bookmark must have a corresponding bookmarkLinks row",
+            );
             if (row.assets.assetType == AssetTypes.LINK_SCREENSHOT) {
               content.screenshotAssetId = row.assets.id;
+              content.preferredPreview = getPreferredLinkPreview({
+                readerViewStatus: row.bookmarkLinks.readerViewStatus,
+                readerViewReasons: row.bookmarkLinks.readerViewReasons,
+                crawlStatusCode: row.bookmarkLinks.crawlStatusCode,
+                hasScreenshot: true,
+              });
             }
             if (row.assets.assetType == AssetTypes.LINK_PDF) {
               content.pdfAssetId = row.assets.id;
@@ -772,6 +820,48 @@ export class Bookmark extends BareBookmark {
       archived: false,
       favourited: false,
       note: null,
+    };
+  }
+
+  asReadableContent(
+    format: ZBookmarkReadableContentFormat,
+  ): ZBookmarkReadableContent {
+    let content: string;
+    switch (this.bookmark.content.type) {
+      case BookmarkTypes.LINK: {
+        const htmlContent = this.bookmark.content.htmlContent ?? "";
+        content =
+          format === "markdown"
+            ? turndownService.turndown(htmlContent)
+            : htmlToPlainText(htmlContent);
+        break;
+      }
+      case BookmarkTypes.TEXT:
+        content = this.bookmark.content.text;
+        break;
+      case BookmarkTypes.ASSET:
+        content = this.bookmark.content.content ?? "";
+        break;
+      default:
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Bookmark has an unknown content type",
+        });
+    }
+
+    content = content.replace(/\r\n?/g, "\n").trim();
+    const contentVersion = `sha256:${createHash("sha256")
+      .update(format)
+      .update("\0")
+      .update(content)
+      .digest("hex")}`;
+
+    return {
+      bookmarkId: this.bookmark.id,
+      bookmarkType: this.bookmark.content.type,
+      format,
+      content,
+      contentVersion,
     };
   }
 

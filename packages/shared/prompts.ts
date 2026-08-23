@@ -1,7 +1,11 @@
 import type { Tiktoken } from "js-tiktoken";
 
 import type { ZTagStyle } from "./types/users";
-import { getTagStylePrompt } from "./utils/tag";
+import {
+  getCuratedTagsPrompt,
+  getTagStylePrompt,
+  getPotentialRelevantTagsPrompt,
+} from "./utils/tag";
 
 let encoding: Tiktoken | null = null;
 
@@ -47,17 +51,32 @@ export function buildImagePrompt(
   lang: string,
   customPrompts: string[],
   tagStyle: ZTagStyle,
+  curatedTags?: string[],
+  potentialRelevantTags?: string[],
 ) {
   const tagStyleInstruction = getTagStylePrompt(tagStyle);
+  const curatedInstruction = getCuratedTagsPrompt(curatedTags);
+  const potentialRelevantTagsInstruction = getPotentialRelevantTagsPrompt(
+    potentialRelevantTags,
+  );
 
   return `
-You are an expert whose responsibility is to help with automatic text tagging for a read-it-later/bookmarking app.
+You are an expert whose responsibility is to help with automatic tagging for a read-it-later/bookmarking app.
 Analyze the attached image and suggest relevant tags that describe its key themes, topics, and main ideas. The rules are:
-- Aim for a variety of tags, including broad categories, specific keywords, and potential sub-genres.
+- Prefer concrete, durable tags: named products, technologies, projects, standards, subject areas, and important concepts.
+- Include only retrieval-worthy tags that describe the saved item's intended content, not incidental UI or page chrome.
 - The tags must be in ${lang}.
-- If the tag is not generic enough, don't include it.
+- Keep each tag short: ideally 1-3 words. Do not include parenthetical explanations, comma-separated examples, or long descriptive phrases inside a tag.
+- Prefer durable subject tags over one-off facts, examples, source organizations, page sections, or implementation details unless they are central to the whole item.
+- Do NOT generate any tags if the image is mainly:
+    - A screenshot of an error, unavailable, forbidden, unauthorized, not found, DNS, timeout, or service failure page
+    - A Cloudflare/security check, CAPTCHA, bot check, anti-DDoS challenge, browser verification, or access-blocked page
+    - Boilerplate content such as cookie consent, login walls, GDPR notices, navigation menus, or a blank/empty image
+  In these cases, return an empty tags array. Do not tag the failure/interstitial page itself.
 - Aim for 10-15 tags.
-- If there are no good tags, don't emit any.
+- If there are no good tags, leave the array empty.
+${curatedInstruction}
+${potentialRelevantTagsInstruction}
 ${tagStyleInstruction}
 ${customPrompts && customPrompts.map((p) => `- ${p}`).join("\n")}
 You must respond in valid JSON with the key "tags" and the value is list of tags. Don't wrap the response in a markdown code.`;
@@ -71,20 +90,32 @@ export function constructTextTaggingPrompt(
   customPrompts: string[],
   content: string,
   tagStyle: ZTagStyle,
+  curatedTags?: string[],
+  potentialRelevantTags?: string[],
 ): string {
   const tagStyleInstruction = getTagStylePrompt(tagStyle);
+  const curatedInstruction = getCuratedTagsPrompt(curatedTags);
+  const potentialRelevantTagsInstruction = getPotentialRelevantTagsPrompt(
+    potentialRelevantTags,
+  );
 
   return `
 You are an expert whose responsibility is to help with automatic tagging for a read-it-later/bookmarking app.
 Analyze the TEXT_CONTENT below and suggest relevant tags that describe its key themes, topics, and main ideas. The rules are:
-- Aim for a variety of tags, including broad categories, specific keywords, and potential sub-genres.
+- Prefer concrete, durable tags: named products, technologies, projects, standards, subject areas, and important concepts.
+- Include only retrieval-worthy tags that describe the saved item's intended content, not incidental page chrome.
 - The tags must be in ${lang}.
-- If the tag is not generic enough, don't include it.
-- Do NOT generate tags related to:
-    - An error page (404, 403, blocked, not found, dns errors)
-    - Boilerplate content (cookie consent, login walls, GDPR notices)
+- Keep each tag short: ideally 1-3 words. Do not include parenthetical explanations, comma-separated examples, or long descriptive phrases inside a tag.
+- Prefer durable subject tags over one-off facts, examples, source organizations, page sections, or implementation details unless they are central to the whole item.
+- Ignore any part of the content that is:
+    - An error, unavailable, forbidden, unauthorized, not found, DNS, timeout, or service failure page
+    - A Cloudflare/security check, CAPTCHA, bot check, anti-DDoS challenge, browser verification, or access-blocked page
+    - Boilerplate content such as cookie consent, login walls, GDPR notices, navigation menus, or empty pages
+  If useful metadata or other legitimate content remains, generate tags using only that information. Otherwise, return an empty tags array. Never tag the failure, interstitial, or boilerplate content itself.
 - Aim for around 10 tags.
 - If there are no good tags, leave the array empty.
+${curatedInstruction}
+${potentialRelevantTagsInstruction}
 ${tagStyleInstruction}
 ${customPrompts && customPrompts.map((p) => `- ${p}`).join("\n")}
 
@@ -118,12 +149,29 @@ export function buildTextPromptUntruncated(
   customPrompts: string[],
   content: string,
   tagStyle: ZTagStyle,
+  curatedTags?: string[],
 ): string {
   return constructTextTaggingPrompt(
     lang,
     customPrompts,
     preprocessContent(content),
     tagStyle,
+    curatedTags,
+  );
+}
+
+/**
+ * Build summary prompt without truncation (for previews/UI)
+ */
+export function buildSummaryPromptUntruncated(
+  lang: string,
+  customPrompts: string[],
+  content: string,
+): string {
+  return constructSummaryPrompt(
+    lang,
+    customPrompts,
+    preprocessContent(content),
   );
 }
 
@@ -168,7 +216,7 @@ You are an expert whose responsibility is to help with automatic tagging for a r
 Analyze the TEXT_CONTENT below and the attached banner image to suggest relevant tags that describe the bookmark's key themes, topics, and main ideas. The rules are:
 - Aim for a variety of tags, including broad categories, specific keywords, and potential sub-genres.
 - The tags must be in ${lang}.
-- If the tag is not generic enough, don’t include it.
+- If the tag is not generic enough, don't include it.
 - Do NOT generate tags related to:
     - An error page (404, 403, blocked, not found, dns errors)
     - Boilerplate content (cookie consent, login walls, GDPR notices, Data Protection)
@@ -231,21 +279,6 @@ export async function buildSummaryPrompt(
     contextLength - promptSize,
   );
   return constructSummaryPrompt(lang, customPrompts, truncatedContent);
-}
-
-/**
- * Build summary prompt without truncation (for previews/UI)
- */
-export function buildSummaryPromptUntruncated(
-  lang: string,
-  customPrompts: string[],
-  content: string,
-): string {
-  return constructSummaryPrompt(
-    lang,
-    customPrompts,
-    preprocessContent(content),
-  );
 }
 
 /**

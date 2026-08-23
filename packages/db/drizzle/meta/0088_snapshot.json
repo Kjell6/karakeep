@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8a486c3c-8a52-4e6c-af9d-fc4936e66766",
-  "prevId": "4152f7e9-1da3-42f5-a3af-00835a62eff8",
+  "id": "306cbce1-7dfd-4199-8706-0b7f0866093f",
+  "prevId": "b970efae-16a6-4246-b778-939a99698f09",
   "tables": {
     "account": {
       "name": "account",
@@ -566,13 +566,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "bannerImageExtractedText": {
-          "name": "bannerImageExtractedText",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "favicon": {
           "name": "favicon",
           "type": "text",
@@ -616,6 +609,13 @@
           "notNull": false,
           "autoincrement": false,
           "default": 200
+        },
+        "probeMetadataAt": {
+          "name": "probeMetadataAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -677,13 +677,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "color": {
-          "name": "color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "integer",
@@ -719,14 +712,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "sortOrder": {
-          "name": "sortOrder",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
         "rssToken": {
           "name": "rssToken",
           "type": "text",
@@ -736,22 +721,6 @@
         },
         "public": {
           "name": "public",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "thisListOnly": {
-          "name": "thisListOnly",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "isFolder": {
-          "name": "isFolder",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -1231,6 +1200,163 @@
           "name": "bookmarksInLists_bookmarkId_listId_pk"
         }
       },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "chatMessages": {
+      "name": "chatMessages",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "chatId": {
+          "name": "chatId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "chatMessages_chatId_idx": {
+          "name": "chatMessages_chatId_idx",
+          "columns": [
+            "chatId"
+          ],
+          "isUnique": false
+        },
+        "chatMessages_chatId_createdAt_idx": {
+          "name": "chatMessages_chatId_createdAt_idx",
+          "columns": [
+            "chatId",
+            "createdAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "chatMessages_chatId_chatSessions_id_fk": {
+          "name": "chatMessages_chatId_chatSessions_id_fk",
+          "tableFrom": "chatMessages",
+          "tableTo": "chatSessions",
+          "columnsFrom": [
+            "chatId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "chatSessions": {
+      "name": "chatSessions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "modifiedAt": {
+          "name": "modifiedAt",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "chatSessions_userId_idx": {
+          "name": "chatSessions_userId_idx",
+          "columns": [
+            "userId"
+          ],
+          "isUnique": false
+        },
+        "chatSessions_userId_modifiedAt_idx": {
+          "name": "chatSessions_userId_modifiedAt_idx",
+          "columns": [
+            "userId",
+            "modifiedAt"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "chatSessions_userId_user_id_fk": {
+          "name": "chatSessions_userId_user_id_fk",
+          "tableFrom": "chatSessions",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -1799,6 +1925,13 @@
           ],
           "isUnique": false
         },
+        "importStaging_resultBookmarkId_idx": {
+          "name": "importStaging_resultBookmarkId_idx",
+          "columns": [
+            "resultBookmarkId"
+          ],
+          "isUnique": false
+        },
         "importStaging_status_idx": {
           "name": "importStaging_status_idx",
           "columns": [
@@ -2298,6 +2431,13 @@
           "name": "rssFeedImports_entryIdIdx_idx",
           "columns": [
             "entryId"
+          ],
+          "isUnique": false
+        },
+        "rssFeedImports_bookmarkId_idx": {
+          "name": "rssFeedImports_bookmarkId_idx",
+          "columns": [
+            "bookmarkId"
           ],
           "isUnique": false
         },

@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "4152f7e9-1da3-42f5-a3af-00835a62eff8",
-  "prevId": "72474add-1da9-4dc1-a22c-66880d7bcb04",
+  "id": "3e2d6b09-5a4e-4ddb-b44b-70ded16e2ae0",
+  "prevId": "240f4be9-65f7-4176-9376-fd2daa9b443c",
   "tables": {
     "account": {
       "name": "account",
@@ -610,9 +610,9 @@
           "autoincrement": false,
           "default": 200
         },
-        "bannerImageExtractedText": {
-          "name": "bannerImageExtractedText",
-          "type": "text",
+        "probeMetadataAt": {
+          "name": "probeMetadataAt",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -677,13 +677,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "color": {
-          "name": "color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "integer",
@@ -719,14 +712,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "sortOrder": {
-          "name": "sortOrder",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
         "rssToken": {
           "name": "rssToken",
           "type": "text",
@@ -736,14 +721,6 @@
         },
         "public": {
           "name": "public",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "thisListOnly": {
-          "name": "thisListOnly",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -1010,6 +987,14 @@
         },
         "summarizationStatus": {
           "name": "summarizationStatus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "embeddingStatus": {
+          "name": "embeddingStatus",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

@@ -3,91 +3,19 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Check, ExternalLink } from "lucide-react";
 
-import { CLOUD_SIGNUP_LINK, GITHUB_LINK } from "./constants";
-
-const CONTACT_EMAIL = "mailto:support@karakeep.app";
-
-const pricingTiers = [
-  {
-    name: "Free",
-    monthlyPrice: "$0",
-    yearlyPrice: "$0",
-    period: "",
-    description: "Trying Karakeep out",
-    features: [
-      "10 bookmarks",
-      "20MB storage",
-      "Mobile & web apps",
-      "Browser extensions",
-    ],
-    buttonText: "Get Started",
-    buttonVariant: "outline" as const,
-    popular: false,
-  },
-  {
-    name: "Pro",
-    monthlyPrice: "$4",
-    yearlyPrice: "$40",
-    period: "per month",
-    yearlyPeriod: "per year",
-    description: "For serious bookmark collectors",
-    features: [
-      "50,000 bookmarks",
-      "50GB storage",
-      "AI-powered tagging",
-      "Full-text search",
-      "Mobile & web apps",
-      "Browser extensions",
-    ],
-    buttonText: "Get Started",
-    buttonVariant: "default" as const,
-    popular: true,
-  },
-  {
-    name: "Self-Hosted",
-    monthlyPrice: "Free",
-    yearlyPrice: "Free",
-    period: "forever",
-    description: "Complete control and privacy",
-    features: [
-      "Unlimited bookmarks",
-      "Unlimited storage",
-      "Complete data control",
-      "Mobile & web apps",
-      "Browser extensions",
-      "Community support",
-    ],
-    buttonText: "View on GitHub",
-    buttonVariant: "outline" as const,
-    popular: false,
-    isGitHub: true,
-  },
-  {
-    name: "Corporate",
-    monthlyPrice: "Custom",
-    yearlyPrice: "Custom",
-    period: "per seat",
-    description: "For teams and organizations",
-    features: [
-      "Everything in Pro",
-      "Custom deployment & domain",
-      "Single Sign-On (SSO)",
-      "User management",
-      "Priority support",
-    ],
-    buttonText: "Contact Us",
-    buttonVariant: "outline" as const,
-    popular: false,
-    isContact: true,
-  },
-];
+import type { BillingPeriod, PricingTier } from "./pricing-data";
+import {
+  PRICING_FAQS,
+  PRICING_TIERS,
+  YEARLY_SAVINGS_PERCENT,
+} from "./pricing-data";
 
 function PricingHeader({
   billingPeriod,
   setBillingPeriod,
 }: {
-  billingPeriod: "monthly" | "yearly";
-  setBillingPeriod: (period: "monthly" | "yearly") => void;
+  billingPeriod: BillingPeriod;
+  setBillingPeriod: (period: BillingPeriod) => void;
 }) {
   return (
     <div className="text-center">
@@ -118,7 +46,7 @@ function PricingHeader({
         >
           Yearly
           <span className="ml-1.5 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-            Save 17%
+            Save {YEARLY_SAVINGS_PERCENT}%
           </span>
         </button>
       </div>
@@ -126,12 +54,8 @@ function PricingHeader({
   );
 }
 
-function PricingCards({
-  billingPeriod,
-}: {
-  billingPeriod: "monthly" | "yearly";
-}) {
-  const renderCard = (tier: (typeof pricingTiers)[number]) => {
+function PricingCards({ billingPeriod }: { billingPeriod: BillingPeriod }) {
+  const renderCard = (tier: PricingTier) => {
     const price =
       billingPeriod === "yearly" ? tier.yearlyPrice : tier.monthlyPrice;
     const period =
@@ -174,42 +98,24 @@ function PricingCards({
         </ul>
 
         <div className="mt-8">
-          {tier.isContact ? (
-            <a
-              href={CONTACT_EMAIL}
-              className={cn(
-                "flex w-full items-center justify-center",
-                buttonVariants({ variant: tier.buttonVariant, size: "lg" }),
-              )}
-            >
-              {tier.buttonText}
-            </a>
-          ) : tier.isGitHub ? (
-            <a
-              href={GITHUB_LINK}
-              target="_blank"
-              className={cn(
-                "flex w-full items-center justify-center gap-2",
-                buttonVariants({ variant: tier.buttonVariant, size: "lg" }),
-              )}
-              rel="noreferrer"
-            >
+          <a
+            href={tier.buttonHref}
+            target={tier.buttonTarget}
+            className={cn(
+              "flex w-full items-center justify-center",
+              tier.showExternalIcon && "gap-2",
+              buttonVariants({
+                variant: tier.popular ? "default" : "outline",
+                size: "lg",
+              }),
+            )}
+            rel={tier.buttonTarget === "_blank" ? "noreferrer" : undefined}
+          >
+            {tier.showExternalIcon ? (
               <ExternalLink className="h-4 w-4" />
-              {tier.buttonText}
-            </a>
-          ) : (
-            <a
-              href={CLOUD_SIGNUP_LINK}
-              target="_blank"
-              className={cn(
-                "flex w-full items-center justify-center",
-                buttonVariants({ variant: tier.buttonVariant, size: "lg" }),
-              )}
-              rel="noreferrer"
-            >
-              {tier.buttonText}
-            </a>
-          )}
+            ) : null}
+            {tier.buttonText}
+          </a>
         </div>
       </div>
     );
@@ -218,41 +124,20 @@ function PricingCards({
   return (
     <div className="mx-auto mt-16 px-6">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {pricingTiers.map(renderCard)}
+        {PRICING_TIERS.map(renderCard)}
       </div>
     </div>
   );
 }
 
 function FAQ() {
-  const faqs = [
-    {
-      question: "What happens to my data if I cancel?",
-      answer:
-        "Your data will be available for 30 days after cancellation. You can export your bookmarks at any time.",
-    },
-    {
-      question: "Are there any restrictions in the self-hosted version?",
-      answer:
-        "No. The selhosted version is completely free, fully-featured, and open source. You just need to provide your own hosting infrastructure.",
-    },
-    {
-      question: "Do you offer refunds?",
-      answer: "Yes, we offer a 7-day money-back guarantee for all paid plans.",
-    },
-    {
-      question: "How should I contact you if I have any questions?",
-      answer: "You can reach us at support@karakeep.app",
-    },
-  ];
-
   return (
     <div className="mx-auto mt-24 max-w-4xl px-6">
       <h2 className="text-center text-3xl font-bold">
         Frequently Asked Questions
       </h2>
       <div className="mt-12 grid gap-8 md:grid-cols-2">
-        {faqs.map((faq) => (
+        {PRICING_FAQS.map((faq) => (
           <div key={faq.question}>
             <h3 className="text-lg font-semibold">{faq.question}</h3>
             <p className="mt-2 text-gray-600">{faq.answer}</p>
@@ -264,9 +149,7 @@ function FAQ() {
 }
 
 export default function Pricing() {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
-    "monthly",
-  );
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("monthly");
 
   return (
     <div className="container mx-auto">

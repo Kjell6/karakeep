@@ -182,6 +182,7 @@ export const usersAppRouter = router({
         code: "BAD_REQUEST",
         message: "This endpoint is currently disabled",
       });
+      // oxlint-disable-next-line no-unreachable -- intentionally disabled upstream
       const user = await User.fromCtx(ctx);
       return await user.getWrappedStats(2025);
     }),
@@ -190,6 +191,7 @@ export const usersAppRouter = router({
       code: "BAD_REQUEST",
       message: "This endpoint is currently disabled",
     });
+    // oxlint-disable-next-line no-unreachable -- intentionally disabled upstream
     const user = await User.fromCtx(ctx);
     return await user.hasWrapped();
   }),

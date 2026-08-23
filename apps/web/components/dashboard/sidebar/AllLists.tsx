@@ -8,13 +8,20 @@ import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTriggerChevron,
+  CollapsibleTriggerTriangle,
 } from "@/components/ui/collapsible";
 import { toast } from "@/components/ui/sonner";
 import { BOOKMARK_DRAG_MIME } from "@/lib/bookmark-drag";
 import { useTranslation } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
-import { ClipboardList, FolderPlus, MoreHorizontal, Plus, Star, Users } from "lucide-react";
+import {
+  ClipboardList,
+  FolderPlus,
+  MoreHorizontal,
+  Plus,
+  Star,
+  Users,
+} from "lucide-react";
 
 import type { ZBookmarkList } from "@karakeep/shared/types/lists";
 import {

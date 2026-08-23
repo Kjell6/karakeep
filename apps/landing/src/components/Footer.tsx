@@ -14,6 +14,10 @@ const footerLinks = {
     { label: "Documentation", href: DOCS_LINK },
     { label: "GitHub", href: GITHUB_LINK },
     { label: "Self-hosting Guide", href: `${DOCS_LINK}/installation/docker` },
+    {
+      label: "Agentic Skills",
+      href: `${DOCS_LINK}/integrations/agentic-skills/`,
+    },
     { label: "API Reference", href: `${DOCS_LINK}/api/karakeep-api` },
   ],
   Legal: [
