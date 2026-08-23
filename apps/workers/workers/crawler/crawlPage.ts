@@ -58,6 +58,7 @@ export interface CrawlPageResult {
   pdf: Buffer | undefined;
   statusCode: number;
   url: string;
+  tweetPhotoUrls?: string[];
 }
 
 function getHeaderValue(

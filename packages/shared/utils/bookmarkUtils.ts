@@ -27,6 +27,20 @@ export function getBookmarkLinkImageUrl(bookmark: ZBookmarkedLink) {
   };
 }
 
+/** Photo URLs for an X/Twitter card: all fxtwitter photos, else the single banner. */
+export function getTweetPhotoDisplayUrls(bookmark: ZBookmarkedLink): string[] {
+  const extras = bookmark.tweetPhotoUrls?.filter(Boolean) ?? [];
+  const banner = getBookmarkLinkImageUrl(bookmark);
+  if (extras.length === 0) {
+    return banner ? [banner.url] : [];
+  }
+  // Prefer the locally stored banner for the first photo; extras keep crawl order.
+  if (banner?.localAsset) {
+    return [banner.url, ...extras.slice(1)];
+  }
+  return extras;
+}
+
 export function isBookmarkStillCrawling(bookmark: ZBookmark) {
   if (bookmark.content.type != BookmarkTypes.LINK) {
     return false;

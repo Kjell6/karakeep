@@ -4,29 +4,17 @@
 // the regular metadata extraction pipeline.
 import { getTracer, withSpan } from "@karakeep/shared-server";
 import logger from "@karakeep/shared/logger";
+import {
+  collectTweetPhotoUrls,
+  parseTwitterUrl,
+} from "@karakeep/shared/utils/twitter";
 
 import { fetchWithProxy } from "network";
 import type { CrawlPageResult } from "./crawlPage";
 
-const tracer = getTracer("@karakeep/workers");
+export { parseTwitterUrl };
 
-/**
- * Detects if a URL is a Twitter/X tweet URL and extracts the screen name and status ID.
- */
-export function parseTwitterUrl(url: string): {
-  isTwitter: boolean;
-  screenName?: string;
-  statusId?: string;
-} {
-  // Match twitter.com, x.com, and fxtwitter.com (avoid infinite loops)
-  const twitterUrlPattern =
-    /^(?:https?:\/\/)?(?:mobile\.)?(?:twitter\.com|x\.com)\/(\w+)\/status(?:es)?\/(\d+)/i;
-  const match = url.match(twitterUrlPattern);
-  if (match) {
-    return { isTwitter: true, screenName: match[1], statusId: match[2] };
-  }
-  return { isTwitter: false };
-}
+const tracer = getTracer("@karakeep/workers");
 
 interface FxTwitterResponse {
   code: number;
@@ -111,14 +99,8 @@ export async function twitterCrawlPage(
           : authorName || (screenName ? `@${screenName}` : "");
 
       const tweetText = (tweet.text ?? "").trim();
-      // Prefer photos, fall back to video thumbnail
-      const firstMedia =
-        tweet.media?.photos?.[0]?.url ??
-        tweet.media?.videos?.[0]?.thumbnail_url;
-      // Text-only tweets: use author avatar so the link pipeline still has a banner
-      // (avoids empty cards in clients that reserve banner space).
-      const ogImageUrl =
-        firstMedia ?? tweet.author?.avatar_url?.trim() ?? undefined;
+      const tweetPhotoUrls = collectTweetPhotoUrls(tweet.media);
+      const ogImageUrl = tweetPhotoUrls[0];
 
       // Title = tweet body (what users expect in bookmark lists); description = author when it adds context.
       const titlePlain = tweetText || authorLine || "Tweet";
@@ -151,7 +133,8 @@ export async function twitterCrawlPage(
         screenshot: undefined,
         pdf: undefined,
         url: tweet.url ?? url,
-      } as CrawlPageResult;
+        tweetPhotoUrls,
+      };
     },
   );
 }

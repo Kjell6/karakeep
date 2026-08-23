@@ -296,6 +296,8 @@ export const bookmarkLinks = sqliteTable(
     datePublished: integer("datePublished", { mode: "timestamp" }),
     dateModified: integer("dateModified", { mode: "timestamp" }),
     imageUrl: text("imageUrl"),
+    /** All photo URLs from an X/Twitter bookmark (fxtwitter), in tweet order. */
+    tweetPhotoUrls: text("tweetPhotoUrls", { mode: "json" }).$type<string[]>(),
     /** Text extracted from the link preview/banner image (OCR), for search and tagging context */
     bannerImageExtractedText: text("bannerImageExtractedText"),
     favicon: text("favicon"),

@@ -45,6 +45,7 @@ export async function fetchAllBookmarksForUser(
             title: bookmark.link.title || undefined,
             description: bookmark.link.description || undefined,
             imageUrl: bookmark.link.imageUrl || undefined,
+            tweetPhotoUrls: bookmark.link.tweetPhotoUrls || undefined,
             favicon: bookmark.link.favicon || undefined,
           };
         }

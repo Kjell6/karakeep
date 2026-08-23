@@ -255,6 +255,13 @@
                     "type": "string",
                     "nullable": true
                   },
+                  "tweetPhotoUrls": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
                   "imageAssetId": {
                     "type": "string",
                     "nullable": true

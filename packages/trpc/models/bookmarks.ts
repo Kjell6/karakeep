@@ -192,6 +192,7 @@ export class Bookmark extends BareBookmark {
         title: link.title,
         description: link.description,
         imageUrl: link.imageUrl,
+        tweetPhotoUrls: link.tweetPhotoUrls,
         favicon: link.favicon,
         htmlContent: includeContent
           ? await Bookmark.getBookmarkHtmlContent(link, bookmark.userId)
@@ -622,6 +623,7 @@ export class Bookmark extends BareBookmark {
               title: row.bookmarkLinks.title,
               description: row.bookmarkLinks.description,
               imageUrl: row.bookmarkLinks.imageUrl,
+              tweetPhotoUrls: row.bookmarkLinks.tweetPhotoUrls,
               favicon: row.bookmarkLinks.favicon,
               htmlContent: input.includeContent
                 ? row.bookmarkLinks.contentAssetId

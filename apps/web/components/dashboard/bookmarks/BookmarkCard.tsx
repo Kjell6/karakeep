@@ -7,6 +7,7 @@ import { getBookmarkRefreshInterval } from "@karakeep/shared/utils/bookmarkUtils
 import AssetCard from "./AssetCard";
 import LinkCard from "./LinkCard";
 import TextCard from "./TextCard";
+import TweetCard, { bookmarkIsTweetCard } from "./TweetCard";
 import UnknownCard from "./UnknownCard";
 
 export default function BookmarkCard({
@@ -39,6 +40,15 @@ export default function BookmarkCard({
 
   switch (bookmark.content.type) {
     case BookmarkTypes.LINK:
+      if (bookmarkIsTweetCard(bookmark)) {
+        return (
+          <TweetCard
+            className={className}
+            bookmarkIndex={bookmarkIndex}
+            bookmark={{ ...bookmark, content: bookmark.content }}
+          />
+        );
+      }
       return (
         <LinkCard
           className={className}

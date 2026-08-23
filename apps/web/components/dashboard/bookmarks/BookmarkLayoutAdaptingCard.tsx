@@ -112,7 +112,7 @@ function BottomRow({
   return <div className="h-0 w-full shrink-0" />;
 }
 
-function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
+export function MultiBookmarkSelector({ bookmark }: { bookmark: ZBookmark }) {
   const isSelected = useBulkActionsStore((s) =>
     s.isBookmarkSelected(bookmark.id),
   );

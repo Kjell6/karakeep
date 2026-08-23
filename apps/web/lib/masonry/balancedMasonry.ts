@@ -3,7 +3,11 @@ import type {
   ZPublicBookmark,
 } from "@karakeep/shared/types/bookmarks";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
-import { getBookmarkLinkImageUrl } from "@karakeep/shared/utils/bookmarkUtils";
+import {
+  getBookmarkLinkImageUrl,
+  getBookmarkTitle,
+} from "@karakeep/shared/utils/bookmarkUtils";
+import { isTwitterStatusUrl } from "@karakeep/shared/utils/twitter";
 
 /** Card chrome: title row, padding, `mb-4` between cards (matches StyledBookmarkCard). */
 const CARD_MARGIN_BOTTOM_PX = 16;
@@ -56,6 +60,23 @@ export function estimateDashboardBookmarkHeight(bookmark: ZBookmark): number {
 
   switch (bookmark.content.type) {
     case BookmarkTypes.LINK: {
+      if (isTwitterStatusUrl(bookmark.content.url)) {
+        const textLen = getBookmarkTitle(bookmark)?.length ?? 0;
+        const photos = bookmark.content.tweetPhotoUrls?.length ?? 0;
+        const textH = Math.min(280, 36 + textLen * 0.35);
+        const urlLineH = 28;
+        const mediaH =
+          photos <= 0
+            ? bookmark.content.imageUrl
+              ? 176
+              : 0
+            : photos === 1
+              ? 176
+              : photos === 2
+                ? 168
+                : 222;
+        return Math.round(base + textH + mediaH + urlLineH);
+      }
       const image = getBookmarkLinkImageUrl(bookmark.content);
       if (image) {
         // Real banner heights vary a lot; spread estimates so columns do not tie on one value.

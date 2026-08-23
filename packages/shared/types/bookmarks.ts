@@ -123,6 +123,7 @@ export const zBookmarkedLinkSchema = z.object({
   title: z.string().nullish(),
   description: z.string().nullish(),
   imageUrl: z.string().nullish(),
+  tweetPhotoUrls: z.array(z.string()).nullish(),
   imageAssetId: z.string().nullish(),
   screenshotAssetId: z.string().nullish(),
   pdfAssetId: z.string().nullish(),

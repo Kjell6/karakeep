@@ -219,6 +219,7 @@ export async function crawlAndParseUrl(
         pdf: Buffer | undefined;
         statusCode: number | null;
         url: string;
+        tweetPhotoUrls?: string[];
       };
 
       if (precrawledArchiveAssetId) {
@@ -254,6 +255,7 @@ export async function crawlAndParseUrl(
         pdf,
         statusCode,
         url: browserUrl,
+        tweetPhotoUrls,
       } = result;
 
       // Track status code in Prometheus
@@ -340,6 +342,8 @@ export async function crawlAndParseUrl(
           description: meta.description,
           // Don't store data URIs as they're not valid URLs and are usually quite large
           imageUrl: meta.image?.startsWith("data:") ? null : meta.image,
+          tweetPhotoUrls:
+            tweetPhotoUrls && tweetPhotoUrls.length > 0 ? tweetPhotoUrls : null,
           favicon: meta.logo,
           crawlStatusCode: statusCode,
           author: meta.author,
