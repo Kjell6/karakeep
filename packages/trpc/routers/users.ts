@@ -182,18 +182,20 @@ export const usersAppRouter = router({
         code: "BAD_REQUEST",
         message: "This endpoint is currently disabled",
       });
-      // oxlint-disable-next-line no-unreachable -- intentionally disabled upstream
+      // oxlint-disable no-unreachable -- intentionally disabled upstream
       const user = await User.fromCtx(ctx);
       return await user.getWrappedStats(2025);
+      // oxlint-enable no-unreachable
     }),
   hasWrapped: usersProcedure.output(z.boolean()).query(async ({ ctx }) => {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "This endpoint is currently disabled",
     });
-    // oxlint-disable-next-line no-unreachable -- intentionally disabled upstream
+    // oxlint-disable no-unreachable -- intentionally disabled upstream
     const user = await User.fromCtx(ctx);
     return await user.hasWrapped();
+    // oxlint-enable no-unreachable
   }),
   settings: usersProcedure
     .output(zUserSettingsSchema)
